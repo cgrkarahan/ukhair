@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #f7f7f2;
+  --ink: #0e1512;
+  --leaf-900: #0f2a1e;
+  --leaf-800: #153627;
+  --leaf-700: #1f4a37;
+  --leaf-600: #2c6148;
+  --leaf-500: #3a7a5a;
+  --leaf-400: #4e9a73;
+  --leaf-300: #77b994;
+  --leaf-200: #a8d6bd;
+  --leaf-100: #d6efe1;
+  --mist: #f0f4f1;
+  --gold: #e6d8a7;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), "Times New Roman", serif;
+}
+
+.bg-forest {
+  background:
+    radial-gradient(1200px 400px at 10% -10%, #d9f1e2 0%, rgba(217, 241, 226, 0) 60%),
+    radial-gradient(900px 600px at 90% 10%, #cfe7d9 0%, rgba(207, 231, 217, 0) 60%),
+    linear-gradient(180deg, #f7f7f2 0%, #eef4ee 100%);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(20, 60, 44, 0.12);
+}
+
+.shadow-soft {
+  box-shadow: 0 20px 60px rgba(15, 42, 30, 0.12);
 }

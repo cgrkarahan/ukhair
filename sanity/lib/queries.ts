@@ -1,0 +1,34 @@
+export const homepageQuery = `*[_type == "homepage"][0]{
+  hero,
+  heroSlides[]{
+    eyebrow,
+    headline,
+    subhead,
+    image,
+    imageAlt,
+    primaryCta,
+    secondaryCta
+  },
+  services,
+  steps,
+  results[]{
+    name,
+    area,
+    time,
+    note,
+    beforeImage,
+    afterImage,
+    beforeImageAlt,
+    afterImageAlt
+  },
+  reviews[]{
+    name,
+    rating,
+    quote
+  },
+  faq[]{
+    question,
+    answerText,
+    answerRich
+  }
+}`;
