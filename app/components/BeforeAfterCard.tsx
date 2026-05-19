@@ -63,7 +63,7 @@ export default function BeforeAfterCard({
       role="group"
       aria-label={`Before and after comparison for ${title}`}
     >
-      <div className="relative aspect-[1.2/1] overflow-hidden rounded-[28px] bg-[color:var(--leaf-100)]">
+      <div className="relative aspect-[1.2/1] overflow-hidden rounded-[28px] bg-[color:var(--surface-subtle)]">
         {hasImages ? (
           <>
             <Image
@@ -105,12 +105,12 @@ export default function BeforeAfterCard({
         )}
         <div
           aria-hidden="true"
-          className="absolute inset-y-0 w-1 bg-white/95 shadow-[0_0_0_1px_rgba(13,41,29,0.12)]"
+          className="absolute inset-y-0 w-1 bg-[color:var(--surface-paper)] shadow-[0_0_0_1px_rgba(8,58,79,0.14)]"
           style={{ left: `calc(${position}% - 2px)` }}
         />
         <div
           aria-hidden="true"
-          className="absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[color:var(--leaf-900)] shadow-lg"
+          className="absolute top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[color:var(--surface-paper)] text-[color:var(--ink-950)] shadow-lg"
           style={{ left: `calc(${position}% - 24px)` }}
         >
           <span className="text-lg leading-none">↔</span>
@@ -121,7 +121,7 @@ export default function BeforeAfterCard({
         <div className="absolute right-4 top-4 rounded-full bg-black/30 px-3 py-1 text-xs uppercase tracking-[0.24em] text-white backdrop-blur">
           After
         </div>
-        <div className="absolute bottom-4 left-4 rounded-full bg-white/85 px-3 py-1 text-xs uppercase tracking-[0.24em] text-[color:var(--leaf-900)]">
+        <div className="absolute bottom-4 left-4 rounded-full bg-[color:var(--surface-paper)]/90 px-3 py-1 text-xs uppercase tracking-[0.24em] text-[color:var(--ink-950)]">
           {area ?? title}
         </div>
         <input

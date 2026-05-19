@@ -1,0 +1,21 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="960" height="640" rx="48" fill="#F7EFE7"/>
+<rect x="44" y="44" width="872" height="552" rx="36" fill="url(#bg)"/>
+<circle cx="192" cy="488" r="116" fill="#F0D8CB"/>
+<circle cx="784" cy="172" r="92" fill="#E7D6E7"/>
+<path d="M270 230C270 163.726 323.726 110 390 110H568C634.274 110 688 163.726 688 230V406C688 472.274 634.274 526 568 526H390C323.726 526 270 472.274 270 406V230Z" fill="#FFFDF8"/>
+<path d="M372 262C372 200.144 422.144 150 484 150C545.856 150 596 200.144 596 262V306H372V262Z" fill="#4A2D36"/>
+<path d="M386 314C409.754 295.187 444.249 284 482 284C519.751 284 554.246 295.187 578 314V420C578 473.019 535.019 516 482 516C428.981 516 386 473.019 386 420V314Z" fill="#E7C0A8"/>
+<path d="M450 208C469.667 196.667 490.667 191 513 191C535.333 191 556 196.667 575 208" stroke="#C49D57" stroke-width="8" stroke-linecap="round" stroke-dasharray="5 13"/>
+<path d="M450 246H516" stroke="#D9CAB7" stroke-width="9" stroke-linecap="round"/>
+<path d="M536 246H564" stroke="#D9CAB7" stroke-width="9" stroke-linecap="round"/>
+<rect x="114" y="454" width="280" height="92" rx="24" fill="#FFFDF8"/>
+<text x="146" y="492" fill="#4A2D36" font-family="Arial, sans-serif" font-size="22" font-weight="700">Female Hair Transplant</text>
+<text x="146" y="522" fill="#7A6269" font-family="Arial, sans-serif" font-size="18">Diffuse thinning and framing</text>
+<defs>
+<linearGradient id="bg" x1="128" y1="92" x2="828" y2="564" gradientUnits="userSpaceOnUse">
+<stop stop-color="#F8F0EA"/>
+<stop offset="1" stop-color="#EEE4E8"/>
+</linearGradient>
+</defs>
+</svg>

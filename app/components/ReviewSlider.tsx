@@ -6,6 +6,9 @@ export type ReviewItem = {
   name: string;
   rating?: number;
   quote: string;
+  treatmentArea?: string;
+  sourceLabel?: string;
+  isPlaceholder?: boolean;
 };
 
 type ReviewSliderProps = {
@@ -32,40 +35,48 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-[32px] border border-[color:var(--leaf-200)] bg-white/90 p-8 text-[color:var(--leaf-900)] shadow-soft sm:p-10">
+      <div className="rounded-[32px] border border-[rgba(192,213,214,0.12)] bg-[linear-gradient(160deg,rgba(6,47,64,0.99),rgba(8,58,79,0.98)),radial-gradient(circle_at_top_right,rgba(165,141,102,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(64,126,140,0.22),transparent_34%)] p-8 text-white shadow-[0_30px_72px_rgba(6,47,64,0.22)] sm:p-10">
         <div className="flex items-start justify-between gap-6">
-          <div className="flex items-center gap-1 text-lg text-[color:var(--leaf-700)]">
-            {Array.from({ length: 5 }, (_, index) => (
-              <span
-                key={`star-${index}`}
-                className={
-                  index < filledStars
-                    ? "text-[color:var(--leaf-700)]"
-                    : "text-[color:var(--leaf-200)]"
-                }
-              >
-                ★
-              </span>
-            ))}
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/74">
+              Patient feedback from clinics we work with
+            </p>
+            <div className="mt-3 flex items-center gap-1 text-lg text-[color:var(--gold-500)]">
+              {Array.from({ length: 5 }, (_, index) => (
+                <span
+                  key={`star-${index}`}
+                  className={
+                    index < filledStars
+                      ? "text-[color:var(--gold-500)]"
+                      : "text-white/22"
+                  }
+                >
+                  ★
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="text-6xl leading-none text-[color:var(--leaf-200)]">
+          <div className="text-6xl leading-none text-[color:var(--palette-aqua)]">
             &ldquo;
           </div>
         </div>
-        <p className="mt-6 max-w-3xl font-display text-2xl leading-tight sm:text-3xl">
+        <p className="mt-6 font-display text-2xl leading-tight sm:text-3xl">
           {activeReview.quote}
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--leaf-200)] pt-5">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--line-inverse-soft)] pt-5">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              Verified patient
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+              {activeReview.sourceLabel ??
+                (activeReview.isPlaceholder
+                  ? "Preview placeholder"
+                  : "Patient review")}
             </p>
-            <p className="mt-2 text-base font-semibold text-[color:var(--leaf-900)]">
+            <p className="mt-2 text-base font-semibold text-white">
               {activeReview.name}
             </p>
           </div>
-          <div className="rounded-full bg-[color:var(--leaf-100)] px-4 py-2 text-sm text-[color:var(--leaf-700)]">
-            Consultation to aftercare experience
+          <div className="rounded-full bg-[rgba(192,213,214,0.12)] px-4 py-2 text-sm text-white/74">
+            {activeReview.treatmentArea ?? "Consultation to aftercare experience"}
           </div>
         </div>
       </div>
@@ -79,7 +90,7 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
                 prev === 0 ? reviews.length - 1 : prev - 1,
               )
             }
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--leaf-300)] bg-white/80 text-[color:var(--leaf-800)] transition hover:bg-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(192,213,214,0.16)] bg-[rgba(8,58,79,0.9)] text-white/82 transition hover:border-[rgba(192,213,214,0.28)] hover:bg-[rgba(21,88,106,0.98)] hover:text-white"
             aria-label="Previous review"
           >
             ←
@@ -92,8 +103,8 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
                 onClick={() => setActiveIndex(index)}
                 className={`h-2.5 w-2.5 rounded-full transition ${
                   index === activeIndex
-                    ? "bg-[color:var(--leaf-700)]"
-                    : "bg-[color:var(--leaf-200)] hover:bg-[color:var(--leaf-400)]"
+                    ? "bg-[color:var(--gold-500)]"
+                    : "bg-white/18 hover:bg-[color:var(--palette-teal)]"
                 }`}
                 aria-label={`Go to review ${index + 1}`}
               />
@@ -104,7 +115,7 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
             onClick={() =>
               setActiveIndex((prev) => (prev + 1) % reviews.length)
             }
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--leaf-300)] bg-white/80 text-[color:var(--leaf-800)] transition hover:bg-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(192,213,214,0.16)] bg-[rgba(8,58,79,0.9)] text-white/82 transition hover:border-[rgba(192,213,214,0.28)] hover:bg-[rgba(21,88,106,0.98)] hover:text-white"
             aria-label="Next review"
           >
             →

@@ -1,0 +1,20 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="960" height="640" rx="48" fill="#F4F0E6"/>
+<rect x="44" y="44" width="872" height="552" rx="36" fill="url(#bg)"/>
+<circle cx="208" cy="174" r="86" fill="#DDE7D7"/>
+<circle cx="760" cy="482" r="118" fill="#D5E1CE"/>
+<path d="M270 238C270 171.726 323.726 118 390 118H568C634.274 118 688 171.726 688 238V404C688 470.274 634.274 524 568 524H390C323.726 524 270 470.274 270 404V238Z" fill="#FFFDF8"/>
+<path d="M350 252C350 185.726 403.726 132 470 132C536.274 132 590 185.726 590 252V276H350V252Z" fill="#294A3C"/>
+<path d="M402 340C426.301 321.844 459.437 311.912 491.5 311.912C523.563 311.912 556.699 321.844 581 340V426C581 476.811 539.811 518 489 518H494C443.189 518 402 476.811 402 426V340Z" fill="#DDB89B"/>
+<path d="M422 248C434.667 220 454.667 206 482 206C509.333 206 533 220 553 248" stroke="#88A57A" stroke-width="18" stroke-linecap="round"/>
+<path d="M438 188C457.333 175.333 478.333 169 501 169C523.667 169 545 175.333 565 188" stroke="#C99658" stroke-width="8" stroke-linecap="round" stroke-dasharray="5 13"/>
+<rect x="112" y="454" width="256" height="92" rx="24" fill="#FFFDF8"/>
+<text x="144" y="492" fill="#294A3C" font-family="Arial, sans-serif" font-size="22" font-weight="700">Male Hair Transplant</text>
+<text x="144" y="522" fill="#5F705D" font-family="Arial, sans-serif" font-size="18">Hairline and crown restoration</text>
+<defs>
+<linearGradient id="bg" x1="104" y1="86" x2="862" y2="572" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEF4EA"/>
+<stop offset="1" stop-color="#E3ECE0"/>
+</linearGradient>
+</defs>
+</svg>

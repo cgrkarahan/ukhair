@@ -9,5 +9,7 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  // Legacy homepage documents still exist in Studio, but the live marketing site is
+  // currently code-driven until the slimmer post-launch CMS migration is implemented.
+  useCdn: false,
 });

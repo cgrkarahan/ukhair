@@ -8,7 +8,7 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 
 export default defineConfig({
   name: "default",
-  title: "Evergreen Hair Clinic",
+  title: "UK Hair Transplant Co",
   basePath: "/studio",
   projectId,
   dataset,

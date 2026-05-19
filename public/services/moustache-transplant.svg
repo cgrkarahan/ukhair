@@ -1,0 +1,20 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="960" height="640" rx="48" fill="#F4EEE7"/>
+<rect x="44" y="44" width="872" height="552" rx="36" fill="url(#bg)"/>
+<circle cx="202" cy="480" r="110" fill="#E3DED0"/>
+<circle cx="770" cy="178" r="96" fill="#D7E3D1"/>
+<path d="M282 230C282 163.726 335.726 110 402 110H558C624.274 110 678 163.726 678 230V412C678 478.274 624.274 532 558 532H402C335.726 532 282 478.274 282 412V230Z" fill="#FFFDF8"/>
+<path d="M378 260C378 198.144 428.144 148 490 148C551.856 148 602 198.144 602 260V282H378V260Z" fill="#332821"/>
+<path d="M400 312C425.301 296.844 458.437 288.545 490.5 288.545C522.563 288.545 555.699 296.844 580 312V394C580 455.856 529.856 506 468 506H513C451.144 506 401 455.856 401 394L400 312Z" fill="#E1B896"/>
+<path d="M430 386C451.333 370 471.333 362 490 362C508.667 362 528.667 370 550 386" stroke="#332821" stroke-width="16" stroke-linecap="round"/>
+<path d="M448 386C459.333 401.333 473.333 409 490 409C506.667 409 520.667 401.333 532 386" stroke="#332821" stroke-width="16" stroke-linecap="round"/>
+<rect x="104" y="454" width="272" height="92" rx="24" fill="#FFFDF8"/>
+<text x="136" y="492" fill="#332821" font-family="Arial, sans-serif" font-size="22" font-weight="700">Moustache Transplant</text>
+<text x="136" y="522" fill="#6F655C" font-family="Arial, sans-serif" font-size="18">Upper-lip shape and fullness</text>
+<defs>
+<linearGradient id="bg" x1="118" y1="84" x2="840" y2="566" gradientUnits="userSpaceOnUse">
+<stop stop-color="#F2ECE4"/>
+<stop offset="1" stop-color="#E6EEE2"/>
+</linearGradient>
+</defs>
+</svg>

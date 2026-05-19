@@ -1,0 +1,20 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="960" height="640" rx="48" fill="#F1ECE6"/>
+<rect x="44" y="44" width="872" height="552" rx="36" fill="url(#bg)"/>
+<circle cx="184" cy="162" r="88" fill="#D9E2D6"/>
+<circle cx="776" cy="490" r="118" fill="#E8D7C6"/>
+<path d="M268 222C268 155.726 321.726 102 388 102H572C638.274 102 692 155.726 692 222V406C692 472.274 638.274 526 572 526H388C321.726 526 268 472.274 268 406V222Z" fill="#FFFDF8"/>
+<path d="M364 252C364 190.144 414.144 140 476 140C537.856 140 588 190.144 588 252V274H364V252Z" fill="#2E2C2B"/>
+<path d="M390 310C415.301 293.844 448.437 285 480.5 285C512.563 285 545.699 293.844 570 310V400C570 458.542 522.542 506 464 506H497C438.458 506 391 458.542 391 400L390 310Z" fill="#DBB395"/>
+<path d="M402 350C428 391.333 454 412 480 412C506 412 532 391.333 558 350" stroke="#2E2C2B" stroke-width="17" stroke-linecap="round"/>
+<path d="M404 392C432.667 438 458 461 480 461C502 461 527.333 438 556 392" stroke="#2E2C2B" stroke-width="17" stroke-linecap="round"/>
+<rect x="112" y="454" width="236" height="92" rx="24" fill="#FFFDF8"/>
+<text x="144" y="492" fill="#2E2C2B" font-family="Arial, sans-serif" font-size="22" font-weight="700">Beard Transplant</text>
+<text x="144" y="522" fill="#6C6660" font-family="Arial, sans-serif" font-size="18">Outline and density design</text>
+<defs>
+<linearGradient id="bg" x1="112" y1="86" x2="844" y2="568" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEF3ED"/>
+<stop offset="1" stop-color="#F1E7DD"/>
+</linearGradient>
+</defs>
+</svg>

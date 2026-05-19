@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Manrope, Playfair_Display } from "next/font/google";
+import AttributionBootstrap from "@/app/components/AttributionBootstrap";
+import CookieConsent from "@/app/components/CookieConsent";
 import {
   defaultDescription,
   defaultTitle,
@@ -7,16 +8,6 @@ import {
   siteUrl,
 } from "@/app/lib/seo";
 import "./globals.css";
-
-const manrope = Manrope({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
-const playfair = Playfair_Display({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -29,13 +20,19 @@ export const metadata: Metadata = {
   category: "health",
   keywords: [
     "hair transplant london",
-    "hair restoration clinic",
-    "male hair transplant",
-    "female hair transplant",
+    "hair transplant cost london",
+    "male hair transplant london",
+    "female hair transplant london",
+    "uk vs turkey hair transplant",
+    "hair transplant recovery timeline",
     "eyebrow transplant",
     "beard transplant",
     "hair loss treatments",
   ],
+};
+
+export const viewport = {
+  themeColor: "#083A4F",
 };
 
 export default function RootLayout({
@@ -45,8 +42,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${manrope.variable} ${playfair.variable} antialiased`}>
+      <body className="antialiased">
+        <AttributionBootstrap />
         {children}
+        <CookieConsent />
       </body>
     </html>
   );

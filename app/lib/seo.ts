@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { brandName, replaceBrandText } from "@/app/lib/brand";
 
-export const siteName = "Evergreen Hair Clinic";
+export const siteName = brandName;
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://evergreenhairclinic.co.uk";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ukhairtransplant.co";
 export const defaultTitle = siteName;
 export const defaultDescription =
-  "Natural-looking hair restoration in London with surgeon-led consultations, modern aftercare, and confidence-first treatment planning.";
-export const defaultOgImage = "/favicon.ico";
+  "UK Hair Transplant helps patients explore hair transplant treatment in London with stronger clinical standards, clearer guidance, and premium central London access.";
+export const defaultOgImage = "/opengraph-image";
 
 export function absoluteUrl(path = "/") {
   return new URL(path, siteUrl).toString();
@@ -16,18 +17,24 @@ export function buildMetadata({
   title,
   description,
   path = "/",
+  keywords,
+  image,
 }: {
   title?: string;
   description?: string;
   path?: string;
+  keywords?: string[];
+  image?: string;
 }): Metadata {
-  const resolvedTitle = title ?? defaultTitle;
-  const resolvedDescription = description ?? defaultDescription;
+  const resolvedTitle = replaceBrandText(title ?? defaultTitle);
+  const resolvedDescription = replaceBrandText(description ?? defaultDescription);
   const url = absoluteUrl(path);
+  const resolvedImage = image ? absoluteUrl(image) : absoluteUrl(defaultOgImage);
 
   return {
-    ...(title ? { title } : {}),
+    ...(title ? { title: resolvedTitle } : {}),
     description: resolvedDescription,
+    ...(keywords ? { keywords } : {}),
     alternates: {
       canonical: url,
     },
@@ -50,18 +57,18 @@ export function buildMetadata({
       description: resolvedDescription,
       images: [
         {
-          url: absoluteUrl(defaultOgImage),
-          width: 256,
-          height: 256,
-          alt: `${siteName} logo`,
+          url: resolvedImage,
+          width: 1200,
+          height: 630,
+          alt: `${siteName} preview`,
         },
       ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
-      images: [absoluteUrl(defaultOgImage)],
+      images: [resolvedImage],
     },
   };
 }

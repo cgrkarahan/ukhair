@@ -1,377 +1,110 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import AssessmentSection from "@/app/components/AssessmentSection";
 import BeforeAfterCard from "@/app/components/BeforeAfterCard";
-import HeroSlider, { HeroSlide } from "@/app/components/HeroSlider";
 import ReviewSlider from "@/app/components/ReviewSlider";
-import { client } from "@/sanity/lib/client";
-import { urlFor } from "@/sanity/lib/image";
-import { homepageQuery } from "@/sanity/lib/queries";
+import { IconBadge } from "@/app/components/SiteIcon";
+import SiteShell from "@/app/components/SiteShell";
+import { featuredBlogPosts } from "@/app/lib/blogContent";
+import { siteContact, siteSocialLinks } from "@/app/lib/contact";
 import {
-  serviceCatalog,
-  serviceCatalogByTitle,
-} from "@/app/services/serviceData";
+  iconForHref,
+  iconForHomePillar,
+  iconForJourney,
+  iconForSignal,
+} from "@/app/lib/iconography";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
-import { PortableText, type PortableTextBlock } from "next-sanity";
+import {
+  getHomePageContent,
+  getProofCasesContent,
+  getReviewsContent,
+  getServiceCatalogContent,
+} from "@/sanity/lib/content";
 
-type HomepageData = {
-  hero?: {
-    eyebrow?: string;
-    headline?: string;
-    subhead?: string;
-    primaryCta?: string;
-    secondaryCta?: string;
-  };
-  heroSlides?: HeroSlide[];
-  trustHighlights?: { value: string; label: string }[];
-  services?: { title: string; description: string }[];
-  steps?: { title: string; text: string }[];
-  results?: {
-    name: string;
-    time: string;
-    note: string;
-    area?: string;
-    variant?: "hairline" | "crown" | "temple" | "diffuse";
-    beforeImage?: unknown;
-    afterImage?: unknown;
-    beforeImageAlt?: string;
-    afterImageAlt?: string;
-  }[];
-  reviews?: { name: string; rating?: number; quote: string }[];
-  faq?: {
-    question: string;
-    answerText?: string;
-    answerRich?: PortableTextBlock[];
-  }[];
-};
+export const revalidate = 60;
 
-const homepageDescription =
-  "Explore surgeon-led hair transplant treatments in London, real before-and-after results, and a calm consultation process built around natural-looking restoration.";
+export async function generateMetadata(): Promise<Metadata> {
+  const home = await getHomePageContent();
 
-export const metadata: Metadata = buildMetadata({
-  description: homepageDescription,
-  path: "/",
-});
+  return buildMetadata({
+    title: home.seoTitle,
+    description: home.description,
+    path: "/",
+    keywords: home.keywords,
+  });
+}
 
-async function getHomepage() {
-  try {
-    return (await client.fetch(homepageQuery)) as HomepageData | null;
-  } catch {
-    return null;
+function explanatorySignalCopy(value: string, fallback: string) {
+  switch (value) {
+    case "London":
+      return "Choose a central London route if you want consultations, treatment day, and follow-up to feel easier to organise around work, travel, and normal life.";
+    case "GMC":
+      return "If you want treatment in London with stronger medical reassurance, GMC-registered doctors give you a clearer basis for trust before you commit.";
+    case "CQC":
+      return "A CQC-registered provider setting in England can give you more confidence in the clinic environment, standards, and aftercare structure around your treatment.";
+    case "UK + Turkey":
+      return "If you are deciding between London and Turkey, you can compare both routes more clearly here before choosing the option that fits your priorities best.";
+    default:
+      return fallback;
   }
 }
 
+function variantForProofCase(area: string, title: string) {
+  const value = `${area} ${title}`.toLowerCase();
+
+  if (value.includes("crown")) return "crown" as const;
+  if (value.includes("temple")) return "temple" as const;
+  if (value.includes("female") || value.includes("diffuse")) return "diffuse" as const;
+
+  return "hairline" as const;
+}
+
 export default async function Home() {
-  const defaults: Required<HomepageData> = {
-    hero: {
-      eyebrow: "London • Surgeon-led • Natural results",
-      headline: "A calmer, greener path to confident hair restoration.",
-      subhead:
-        "We design hairlines with precision and empathy, combining meticulous graft placement with a modern, low-stress clinic experience.",
-      primaryCta: "Book a consultation",
-      secondaryCta: "View results",
-    },
-    heroSlides: [],
-    trustHighlights: [
-      {
-        value: "4.9/5",
-        label: "Patient rating",
-      },
-      {
-        value: "10+",
-        label: "Years experience",
-      },
-      {
-        value: "2,500+",
-        label: "Grafts placed",
-      },
-      {
-        value: "UK",
-        label: "Aftercare support",
-      },
-    ],
-    services: [
-      {
-        title: "Male Hair Transplant",
-        description:
-          "Restore a receding hairline, thinning crown, or overall density loss with surgeon-led FUE planning.",
-      },
-      {
-        title: "Female Hair Transplant",
-        description:
-          "A refined approach for diffuse thinning, widened partings, and soft frontal hairline restoration.",
-      },
-      {
-        title: "Eyebrow Transplant",
-        description:
-          "Rebuild sparse or over-plucked brows with careful angle control and natural arch shaping.",
-      },
-      {
-        title: "Beard Transplant",
-        description:
-          "Fill patchy facial hair and create a stronger beard outline with natural graft placement.",
-      },
-      {
-        title: "Moustache Transplant",
-        description:
-          "Add density and reshape the upper lip area for a fuller, more defined moustache.",
-      },
-      {
-        title: "Hair Loss Treatments",
-        description:
-          "Non-surgical support such as PRP, mesotherapy, and scalp-focused treatment plans for early thinning.",
-      },
-    ],
-    steps: [
-      {
-        title: "Personal Consultation",
-        text: "We map your hairline and donor capacity with a surgeon-led assessment.",
-      },
-      {
-        title: "Design + Planning",
-        text: "Micro-graft distribution designed for density, balance, and longevity.",
-      },
-      {
-        title: "Procedure Day",
-        text: "Comfort-forward care with a clinical team dedicated to detail.",
-      },
-      {
-        title: "Aftercare + Growth",
-        text: "Structured check-ins and guidance throughout the growth cycle.",
-      },
-    ],
-    results: [
-      {
-        name: "Hairline restoration",
-        time: "9 months",
-        note: "2,200 grafts",
-        area: "Frontal hairline",
-        variant: "hairline",
-        beforeImage: undefined,
-        afterImage: undefined,
-        beforeImageAlt: "Before hair transplant sample case",
-        afterImageAlt: "After hair transplant sample case",
-      },
-      {
-        name: "Crown density",
-        time: "8 months",
-        note: "1,850 grafts",
-        area: "Vertex",
-        variant: "crown",
-        beforeImage: undefined,
-        afterImage: undefined,
-        beforeImageAlt: "Before crown density sample case",
-        afterImageAlt: "After crown density sample case",
-      },
-      {
-        name: "Temple rebuild",
-        time: "10 months",
-        note: "2,400 grafts",
-        area: "Temples",
-        variant: "temple",
-        beforeImage: undefined,
-        afterImage: undefined,
-        beforeImageAlt: "Before temple rebuild sample case",
-        afterImageAlt: "After temple rebuild sample case",
-      },
-      {
-        name: "Diffuse thinning",
-        time: "11 months",
-        note: "2,600 grafts",
-        area: "Mid-scalp",
-        variant: "diffuse",
-        beforeImage: undefined,
-        afterImage: undefined,
-        beforeImageAlt: "Before diffuse thinning sample case",
-        afterImageAlt: "After diffuse thinning sample case",
-      },
-    ],
-    reviews: [
-      {
-        name: "Daniel P.",
-        rating: 5,
-        quote:
-          "The process was calm and structured. I finally feel like myself again.",
-      },
-      {
-        name: "Amira S.",
-        rating: 5,
-        quote:
-          "The hairline design was subtle and accurate. The team guided me through everything.",
-      },
-      {
-        name: "Chris T.",
-        rating: 5,
-        quote:
-          "Great aftercare and honest expectations. The growth is better than I hoped.",
-      },
-      {
-        name: "Michael R.",
-        rating: 4,
-        quote:
-          "What stood out most was how realistic the plan was. No pressure, no overpromising, just a clear explanation of what was possible.",
-      },
-      {
-        name: "Omar K.",
-        rating: 5,
-        quote:
-          "The clinic felt discreet and professional from day one. Recovery was smoother than I expected, and the result looks natural in every light.",
-      },
-    ],
-    faq: [
-      {
-        question: "How long is recovery?",
-        answerText:
-          "Most patients return to desk work within 2 to 4 days. We provide a detailed recovery plan for every stage.",
-        answerRich: [
-          {
-            _key: "recovery-answer",
-            _type: "block",
-            children: [
-              {
-                _key: "recovery-span",
-                _type: "span",
-                marks: [],
-                text: "Most patients return to desk work within 2 to 4 days. We provide a detailed recovery plan for every stage.",
-              },
-            ],
-            markDefs: [],
-            style: "normal",
-          },
-        ],
-      },
-      {
-        question: "When will I see growth?",
-        answerText:
-          "Growth begins around month 3, with fuller results from months 6 to 12.",
-        answerRich: [
-          {
-            _key: "growth-answer",
-            _type: "block",
-            children: [
-              {
-                _key: "growth-span",
-                _type: "span",
-                marks: [],
-                text: "Growth begins around month 3, with fuller results from months 6 to 12.",
-              },
-            ],
-            markDefs: [],
-            style: "normal",
-          },
-        ],
-      },
-      {
-        question: "Can I combine treatments?",
-        answerText:
-          "We assess donor availability and map a long-term plan so multiple areas can be addressed safely.",
-        answerRich: [
-          {
-            _key: "treatments-answer",
-            _type: "block",
-            children: [
-              {
-                _key: "treatments-span",
-                _type: "span",
-                marks: [],
-                text: "We assess donor availability and map a long-term plan so multiple areas can be addressed safely.",
-              },
-            ],
-            markDefs: [],
-            style: "normal",
-          },
-        ],
-      },
-    ],
-  };
+  const [home, services, proofCases, reviews] = await Promise.all([
+    getHomePageContent(),
+    getServiceCatalogContent(),
+    getProofCasesContent(),
+    getReviewsContent(),
+  ]);
 
-  const homepage = await getHomepage();
-  const hero = homepage?.hero ?? defaults.hero;
-  const heroSlides =
-    homepage?.heroSlides && homepage.heroSlides.length > 0
-      ? homepage.heroSlides
-      : [hero];
-  const trustHighlights =
-    homepage?.trustHighlights && homepage.trustHighlights.length > 0
-      ? homepage.trustHighlights
-      : defaults.trustHighlights;
-  const services =
-    homepage?.services && homepage.services.length >= 5
-      ? homepage.services
-      : defaults.services;
-  const steps = homepage?.steps ?? defaults.steps;
-  const results = homepage?.results ?? defaults.results;
-  const resultsWithImages = results.map((result) => ({
-    ...result,
-    beforeImageUrl: result.beforeImage
-      ? urlFor(result.beforeImage).width(900).height(760).fit("crop").url()
-      : "https://commons.wikimedia.org/wiki/Special:FilePath/Man_before_receiving_hair_transplant.jpg",
-    afterImageUrl: result.afterImage
-      ? urlFor(result.afterImage).width(900).height(760).fit("crop").url()
-      : "https://commons.wikimedia.org/wiki/Special:FilePath/Man_after_receiving_hair_transplant.jpg",
-  }));
-  const reviews = homepage?.reviews ?? defaults.reviews;
-  const faq = homepage?.faq ?? defaults.faq;
-  const faqComponents = {
-    block: {
-      normal: ({ children }: { children?: ReactNode }) => (
-        <p className="mt-2 leading-relaxed">{children}</p>
-      ),
-    },
-    list: {
-      bullet: ({ children }: { children?: ReactNode }) => (
-        <ul className="mt-3 list-disc space-y-2 pl-5">{children}</ul>
-      ),
-      number: ({ children }: { children?: ReactNode }) => (
-        <ol className="mt-3 list-decimal space-y-2 pl-5">{children}</ol>
-      ),
-    },
-    listItem: {
-      bullet: ({ children }: { children?: ReactNode }) => <li>{children}</li>,
-      number: ({ children }: { children?: ReactNode }) => <li>{children}</li>,
-    },
-  };
-  const faqForSchema = faq
-    .map((item) => {
-      const richText =
-        item.answerRich
-          ?.flatMap((block) =>
-            "children" in block && Array.isArray(block.children)
-              ? block.children
-              : [],
-          )
-          .map((child) => ("text" in child ? child.text : ""))
-          .join(" ")
-          .trim() ?? "";
+  const mobileTrustPillars = home.trustPillars.slice(0, 2);
+  const mobileSignals = home.signals.slice(0, 2);
+  const mobileProofCases = proofCases.slice(0, 1);
+  const mobileServices = services.slice(0, 3);
+  const mobileGuides = featuredBlogPosts.slice(0, 2);
+  const mobileFaq = home.faq.slice(0, 4);
 
-      return {
-        question: item.question,
-        answer: item.answerText ?? richText,
-      };
-    })
-    .filter((item) => item.answer.length > 0);
-  const homepageStructuredData = [
+  const structuredData = [
     {
       "@context": "https://schema.org",
-      "@type": "MedicalClinic",
+      "@type": "Organization",
       name: siteName,
       url: absoluteUrl("/"),
-      description: homepageDescription,
+      description: home.description,
+      email: siteContact.email,
       areaServed: ["London", "United Kingdom"],
-      image: absoluteUrl("/favicon.ico"),
+      sameAs: siteSocialLinks.map((social) => social.href),
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: siteName,
       url: absoluteUrl("/"),
-      description: homepageDescription,
+      description: home.description,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Hair Transplant London",
+      url: absoluteUrl("/"),
+      description: home.description,
     },
     {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: "Hair restoration services",
-      itemListElement: serviceCatalog.map((service, index) => ({
+      name: "Hair transplant services in London",
+      itemListElement: services.map((service, index) => ({
         "@type": "ListItem",
         position: index + 1,
         name: service.title,
@@ -381,7 +114,7 @@ export default async function Home() {
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      mainEntity: faqForSchema.map((item) => ({
+      mainEntity: home.faq.map((item) => ({
         "@type": "Question",
         name: item.question,
         acceptedAnswer: {
@@ -393,493 +126,679 @@ export default async function Home() {
   ];
 
   return (
-    <div className="bg-forest min-h-screen">
-      {homepageStructuredData.map((schema, index) => (
+    <SiteShell>
+      {structuredData.map((schema, index) => (
         <script
-          key={`homepage-schema-${index}`}
+          key={`home-schema-${index}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--leaf-700)] text-white">
-            EH
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--leaf-600)]">
-              Evergreen
-            </p>
-            <p className="font-display text-lg text-[color:var(--leaf-900)]">
-              Hair Clinic
-            </p>
-          </div>
-        </div>
-        <nav className="hidden items-center gap-8 text-sm text-[color:var(--leaf-800)] md:flex">
-          <a href="#services" className="hover:text-[color:var(--leaf-500)]">
-            Services
-          </a>
-          <a href="#results" className="hover:text-[color:var(--leaf-500)]">
-            Results
-          </a>
-          <a href="#reviews" className="hover:text-[color:var(--leaf-500)]">
-            Reviews
-          </a>
-          <a href="#consultation" className="hover:text-[color:var(--leaf-500)]">
-            Consultation
-          </a>
-        </nav>
-        <a
-          href="#consultation"
-          className="rounded-full bg-[color:var(--leaf-700)] px-5 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-[color:var(--leaf-600)]"
-        >
-          Request a consult
-        </a>
-      </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-24 px-6 pb-24 pt-10">
-        <section className="flex flex-col gap-10">
-          <HeroSlider slides={heroSlides} />
-          <div className="glass rounded-[32px] px-6 py-8 shadow-soft sm:px-8 sm:py-10">
-            <div className="flex flex-col items-center gap-3 text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-                Why patients trust us
-              </p>
-              <p className="max-w-2xl text-sm leading-relaxed text-[color:var(--leaf-700)]">
-                Clear results, experienced clinical oversight, and local
-                aftercare support.
-              </p>
-            </div>
-            <div className="mt-8 grid gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-              {trustHighlights.map((highlight, index) => (
-                <div
-                  key={`${highlight.value}-${highlight.label}`}
-                  className={`px-6 text-center ${
-                    index > 0 ? "lg:border-l lg:border-[color:var(--leaf-200)]" : ""
-                  } ${
-                    index % 2 === 1
-                      ? "sm:border-l sm:border-[color:var(--leaf-200)] lg:border-l"
-                      : ""
-                  }`}
-                >
-                  <p className="font-display text-4xl text-[color:var(--leaf-900)] sm:text-5xl">
-                    {highlight.value}
+      <main
+        id="main"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+      >
+        <section className="page-hero relative overflow-hidden rounded-[40px] border border-[rgba(192,213,214,0.12)] px-6 py-8 sm:px-8 lg:px-10 lg:py-12">
+          <div className="absolute inset-0">
+            <Image
+              src="/images/home-hero-consultation.png"
+              alt="Hair transplant consultation and planning in a premium London clinic"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,58,79,0.94)_0%,rgba(8,58,79,0.84)_34%,rgba(8,58,79,0.7)_58%,rgba(8,58,79,0.78)_100%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_34%,rgba(64,126,140,0.34),transparent_34%),radial-gradient(circle_at_82%_16%,rgba(192,213,214,0.12),transparent_24%)]" />
+          </div>
+
+          <div className="relative z-10 grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+            <div className="max-w-4xl">
+              <div className="mb-8 w-full max-w-[37.5rem] rounded-[28px] border border-[rgba(165,141,102,0.28)] bg-[linear-gradient(145deg,rgba(165,141,102,0.22),rgba(165,141,102,0.08))] p-5 shadow-[0_24px_60px_rgba(8,58,79,0.24)] backdrop-blur-sm">
+                <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--gold-300)]/84">
+                  Premium London Hair Transplant Price
+                </p>
+                <div className="mt-3 flex items-end gap-3">
+                  <p className="font-display text-5xl leading-none text-white sm:text-6xl">
+                    £2750
                   </p>
-                  <p className="mt-2 text-base text-[color:var(--leaf-700)] sm:text-lg">
-                    {highlight.label}
+                  <p className="pb-1 text-sm text-white/56 line-through">
+                    £4500
                   </p>
                 </div>
-              ))}
-            </div>
-            <div className="mt-8 border-t border-[color:var(--leaf-200)] pt-5 text-center">
-              <p className="text-sm text-[color:var(--leaf-700)]">
-                Surgeon-led consultations, procedure design, and structured
-                follow-up care.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section id="services" className="space-y-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              Services
-            </p>
-            <h2 className="mt-3 font-display text-3xl text-[color:var(--leaf-900)]">
-              Treatments designed around the pattern of hair loss.
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-[color:var(--leaf-700)]">
-              Choose the treatment path that best matches your goals, graft
-              strategy, and level of hair loss.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              {[
-                "Surgeon-led planning",
-                "Custom graft mapping",
-                "Local aftercare",
-              ].map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-[color:var(--leaf-200)] bg-white/70 px-4 py-2 text-sm text-[color:var(--leaf-700)]"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {services.map((service, index) => {
-              const servicePage = serviceCatalogByTitle[service.title];
-              const meta = servicePage ?? {
-                slug: "#consultation",
-                badge: "Treatment",
-                bestFor: "Personalized candidacy assessment",
-                outcome: "A plan tailored to hair type and density goals",
-              };
-
-              return (
-              <div
-                key={`${service.title}-${index}`}
-                className="rounded-[28px] border border-[color:var(--leaf-200)] bg-white/80 p-6 shadow-soft"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <span className="rounded-full bg-[color:var(--leaf-100)] px-3 py-1 text-xs uppercase tracking-[0.24em] text-[color:var(--leaf-700)]">
-                    {meta.badge}
-                  </span>
-                </div>
-                <div className="mt-5 space-y-5">
-                  <div>
-                    <h3 className="font-display text-2xl text-[color:var(--leaf-900)]">
-                      {service.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-[color:var(--leaf-700)]">
-                      {service.description}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-[color:var(--leaf-200)] bg-[color:var(--leaf-100)]/70 p-4">
-                    <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--leaf-600)]">
-                      Best for
-                    </p>
-                    <p className="mt-2 text-sm text-[color:var(--leaf-800)]">
-                      {meta.bestFor}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-[color:var(--leaf-200)] pt-4">
-                  <p className="text-sm text-[color:var(--leaf-700)]">
-                    <span className="font-semibold text-[color:var(--leaf-900)]">
-                      Expected outcome:
-                    </span>{" "}
-                    {meta.outcome}
-                  </p>
-                  <a
-                    href="#consultation"
-                    className="text-sm font-semibold text-[color:var(--leaf-700)] hover:text-[color:var(--leaf-500)]"
-                  >
-                    Request assessment
-                  </a>
-                  {servicePage ? (
-                    <Link
-                      href={`/services/${servicePage.slug}`}
-                      className="text-sm font-semibold text-[color:var(--leaf-700)] hover:text-[color:var(--leaf-500)]"
-                    >
-                      Learn more
-                    </Link>
-                  ) : null}
-                </div>
+                <p className="mt-3 text-sm leading-7 text-white/80">
+                  Clear fixed price for eligible cases, including up to 3,000
+                  grafts, one complimentary PRP treatment, post-operative
+                  medication, and an aftercare pack.
+                </p>
+                <p className="mt-3 text-xs leading-6 text-white/52">
+                  Sapphire FUE approach where suitable. No extras, no
+                  arrangement fees.
+                </p>
               </div>
-            )})}
-          </div>
-          <div className="rounded-[28px] border border-[color:var(--leaf-200)] bg-white/75 p-6 shadow-soft">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              What every treatment includes
-            </p>
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
-              <p className="text-sm text-[color:var(--leaf-700)]">
-                Donor assessment and long-term graft strategy
+              <p className="text-xs uppercase tracking-[0.36em] text-[color:var(--gold-300)]/82">
+                {home.hero.eyebrow}
               </p>
-              <p className="text-sm text-[color:var(--leaf-700)]">
-                Hairline and density design matched to facial proportions
+              <h1 className="mt-4 font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-[4.65rem]">
+                {home.hero.headline}
+              </h1>
+              <p className="mt-6 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
+                {home.hero.lead}
               </p>
-              <p className="text-sm text-[color:var(--leaf-700)]">
-                Recovery guidance, aftercare support, and check-ins
-              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="/assessment"
+                  className="inline-flex rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--gold-300)]"
+                >
+                  Book free consultation
+                </Link>
+                <Link
+                  href="/hair-transplant-london"
+                  className="inline-flex rounded-full border border-[rgba(192,213,214,0.28)] bg-[color:var(--surface-subtle)] px-5 py-3 text-sm font-semibold shadow-[0_18px_40px_rgba(6,47,64,0.22)] transition hover:border-[rgba(192,213,214,0.36)] hover:bg-[color:var(--surface-paper)]"
+                  style={{ color: "var(--ink-950)" }}
+                >
+                  {home.hero.secondaryCtaLabel}
+                </Link>
+              </div>
+              <div className="mt-8 flex flex-wrap gap-2.5">
+                {home.hero.chips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-full border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] px-3.5 py-2 text-sm text-white/78"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
             </div>
-            <a
-              href="#consultation"
-              className="mt-6 inline-flex rounded-full bg-[color:var(--leaf-700)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--leaf-600)]"
-            >
-              Discuss treatment options
-            </a>
+
+            <div className="grid gap-4">
+              {mobileTrustPillars.map((pillar, index) => (
+                <article
+                  key={`${pillar.title}-mobile`}
+                  className="rounded-[28px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5 shadow-[0_24px_60px_rgba(6,47,64,0.2)] sm:hidden"
+                >
+                  <div className="flex items-start gap-4">
+                    <IconBadge
+                      name={iconForHomePillar(pillar.title, index)}
+                      tone="dark"
+                    />
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
+                        Why it matters
+                      </p>
+                      <h2 className="mt-3 font-display text-2xl text-white">
+                        {pillar.title}
+                      </h2>
+                      <p className="mt-3 text-sm leading-7 text-white/68">
+                        {pillar.text}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+              {home.trustPillars.map((pillar, index) => (
+                <article
+                  key={pillar.title}
+                  className="hidden rounded-[28px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5 shadow-[0_24px_60px_rgba(6,47,64,0.2)] sm:block"
+                >
+                  <div className="flex items-start gap-4">
+                    <IconBadge
+                      name={iconForHomePillar(pillar.title, index)}
+                      tone="dark"
+                    />
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
+                        Why it matters
+                      </p>
+                      <h2 className="mt-3 font-display text-2xl text-white">
+                        {pillar.title}
+                      </h2>
+                      <p className="mt-3 text-sm leading-7 text-white/68">
+                        {pillar.text}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="grid gap-8 rounded-[36px] bg-[color:var(--leaf-900)] p-10 text-white lg:grid-cols-4">
-          {steps.map((step, index) => (
-            <div key={step.title} className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-200)]">
-                Step {index + 1}
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {mobileSignals.map((signal) => (
+            <article
+              key={`${signal.value}-${signal.label}-mobile`}
+              className="panel-dark rounded-[28px] p-5 text-white sm:hidden"
+            >
+              <div className="flex items-center gap-4">
+                <IconBadge name={iconForSignal(signal.value)} tone="dark" />
+                <p className="font-display text-[2.35rem] leading-none text-white">
+                  {signal.value}
+                </p>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-white/68">
+                {explanatorySignalCopy(signal.value, signal.label)}
               </p>
-              <h3 className="font-display text-xl">{step.title}</h3>
-              <p className="text-sm leading-relaxed text-[color:var(--leaf-100)]">
-                {step.text}
+            </article>
+          ))}
+          {home.signals.map((signal) => (
+            <article
+              key={`${signal.value}-${signal.label}`}
+              className="hidden panel-dark rounded-[28px] p-5 text-white sm:block"
+            >
+              <div className="flex items-center gap-4">
+                <IconBadge name={iconForSignal(signal.value)} tone="dark" />
+                <p className="font-display text-[2.35rem] leading-none text-white">
+                  {signal.value}
+                </p>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-white/68">
+                {explanatorySignalCopy(signal.value, signal.label)}
               </p>
-            </div>
+            </article>
           ))}
         </section>
 
-        <section id="results" className="space-y-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              Results
+        <section className="surface-card rounded-[38px] p-6 sm:p-8 lg:p-10">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-500)]">
+              {home.proofSection.eyebrow}
             </p>
-            <h2 className="mt-3 font-display text-3xl text-[color:var(--leaf-900)]">
-              Before and after cases that show the change clearly.
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
+              {home.proofSection.headline}
             </h2>
-            <p className="mt-4 text-sm leading-relaxed text-[color:var(--leaf-700)]">
-              A strong results section should feel visual first. These featured
-              cases are laid out to support clear photo comparisons, graft
-              counts, and realistic timelines.
+            <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
+              Before-and-after proof is most useful when it is tied to the area
+              treated, the recovery timeline, and realistic planning rather than
+              shown as decoration on its own.
             </p>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {resultsWithImages.map((result, index) => (
-              <div
-                key={`${result.name}-${result.area ?? "case"}-${index}`}
-                className="overflow-hidden rounded-[28px] border border-[color:var(--leaf-200)] bg-white/80 shadow-soft"
-              >
-                <div className="p-4">
-                  <BeforeAfterCard
-                    title={result.name}
-                    area={result.area}
-                    variant={result.variant}
-                    beforeImage={result.beforeImageUrl}
-                    afterImage={result.afterImageUrl}
-                    beforeImageAlt={result.beforeImageAlt}
-                    afterImageAlt={result.afterImageAlt}
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.24em] text-[color:var(--leaf-600)]">
-                        {result.area}
-                      </p>
-                      <p className="mt-2 text-xl font-semibold text-[color:var(--leaf-900)]">
-                        {result.name}
+          {proofCases.length > 0 ? (
+            <div className="mt-8 grid gap-5 xl:grid-cols-3">
+              {mobileProofCases.map((proofCase) => (
+                <article
+                  key={`${proofCase.slug}-mobile`}
+                  className="overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.1)] sm:hidden"
+                >
+                  <div className="border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] p-3">
+                    <BeforeAfterCard
+                      title={proofCase.title}
+                      area={proofCase.areaTreated}
+                      variant={
+                        proofCase.variant ??
+                        variantForProofCase(
+                          proofCase.areaTreated,
+                          proofCase.title,
+                        )
+                      }
+                      beforeImage={proofCase.beforeImageSrc}
+                      afterImage={proofCase.afterImageSrc ?? proofCase.imageSrc}
+                      beforeImageAlt={proofCase.beforeImageAlt}
+                      afterImageAlt={proofCase.afterImageAlt ?? proofCase.imageAlt}
+                    />
+                  </div>
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
+                        {proofCase.areaTreated}
                       </p>
                     </div>
-                    <span className="rounded-full bg-[color:var(--leaf-700)] px-3 py-1 text-xs text-white">
-                      {result.time}
-                    </span>
+                    <h3 className="mt-2 font-display text-2xl text-[color:var(--ink-950)]">
+                      {proofCase.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
+                      {proofCase.summary}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-[color:var(--ink-600)]">
+                      <span>{proofCase.timeline}</span>
+                      {proofCase.treatmentNote ? (
+                        <span>• {proofCase.treatmentNote}</span>
+                      ) : null}
+                    </div>
                   </div>
-                  <div className="mt-5 flex items-center justify-between border-t border-[color:var(--leaf-200)] pt-4 text-sm text-[color:var(--leaf-700)]">
-                    <span>{result.note}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-3xl border border-[color:var(--leaf-200)] bg-white/70 p-5">
-              <p className="text-sm font-semibold text-[color:var(--leaf-900)]">
-                Matched photo framing
-              </p>
-              <p className="mt-2 text-xs text-[color:var(--leaf-700)]">
-                Keep angles and lighting consistent so the comparison feels
-                clinical, not promotional.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-[color:var(--leaf-200)] bg-white/70 p-5">
-              <p className="text-sm font-semibold text-[color:var(--leaf-900)]">
-                Clear timelines
-              </p>
-              <p className="mt-2 text-xs text-[color:var(--leaf-700)]">
-                Show the month count and graft range to set realistic
-                expectations for prospective patients.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-[color:var(--leaf-200)] bg-white/70 p-5">
-              <p className="text-sm font-semibold text-[color:var(--leaf-900)]">
-                Case diversity
-              </p>
-              <p className="mt-2 text-xs text-[color:var(--leaf-700)]">
-                Feature hairline, crown, temples, and diffuse thinning so users
-                can find relevant examples quickly.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section
-          id="consultation"
-          className="grid gap-10 rounded-[36px] border border-[color:var(--leaf-200)] bg-white/80 p-10 lg:grid-cols-[1.1fr_0.9fr]"
-        >
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              Consultation
-            </p>
-            <h2 className="font-display text-3xl text-[color:var(--leaf-900)]">
-              Request a private consultation.
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-[color:var(--leaf-700)]">
-              Tell us about your goals and current hairline. We will respond with
-              an assessment and next steps within 24 hours.
-            </p>
-            <div className="mt-6 rounded-3xl bg-[color:var(--leaf-900)] p-6 text-white">
-              <p className="text-sm font-semibold">What to expect</p>
-              <ul className="mt-4 space-y-3 text-sm text-[color:var(--leaf-100)]">
-                <li>Video or in-person consultation options</li>
-                <li>Transparent pricing estimate and graft range</li>
-                <li>Pre-op checklist and timeline overview</li>
-              </ul>
-            </div>
-          </div>
-          <form className="grid gap-4">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm text-[color:var(--leaf-800)]">
-                First name
-                <input
-                  className="rounded-2xl border border-[color:var(--leaf-200)] bg-white px-4 py-3 text-sm"
-                  placeholder="Alex"
-                  type="text"
-                />
-              </label>
-              <label className="grid gap-2 text-sm text-[color:var(--leaf-800)]">
-                Last name
-                <input
-                  className="rounded-2xl border border-[color:var(--leaf-200)] bg-white px-4 py-3 text-sm"
-                  placeholder="Khan"
-                  type="text"
-                />
-              </label>
-            </div>
-            <label className="grid gap-2 text-sm text-[color:var(--leaf-800)]">
-              Email
-              <input
-                className="rounded-2xl border border-[color:var(--leaf-200)] bg-white px-4 py-3 text-sm"
-                placeholder="you@email.com"
-                type="email"
-              />
-            </label>
-            <label className="grid gap-2 text-sm text-[color:var(--leaf-800)]">
-              Procedure of interest
-              <select className="rounded-2xl border border-[color:var(--leaf-200)] bg-white px-4 py-3 text-sm">
-                <option>Hairline restoration</option>
-                <option>Beard restoration</option>
-                <option>Crown density</option>
-                <option>Female hairline</option>
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm text-[color:var(--leaf-800)]">
-              Notes
-              <textarea
-                className="min-h-[120px] rounded-2xl border border-[color:var(--leaf-200)] bg-white px-4 py-3 text-sm"
-                placeholder="Share your goals, timeline, or any questions."
-              />
-            </label>
-            <button
-              type="submit"
-              className="rounded-full bg-[color:var(--leaf-700)] px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-[color:var(--leaf-600)]"
-            >
-              Request consultation
-            </button>
-            <p className="text-xs text-[color:var(--leaf-600)]">
-              By submitting, you agree to our privacy policy and consent to
-              being contacted about your request.
-            </p>
-          </form>
-        </section>
-
-        <section id="reviews" className="space-y-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              Reviews
-            </p>
-            <h2 className="mt-3 font-display text-3xl text-[color:var(--leaf-900)] sm:text-4xl">
-              Trusted by patients who wanted natural results.
-            </h2>
-            <div className="mt-5 flex items-center justify-center gap-2 text-[color:var(--leaf-700)]">
-              <span>★</span>
-              <span>★</span>
-              <span>★</span>
-              <span>★</span>
-              <span>★</span>
-              <span className="ml-2 text-sm text-[color:var(--leaf-700)]">
-                4.9/5 based on verified feedback
-              </span>
-            </div>
-          </div>
-          <div className="mx-auto w-full max-w-4xl">
-            <ReviewSlider reviews={reviews} />
-          </div>
-        </section>
-
-        <section className="grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[32px] border border-[color:var(--leaf-200)] bg-white/80 p-8">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-600)]">
-              FAQ
-            </p>
-            <h2 className="font-display text-3xl text-[color:var(--leaf-900)]">
-              Questions we hear often.
-            </h2>
-            <div className="mt-6 space-y-4 text-sm text-[color:var(--leaf-700)]">
-              {faq.map((item) => (
-                <details
-                  key={item.question}
-                  className="rounded-2xl border border-[color:var(--leaf-200)] bg-white/70 p-4"
+                </article>
+              ))}
+              {proofCases.map((proofCase) => (
+                <article
+                  key={proofCase.slug}
+                  className="hidden overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.1)] sm:block"
                 >
-                  <summary className="cursor-pointer font-semibold text-[color:var(--leaf-900)]">
-                    {item.question}
-                  </summary>
-                  {item.answerRich && item.answerRich.length > 0 ? (
-                    <PortableText
-                      value={item.answerRich}
-                      components={faqComponents}
+                  <div className="border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] p-3">
+                    <BeforeAfterCard
+                      title={proofCase.title}
+                      area={proofCase.areaTreated}
+                      variant={
+                        proofCase.variant ??
+                        variantForProofCase(
+                          proofCase.areaTreated,
+                          proofCase.title,
+                        )
+                      }
+                      beforeImage={proofCase.beforeImageSrc}
+                      afterImage={proofCase.afterImageSrc ?? proofCase.imageSrc}
+                      beforeImageAlt={proofCase.beforeImageAlt}
+                      afterImageAlt={proofCase.afterImageAlt ?? proofCase.imageAlt}
                     />
-                  ) : item.answerText ? (
-                    <p className="mt-2 leading-relaxed">{item.answerText}</p>
-                  ) : null}
-                </details>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
+                        {proofCase.areaTreated}
+                      </p>
+                      {proofCase.isPlaceholder ? (
+                        <span className="rounded-full border border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--ink-700)]">
+                          Preview placeholder
+                        </span>
+                      ) : null}
+                    </div>
+                    <h3 className="mt-2 font-display text-2xl text-[color:var(--ink-950)]">
+                      {proofCase.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
+                      {proofCase.summary}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-[color:var(--ink-600)]">
+                      <span>{proofCase.timeline}</span>
+                      {proofCase.treatmentNote ? (
+                        <span>• {proofCase.treatmentNote}</span>
+                      ) : null}
+                    </div>
+                  </div>
+                </article>
               ))}
             </div>
-          </div>
-          <div className="self-start rounded-[32px] bg-[color:var(--leaf-700)] p-8 text-white">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--leaf-200)]">
-              Confidence
-            </p>
-            <h2 className="font-display text-3xl">
-              A clinic designed for calm.
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-[color:var(--leaf-100)]">
-              Private suites, supportive staff, and a discrete entrance. We keep
-              the experience low-stress from first message to final check-in.
-            </p>
-            <div className="mt-6 rounded-3xl bg-white/10 p-5">
-              <p className="text-sm font-semibold">Clinic location</p>
-              <p className="text-sm text-[color:var(--leaf-100)]">
-                Marylebone, London • Flexible weekend slots
-              </p>
+          ) : (
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {home.proofSection.fallbackItems.map((item) => (
+                <div
+                  key={item.text}
+                  className="rounded-[26px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] p-5 text-sm leading-7 text-[color:var(--ink-700)] shadow-[0_18px_42px_rgba(6,47,64,0.08)]"
+                >
+                  <div className="flex items-start gap-4">
+                    <IconBadge name={item.icon} tone="light" size="sm" />
+                    <span>{item.text}</span>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
+        </section>
+
+        <section id="services" className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+              {home.servicesIntro.eyebrow}
+            </p>
+            <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+              {home.servicesIntro.headline}
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-white/70 sm:text-base">
+              {home.servicesIntro.intro}
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {mobileServices.map((service) => (
+              <article
+                key={`${service.slug}-mobile`}
+                className="panel-dark flex h-full flex-col overflow-hidden rounded-[30px] md:hidden"
+              >
+                <div className="relative aspect-[4/3] border-b border-[color:var(--line-inverse-soft)] bg-[rgba(192,213,214,0.12)]">
+                  <Image
+                    src={service.imageSrc}
+                    alt={service.imageAlt}
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <span className="rounded-full bg-[rgba(192,213,214,0.12)] px-3 py-1 text-xs uppercase tracking-[0.22em] text-white/72">
+                      {service.badge}
+                    </span>
+                    <span className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-300)]/82">
+                      London
+                    </span>
+                  </div>
+                  <h3 className="mt-5 font-display text-3xl text-white">
+                    {service.title}
+                  </h3>
+                  <div className="mt-5 rounded-[24px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.94),rgba(232,238,237,0.88))] p-4 shadow-[0_14px_36px_rgba(6,47,64,0.08)]">
+                    <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
+                      Best for
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--ink-700)]">
+                      {service.bestFor}
+                    </p>
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="inline-flex rounded-full bg-[color:var(--ink-950)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--sage-500)]"
+                    >
+                      View treatment
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+            {services.map((service) => (
+              <article
+                key={service.slug}
+                className="hidden panel-dark h-full flex-col overflow-hidden rounded-[30px] md:flex"
+              >
+                <div className="relative aspect-[4/3] border-b border-[color:var(--line-inverse-soft)] bg-[rgba(192,213,214,0.12)]">
+                  <Image
+                    src={service.imageSrc}
+                    alt={service.imageAlt}
+                    fill
+                    sizes="(min-width: 1280px) 360px, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <span className="rounded-full bg-[rgba(192,213,214,0.12)] px-3 py-1 text-xs uppercase tracking-[0.22em] text-white/72">
+                      {service.badge}
+                    </span>
+                    <span className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-300)]/82">
+                      London
+                    </span>
+                  </div>
+                  <h3 className="mt-5 font-display text-3xl text-white">
+                    {service.title}
+                  </h3>
+                  <p className="mt-3 min-h-[7rem] text-sm leading-7 text-white/68 xl:min-h-[6.75rem]">
+                    {service.shortDescription}
+                  </p>
+                  <div className="mt-5 rounded-[24px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.94),rgba(232,238,237,0.88))] p-4 shadow-[0_14px_36px_rgba(6,47,64,0.08)]">
+                    <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
+                      Best for
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--ink-700)]">
+                      {service.bestFor}
+                    </p>
+                  </div>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="inline-flex rounded-full bg-[color:var(--ink-950)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--sage-500)]"
+                    >
+                      View treatment
+                    </Link>
+                    <Link
+                      href={`/${service.relatedGuideSlugs[0]}`}
+                      className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+                    >
+                      Related reading
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="mt-6 md:hidden">
+            <Link
+              href="/#services"
+              className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-5 py-3 text-sm font-semibold text-white/86 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+            >
+              View all treatments
+            </Link>
           </div>
         </section>
-      </main>
 
-      <footer className="border-t border-[color:var(--leaf-200)] bg-white/60">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="font-display text-xl text-[color:var(--leaf-900)]">
-              Evergreen Hair Clinic
+        <section className="hidden gap-5 lg:grid lg:grid-cols-[0.95fr_1.05fr]">
+          <section className="rounded-[36px] border border-[color:var(--line-soft)] bg-[color:var(--ink-950)] p-6 text-white sm:p-8">
+            <div className="relative mb-7 aspect-[16/8.4] overflow-hidden rounded-[28px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)]">
+              <Image
+                src="/images/london-location-section.png"
+                alt="Consultation in a premium London clinic with clear central London location cues"
+                fill
+                sizes="(min-width: 1024px) 42vw, 100vw"
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,58,79,0.2)_0%,rgba(8,58,79,0.08)_40%,rgba(8,58,79,0.26)_100%)]" />
+            </div>
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/82">
+              {home.londonDecision.eyebrow}
             </p>
-            <p className="text-sm text-[color:var(--leaf-700)]">
-              Confidence-first hair restoration in London.
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl">
+              {home.londonDecision.headline}
+            </h2>
+            <div className="mt-5 space-y-4 text-sm leading-7 text-white/68">
+              {home.londonDecision.body.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/how-we-select-clinics"
+                className="inline-flex rounded-full border border-white/16 bg-white px-4 py-2.5 text-sm font-semibold !text-[color:var(--ink-950)] shadow-[0_16px_36px_rgba(6,47,64,0.22)] transition hover:bg-[color:var(--surface-subtle)]"
+                style={{ color: "var(--ink-950)" }}
+              >
+                {home.londonDecision.primaryCtaLabel}
+              </Link>
+              <Link
+                href="/patient-guidance-process"
+                className="inline-flex rounded-full border border-[rgba(192,213,214,0.18)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[rgba(192,213,214,0.3)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+              >
+                {home.londonDecision.secondaryCtaLabel}
+              </Link>
+            </div>
+          </section>
+
+          <section className="surface-card rounded-[36px] p-6 sm:p-8">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-500)]">
+              {home.journey.eyebrow}
+            </p>
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
+              {home.journey.headline}
+            </h2>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              {home.journey.steps.map((step, index) => (
+                <article
+                  key={step.title}
+                  className="rounded-[26px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.68)] p-5 shadow-[0_18px_44px_rgba(6,47,64,0.08)]"
+                >
+                  <div className="flex items-start gap-4">
+                    <IconBadge
+                      name={iconForJourney(index, step.title)}
+                      tone="light"
+                    />
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-500)]">
+                        Step {index + 1}
+                      </p>
+                      <h3 className="mt-3 font-display text-2xl text-[color:var(--ink-950)]">
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
+                        {step.text}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </section>
+
+        <section className="surface-card rounded-[38px] p-6 sm:p-8 lg:p-10">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-500)]">
+              {home.guideSection.eyebrow}
+            </p>
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
+              {home.guideSection.headline}
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
+              {home.guideSection.intro}
             </p>
           </div>
-          <div className="flex flex-wrap gap-4 text-sm text-[color:var(--leaf-700)]">
-            <a href="#services" className="hover:text-[color:var(--leaf-500)]">
-              Services
-            </a>
-            <a href="#results" className="hover:text-[color:var(--leaf-500)]">
-              Results
-            </a>
-            <a href="#reviews" className="hover:text-[color:var(--leaf-500)]">
-              Reviews
-            </a>
-            <a href="#consultation" className="hover:text-[color:var(--leaf-500)]">
-              Consultation
-            </a>
-            {serviceCatalog.map((service) => (
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {mobileGuides.map((item) => (
               <Link
-                key={service.slug}
-                href={`/services/${service.slug}`}
-                className="hover:text-[color:var(--leaf-500)]"
+                key={`${item.href}-mobile`}
+                href={item.href}
+                className="overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.08)] transition hover:-translate-y-0.5 hover:border-[color:var(--line-strong)] hover:shadow-[0_26px_64px_rgba(6,47,64,0.12)] md:hidden"
               >
-                {service.title}
+                <div className="relative aspect-[16/10] border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)]">
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.imageAlt}
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                    style={{
+                      objectPosition: item.imagePosition ?? "center",
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,58,79,0.02)_0%,rgba(8,58,79,0.12)_100%)]" />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-start gap-4">
+                    <IconBadge name={iconForHref(item.href)} tone="light" />
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
+                        Read next
+                      </p>
+                      <h3 className="mt-3 font-display text-3xl text-[color:var(--ink-950)]">
+                        {item.label}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            {featuredBlogPosts.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="hidden overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.08)] transition hover:-translate-y-0.5 hover:border-[color:var(--line-strong)] hover:shadow-[0_26px_64px_rgba(6,47,64,0.12)] md:block"
+              >
+                <div className="relative aspect-[16/10] border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)]">
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.imageAlt}
+                    fill
+                    sizes="(min-width: 1280px) 30vw, (min-width: 768px) 50vw, 100vw"
+                    className="object-cover"
+                    style={{
+                      objectPosition: item.imagePosition ?? "center",
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,58,79,0.02)_0%,rgba(8,58,79,0.12)_100%)]" />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-start gap-4">
+                    <IconBadge name={iconForHref(item.href)} tone="light" />
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
+                        Read next
+                      </p>
+                      <h3 className="mt-3 font-display text-3xl text-[color:var(--ink-950)]">
+                        {item.label}
+                      </h3>
+                      <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
-        </div>
-      </footer>
-    </div>
+          <div className="mt-8">
+            <Link
+              href="/blog"
+              className="inline-flex rounded-full border border-[color:var(--line-soft)] bg-white/72 px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] shadow-[0_16px_36px_rgba(6,47,64,0.08)] transition hover:border-[color:var(--line-strong)] hover:bg-[color:var(--surface-paper)]"
+            >
+              Browse all articles
+            </Link>
+          </div>
+        </section>
+
+        {reviews.length > 0 ? <ReviewSlider reviews={reviews} /> : null}
+
+        <AssessmentSection
+          sourceLabel="homepage"
+          tone="dark"
+          title="Book your free consultation."
+          intro="Share your concern, timing, any useful location context, and any helpful photos so the team can guide you toward the most useful next step."
+        />
+
+        <section className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
+          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+            Frequently asked questions
+          </p>
+          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+            Questions patients usually ask before taking the next step.
+          </h2>
+          <div className="mt-8 grid gap-4">
+            {mobileFaq.map((item) => (
+              <details
+                key={`${item.question}-mobile`}
+                className="group panel-dark rounded-[26px] p-3 sm:hidden"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-[20px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.96),rgba(232,238,237,0.9))] px-4 py-4 text-base font-semibold text-[color:var(--ink-950)] shadow-[0_14px_34px_rgba(6,47,64,0.08)] marker:content-none">
+                  <span>{item.question}</span>
+                  <span
+                    aria-hidden="true"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[color:var(--line-soft)] bg-white/72 text-[color:var(--ink-700)] transition-transform duration-200 group-open:rotate-180"
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m5 7.5 5 5 5-5" />
+                    </svg>
+                  </span>
+                </summary>
+                <p className="px-2 pt-4 text-sm leading-7 text-white/68">
+                  {item.answer}
+                </p>
+              </details>
+            ))}
+            {home.faq.map((item) => (
+              <details
+                key={item.question}
+                className="group hidden panel-dark rounded-[26px] p-3 sm:block sm:p-4"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-[20px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.96),rgba(232,238,237,0.9))] px-4 py-4 text-base font-semibold text-[color:var(--ink-950)] shadow-[0_14px_34px_rgba(6,47,64,0.08)] marker:content-none">
+                  <span>{item.question}</span>
+                  <span
+                    aria-hidden="true"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[color:var(--line-soft)] bg-white/72 text-[color:var(--ink-700)] transition-transform duration-200 group-open:rotate-180"
+                  >
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m5 7.5 5 5 5-5" />
+                    </svg>
+                  </span>
+                </summary>
+                <p className="px-2 pt-4 text-sm leading-7 text-white/68">
+                  {item.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </main>
+    </SiteShell>
   );
 }

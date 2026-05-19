@@ -1,0 +1,25 @@
+<svg width="960" height="640" viewBox="0 0 960 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="960" height="640" rx="48" fill="#EEF2EA"/>
+<rect x="44" y="44" width="872" height="552" rx="36" fill="url(#bg)"/>
+<circle cx="214" cy="182" r="92" fill="#DDE7D7"/>
+<circle cx="756" cy="470" r="124" fill="#E8E3D8"/>
+<rect x="244" y="144" width="472" height="352" rx="32" fill="#FFFDF8"/>
+<rect x="292" y="198" width="376" height="236" rx="24" fill="#EEF4EA"/>
+<path d="M380 278C380 235.49 414.49 201 457 201H503C545.51 201 580 235.49 580 278V284H380V278Z" fill="#2F4F42"/>
+<path d="M418 314C436.333 302 457 296 480 296C503 296 523.667 302 542 314V364C542 400.451 512.451 430 476 430H484C447.549 430 418 400.451 418 364V314Z" fill="#E0B899"/>
+<path d="M642 232L672 262" stroke="#88A57A" stroke-width="14" stroke-linecap="round"/>
+<path d="M612 262L642 232" stroke="#88A57A" stroke-width="14" stroke-linecap="round"/>
+<circle cx="642" cy="248" r="42" stroke="#88A57A" stroke-width="12"/>
+<path d="M618 170L630 186" stroke="#C49D57" stroke-width="10" stroke-linecap="round"/>
+<path d="M656 170L644 186" stroke="#C49D57" stroke-width="10" stroke-linecap="round"/>
+<path d="M638 142V180" stroke="#C49D57" stroke-width="10" stroke-linecap="round"/>
+<rect x="108" y="454" width="276" height="92" rx="24" fill="#FFFDF8"/>
+<text x="140" y="492" fill="#2F4F42" font-family="Arial, sans-serif" font-size="22" font-weight="700">Hair Loss Treatments</text>
+<text x="140" y="522" fill="#64715E" font-family="Arial, sans-serif" font-size="18">PRP, support and maintenance</text>
+<defs>
+<linearGradient id="bg" x1="118" y1="84" x2="836" y2="566" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EDF4E9"/>
+<stop offset="1" stop-color="#F1ECE2"/>
+</linearGradient>
+</defs>
+</svg>
