@@ -9,6 +9,7 @@ type AssessmentSectionProps = {
   tone?: "light" | "dark";
   title?: string;
   intro?: string;
+  formFirst?: boolean;
 };
 
 export default function AssessmentSection({
@@ -16,6 +17,7 @@ export default function AssessmentSection({
   tone = "light",
   title = "Book your free consultation.",
   intro = "Send your case details so the next step starts with your pattern of loss, priorities, timing, and the most useful consultation guidance for your case.",
+  formFirst = false,
 }: AssessmentSectionProps) {
   const dark = tone === "dark";
   const nextSteps = [
@@ -42,8 +44,16 @@ export default function AssessmentSection({
           : "surface-card rounded-[38px] p-6 sm:p-8 lg:p-10"
       }
     >
-      <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
-        <div className={dark ? "text-white" : ""}>
+      <div className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr]">
+        <div
+          className={`rounded-[30px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.96),rgba(232,238,237,0.94))] p-5 sm:p-6 ${
+            formFirst ? "lg:order-1" : "lg:order-2"
+          }`}
+        >
+          <AssessmentForm sourceLabel={sourceLabel} />
+        </div>
+
+        <div className={`${dark ? "text-white" : ""} ${formFirst ? "lg:order-2" : "lg:order-1"}`}>
           <p
             className={`text-xs uppercase tracking-[0.32em] ${
               dark ? "text-[color:var(--gold-300)]/82" : "text-[color:var(--gold-500)]"
@@ -120,10 +130,6 @@ export default function AssessmentSection({
             </Link>
             .
           </p>
-        </div>
-
-        <div className="rounded-[30px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.96),rgba(232,238,237,0.94))] p-5 sm:p-6">
-          <AssessmentForm sourceLabel={sourceLabel} />
         </div>
       </div>
     </section>

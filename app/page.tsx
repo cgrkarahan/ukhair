@@ -60,6 +60,12 @@ function variantForProofCase(area: string, title: string) {
   return "hairline" as const;
 }
 
+const featuredServiceSlugs = [
+  "male-hair-transplant",
+  "female-hair-transplant",
+  "hair-loss-treatments",
+] as const;
+
 export default async function Home() {
   const [home, services, proofCases, reviews] = await Promise.all([
     getHomePageContent(),
@@ -68,10 +74,12 @@ export default async function Home() {
     getReviewsContent(),
   ]);
 
+  const featuredServices = featuredServiceSlugs
+    .map((slug) => services.find((service) => service.slug === slug))
+    .filter((service): service is NonNullable<typeof service> => Boolean(service));
+
   const mobileTrustPillars = home.trustPillars.slice(0, 2);
-  const mobileSignals = home.signals.slice(0, 2);
   const mobileProofCases = proofCases.slice(0, 1);
-  const mobileServices = services.slice(0, 3);
   const mobileGuides = featuredBlogPosts.slice(0, 2);
   const mobileFaq = home.faq.slice(0, 4);
 
@@ -189,7 +197,7 @@ export default async function Home() {
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
                   href="/assessment"
-                  className="inline-flex rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--gold-300)]"
+                  className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
                 >
                   Book free consultation
                 </Link>
@@ -266,27 +274,11 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {mobileSignals.map((signal) => (
-            <article
-              key={`${signal.value}-${signal.label}-mobile`}
-              className="panel-dark rounded-[28px] p-5 text-white sm:hidden"
-            >
-              <div className="flex items-center gap-4">
-                <IconBadge name={iconForSignal(signal.value)} tone="dark" />
-                <p className="font-display text-[2.35rem] leading-none text-white">
-                  {signal.value}
-                </p>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-white/68">
-                {explanatorySignalCopy(signal.value, signal.label)}
-              </p>
-            </article>
-          ))}
+        <section className="hidden gap-4 sm:grid sm:grid-cols-2 xl:grid-cols-4">
           {home.signals.map((signal) => (
             <article
               key={`${signal.value}-${signal.label}`}
-              className="hidden panel-dark rounded-[28px] p-5 text-white sm:block"
+              className="panel-dark rounded-[28px] p-5 text-white"
             >
               <div className="flex items-center gap-4">
                 <IconBadge name={iconForSignal(signal.value)} tone="dark" />
@@ -440,7 +432,7 @@ export default async function Home() {
           </div>
 
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {mobileServices.map((service) => (
+            {featuredServices.map((service) => (
               <article
                 key={`${service.slug}-mobile`}
                 className="panel-dark flex h-full flex-col overflow-hidden rounded-[30px] md:hidden"
@@ -485,7 +477,7 @@ export default async function Home() {
                 </div>
               </article>
             ))}
-            {services.map((service) => (
+            {featuredServices.map((service) => (
               <article
                 key={service.slug}
                 className="hidden panel-dark h-full flex-col overflow-hidden rounded-[30px] md:flex"
@@ -540,12 +532,12 @@ export default async function Home() {
               </article>
             ))}
           </div>
-          <div className="mt-6 md:hidden">
+          <div className="mt-6 flex justify-start">
             <Link
-              href="/#services"
+              href="/services"
               className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-5 py-3 text-sm font-semibold text-white/86 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
             >
-              View all treatments
+              See all treatments
             </Link>
           </div>
         </section>

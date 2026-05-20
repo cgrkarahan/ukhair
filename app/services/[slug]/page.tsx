@@ -287,7 +287,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/assessment"
-                  className="inline-flex rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--gold-300)]"
+                  className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
                 >
                   Book free consultation
                 </Link>

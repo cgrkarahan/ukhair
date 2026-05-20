@@ -189,7 +189,7 @@ export default function TopicPage({
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/assessment"
-                  className="inline-flex rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--gold-300)]"
+                  className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
                 >
                   Book free consultation
                 </Link>
@@ -338,7 +338,7 @@ export default function TopicPage({
                           {row.title}
                         </h3>
                         {row.badge ? (
-                          <span className="rounded-full bg-[color:var(--gold-400)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[color:var(--ink-950)]">
+                          <span className="rounded-full bg-[color:var(--gold-300)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-black">
                             {row.badge}
                           </span>
                         ) : null}

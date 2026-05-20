@@ -53,8 +53,8 @@ export default async function SiteShell({ children }: SiteShellProps) {
 
       <header className="sticky top-0 z-40 border-b border-[rgba(192,213,214,0.12)] bg-[color:var(--ink-950)]/90 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between gap-4 px-4 py-4 lg:px-8">
-          <div className="xl:hidden">
-            <BrandLogo tone="dark" compact />
+          <div className="min-w-0 xl:hidden">
+            <BrandLogo tone="dark" />
           </div>
           <div className="hidden xl:block">
             <BrandLogo tone="dark" />
@@ -156,7 +156,7 @@ export default async function SiteShell({ children }: SiteShellProps) {
             ) : null}
             <Link
               href="/assessment"
-              className="inline-flex rounded-full bg-[color:var(--gold-400)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-950)] shadow-[0_18px_40px_rgba(165,141,102,0.24)] transition hover:bg-[color:var(--gold-300)]"
+              className="inline-flex rounded-full bg-[color:var(--gold-300)] px-4 py-2.5 text-sm font-semibold text-black shadow-[0_18px_40px_rgba(165,141,102,0.24)] transition hover:bg-[color:var(--gold-400)]"
             >
               Free consultation
             </Link>
@@ -185,7 +185,7 @@ export default async function SiteShell({ children }: SiteShellProps) {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/assessment"
-                className="inline-flex rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--gold-300)]"
+                className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
               >
                 Book free consultation
               </Link>

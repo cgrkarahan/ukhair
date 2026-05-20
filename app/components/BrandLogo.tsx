@@ -22,21 +22,21 @@ export default function BrandLogo({
           alt="UK Hair Transplant logo"
           width={56}
           height={56}
-          className="h-14 w-14 object-contain"
+          className="h-11 w-11 object-contain sm:h-14 sm:w-14"
           priority
         />
       </div>
       {!compact ? (
-        <div>
+        <div className="min-w-0">
           <p
-            className={`text-[11px] uppercase tracking-[0.36em] ${
-              dark ? "text-[color:var(--gold-300)]/70" : "text-[color:var(--ink-600)]"
+            className={`text-[9px] uppercase tracking-[0.28em] sm:text-[11px] sm:tracking-[0.36em] ${
+              dark ? "text-[color:var(--gold-300)]" : "text-[color:var(--ink-600)]"
             }`}
           >
             Premium London Hair Transplant
           </p>
           <p
-            className={`font-display text-xl ${
+            className={`font-display text-lg leading-tight sm:text-xl ${
               dark ? "text-white" : "text-[color:var(--ink-950)]"
             }`}
           >

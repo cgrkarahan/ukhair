@@ -251,7 +251,7 @@ export default function MobileHeaderNav() {
               <Link
                 href="/assessment"
                 onClick={closeMenu}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--gold-300)]"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
               >
                 Book free consultation
               </Link>

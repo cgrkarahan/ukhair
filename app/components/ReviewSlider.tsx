@@ -90,24 +90,32 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
                 prev === 0 ? reviews.length - 1 : prev - 1,
               )
             }
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(192,213,214,0.16)] bg-[rgba(8,58,79,0.9)] text-white/82 transition hover:border-[rgba(192,213,214,0.28)] hover:bg-[rgba(21,88,106,0.98)] hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(192,213,214,0.16)] bg-[rgba(8,58,79,0.9)] text-white/82 transition hover:border-[rgba(192,213,214,0.28)] hover:bg-[rgba(21,88,106,0.98)] hover:text-white"
             aria-label="Previous review"
           >
             ←
           </button>
-          <div className="flex items-center gap-2 px-2">
+          <div className="rounded-full border border-[rgba(192,213,214,0.12)] bg-white/6 px-3 py-2 text-sm font-semibold text-white/74 sm:hidden">
+            {activeIndex + 1} / {reviews.length}
+          </div>
+          <div className="hidden items-center gap-1 px-1 sm:flex">
             {reviews.map((_, index) => (
               <button
                 key={`review-dot-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`h-2.5 w-2.5 rounded-full transition ${
-                  index === activeIndex
-                    ? "bg-[color:var(--gold-500)]"
-                    : "bg-white/18 hover:bg-[color:var(--palette-teal)]"
-                }`}
+                className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/6"
                 aria-label={`Go to review ${index + 1}`}
-              />
+                aria-current={index === activeIndex ? "true" : undefined}
+              >
+                <span
+                  className={`h-2.5 w-2.5 rounded-full transition ${
+                    index === activeIndex
+                      ? "bg-[color:var(--gold-500)]"
+                      : "bg-white/18 hover:bg-[color:var(--palette-teal)]"
+                  }`}
+                />
+              </button>
             ))}
           </div>
           <button
@@ -115,7 +123,7 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
             onClick={() =>
               setActiveIndex((prev) => (prev + 1) % reviews.length)
             }
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(192,213,214,0.16)] bg-[rgba(8,58,79,0.9)] text-white/82 transition hover:border-[rgba(192,213,214,0.28)] hover:bg-[rgba(21,88,106,0.98)] hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(192,213,214,0.16)] bg-[rgba(8,58,79,0.9)] text-white/82 transition hover:border-[rgba(192,213,214,0.28)] hover:bg-[rgba(21,88,106,0.98)] hover:text-white"
             aria-label="Next review"
           >
             →

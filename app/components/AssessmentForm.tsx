@@ -23,7 +23,7 @@ function SubmitButton() {
   return (
     <button
       type="submit"
-      className="inline-flex rounded-full bg-[color:var(--gold-400)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] shadow-[0_14px_32px_rgba(165,141,102,0.18)] transition hover:bg-[color:var(--gold-300)] disabled:cursor-not-allowed disabled:opacity-70"
+      className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold text-black shadow-[0_14px_32px_rgba(165,141,102,0.18)] transition hover:bg-[color:var(--gold-400)] disabled:cursor-not-allowed disabled:opacity-70"
       disabled={pending}
     >
       {pending ? "Sending request..." : "Book free consultation"}
@@ -203,13 +203,18 @@ export default function AssessmentForm({
       <input type="hidden" name="gclid" value={attribution.gclid} />
       <input type="hidden" name="gbraid" value={attribution.gbraid} />
       <input type="hidden" name="wbraid" value={attribution.wbraid} />
-      <input
-        type="text"
-        name="company"
-        tabIndex={-1}
-        autoComplete="off"
-        className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
-      />
+      <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+        <label htmlFor={`${formId}-company`}>
+          Company
+        </label>
+        <input
+          id={`${formId}-company`}
+          type="text"
+          name="company"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-7 text-[color:var(--ink-700)]">
