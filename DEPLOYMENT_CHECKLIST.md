@@ -12,6 +12,7 @@ Production launch checklist for `ukhairtransplant.co`.
 - [ ] Set `RESEND_FROM_EMAIL=UK Hair Transplant Co <hello@ukhairtransplant.co>`
 - [ ] Set `LEAD_NOTIFICATION_EMAIL=hello@ukhairtransplant.co`
 - [ ] Set production GTM / GA4 / Google Ads env vars if used
+- [ ] Set `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-6WMF4W8F9K` for GA4 if not using the code default
 
 ## 2. Domain, redirects, and DNS
 

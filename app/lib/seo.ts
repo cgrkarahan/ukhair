@@ -2,8 +2,32 @@ import type { Metadata } from "next";
 import { brandName, replaceBrandText } from "@/app/lib/brand";
 
 export const siteName = brandName;
-export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.ukhairtransplant.co";
+const canonicalSiteUrl = "https://www.ukhairtransplant.co";
+
+function normalizeSiteUrl(value?: string) {
+  if (!value) {
+    return canonicalSiteUrl;
+  }
+
+  try {
+    const url = new URL(value);
+    url.protocol = "https:";
+
+    if (url.hostname === "ukhairtransplant.co") {
+      url.hostname = "www.ukhairtransplant.co";
+    }
+
+    url.pathname = "";
+    url.search = "";
+    url.hash = "";
+
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return canonicalSiteUrl;
+  }
+}
+
+export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 export const defaultTitle = siteName;
 export const defaultDescription =
   "UK Hair Transplant helps patients explore hair transplant treatment in London with stronger clinical standards, clearer guidance, and premium central London access.";

@@ -11,6 +11,31 @@ import {
 } from "@/app/lib/tracking";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-6WMF4W8F9K";
+
+function injectGoogleTag(measurementId: string) {
+  if (typeof window === "undefined" || window.__ukhairGoogleTagLoaded) {
+    return;
+  }
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag =
+    window.gtag ||
+    function gtag(...args: unknown[]) {
+      window.dataLayer.push(args);
+    };
+
+  window.gtag("js", new Date());
+  window.gtag("config", measurementId);
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+  script.dataset.ukhair = "gtag";
+  document.head.appendChild(script);
+  window.__ukhairGoogleTagLoaded = true;
+}
 
 function injectGtm(gtmId: string) {
   if (typeof window === "undefined" || window.__ukhairGtmLoaded) {
@@ -43,12 +68,16 @@ export default function CookieConsent() {
   );
 
   useEffect(() => {
+    if (consent === "accepted" && GA_MEASUREMENT_ID) {
+      injectGoogleTag(GA_MEASUREMENT_ID);
+    }
+
     if (consent === "accepted" && GTM_ID) {
       injectGtm(GTM_ID);
     }
   }, [consent]);
 
-  if (!GTM_ID || consent) {
+  if ((!GTM_ID && !GA_MEASUREMENT_ID) || consent) {
     return null;
   }
 
@@ -82,6 +111,9 @@ export default function CookieConsent() {
             onClick={() => {
               persistConsent("accepted");
               persistAttribution();
+              if (GA_MEASUREMENT_ID) {
+                injectGoogleTag(GA_MEASUREMENT_ID);
+              }
               if (GTM_ID) {
                 injectGtm(GTM_ID);
               }

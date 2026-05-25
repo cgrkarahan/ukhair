@@ -6,7 +6,11 @@ import type {
   AssessmentSubmission,
 } from "@/app/lib/assessmentForm";
 
-function getValue(formData: FormData, key: keyof AssessmentSubmission | "company") {
+const HONEYPOT_FIELD = "__ukhair_contact_check";
+const MARKETING_CONSENT_WORDING =
+  "I agree to receive hair restoration guidance, clinic updates, and occasional consultation offers or discounts from UK Hair Transplant Co. I can unsubscribe at any time.";
+
+function getValue(formData: FormData, key: keyof AssessmentSubmission | typeof HONEYPOT_FIELD) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
 }
@@ -36,6 +40,10 @@ function sanitizeHeaderValue(value: string) {
   return value.replace(/[\r\n]+/g, " ").trim();
 }
 
+function getCheckboxValue(formData: FormData, key: keyof AssessmentSubmission) {
+  return formData.get(key) === "yes" ? "Yes" : "No";
+}
+
 function row(label: string, value: string): ReactNode {
   return (
     `<tr><td style="padding:8px 12px;border:1px solid rgba(8,58,79,0.14);font-weight:600;color:#083A4F;">${escapeHtml(label)}</td>` +
@@ -63,6 +71,8 @@ function buildEmailHtml(submission: AssessmentSubmission) {
             ${row("Primary concern", submission.primaryConcern)}
             ${row("UK only or open to Turkey", submission.ukOnlyOrOpenToTurkey)}
             ${row("Message", submission.message)}
+            ${row("Marketing consent", submission.marketingConsent)}
+            ${row("Marketing consent wording", submission.marketingConsentWording)}
             ${row("Landing page", submission.landingPage)}
             ${row("Referrer", submission.referrer)}
             ${row("UTM source", submission.utmSource)}
@@ -91,6 +101,8 @@ function buildEmailText(submission: AssessmentSubmission) {
     formatTextLine("Primary concern", submission.primaryConcern),
     formatTextLine("UK only or open to Turkey", submission.ukOnlyOrOpenToTurkey),
     formatTextLine("Message", submission.message),
+    formatTextLine("Marketing consent", submission.marketingConsent),
+    formatTextLine("Marketing consent wording", submission.marketingConsentWording),
     "",
     "Attribution",
     formatTextLine("Landing page", submission.landingPage),
@@ -110,9 +122,13 @@ export async function submitAssessment(
   _prevState: AssessmentActionState,
   formData: FormData,
 ): Promise<AssessmentActionState> {
-  const honeypot = getValue(formData, "company");
+  const honeypot = getValue(formData, HONEYPOT_FIELD);
 
   if (honeypot) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Assessment submission skipped because the honeypot field was filled.");
+    }
+
     return { status: "success" };
   }
 
@@ -124,6 +140,8 @@ export async function submitAssessment(
     primaryConcern: getValue(formData, "primaryConcern"),
     ukOnlyOrOpenToTurkey: getValue(formData, "ukOnlyOrOpenToTurkey"),
     message: getValue(formData, "message"),
+    marketingConsent: getCheckboxValue(formData, "marketingConsent"),
+    marketingConsentWording: MARKETING_CONSENT_WORDING,
     landingPage: getValue(formData, "landingPage"),
     referrer: getValue(formData, "referrer"),
     utmSource: getValue(formData, "utmSource"),
@@ -182,13 +200,20 @@ export async function submitAssessment(
     });
 
     if (!response.ok) {
+      console.error("Resend email send failed", {
+        status: response.status,
+        body: await response.text(),
+      });
+
       return {
         status: "error",
         message:
           "The request could not be sent right now. Please try again in a moment or use another contact option.",
       };
     }
-  } catch {
+  } catch (error) {
+    console.error("Resend email send threw an error", error);
+
     return {
       status: "error",
       message:

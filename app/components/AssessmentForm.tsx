@@ -193,6 +193,20 @@ export default function AssessmentForm({
         />
       </label>
 
+      <label className="flex gap-3 rounded-[18px] border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] px-4 py-3 text-sm leading-6 text-[color:var(--ink-800)]">
+        <input
+          type="checkbox"
+          name="marketingConsent"
+          value="yes"
+          className="mt-1 h-4 w-4 rounded border-[color:var(--line-soft)] text-[color:var(--sage-700)]"
+        />
+        <span>
+          I agree to receive hair restoration guidance, clinic updates, and occasional
+          consultation offers or discounts from UK Hair Transplant Co. I can unsubscribe
+          at any time.
+        </span>
+      </label>
+
       <input type="hidden" name="landingPage" value={attribution.landingPage} />
       <input type="hidden" name="referrer" value={attribution.referrer} />
       <input type="hidden" name="utmSource" value={attribution.utmSource} />
@@ -204,15 +218,15 @@ export default function AssessmentForm({
       <input type="hidden" name="gbraid" value={attribution.gbraid} />
       <input type="hidden" name="wbraid" value={attribution.wbraid} />
       <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
-        <label htmlFor={`${formId}-company`}>
+        <label htmlFor={`${formId}-contact-check`}>
           Company
         </label>
         <input
-          id={`${formId}-company`}
+          id={`${formId}-contact-check`}
           type="text"
-          name="company"
+          name="__ukhair_contact_check"
           tabIndex={-1}
-          autoComplete="off"
+          autoComplete="new-password"
         />
       </div>
 

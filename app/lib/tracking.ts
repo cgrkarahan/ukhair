@@ -41,7 +41,9 @@ export const emptyAttributionData: AttributionData = {
 
 declare global {
   interface Window {
-    dataLayer: Record<string, unknown>[];
+    dataLayer: unknown[];
+    gtag?: (...args: unknown[]) => void;
+    __ukhairGoogleTagLoaded?: boolean;
     __ukhairGtmLoaded?: boolean;
   }
 }
@@ -166,6 +168,10 @@ export function pushTrackingEvent(
     event,
     ...payload,
   });
+
+  if (window.gtag) {
+    window.gtag("event", event, payload);
+  }
 }
 
 export function getConsentState() {

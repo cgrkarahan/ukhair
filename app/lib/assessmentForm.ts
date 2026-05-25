@@ -6,6 +6,8 @@ export type AssessmentSubmission = {
   primaryConcern: string;
   ukOnlyOrOpenToTurkey: string;
   message: string;
+  marketingConsent: string;
+  marketingConsentWording: string;
   landingPage: string;
   referrer: string;
   utmSource: string;
