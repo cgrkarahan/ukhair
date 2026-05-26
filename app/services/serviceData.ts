@@ -112,10 +112,10 @@ export const serviceCatalog: ServiceDetail[] = [
     slug: "female-hair-transplant",
     title: "Female Hair Transplant",
     shortDescription:
-      "Female hair restoration in London with careful suitability explanation, softer framing, and realistic density planning.",
+      "Female hair transplant guidance in London with careful suitability checks, softer framing, and realistic density planning.",
     seoTitle: "Female Hair Transplant London",
     seoDescription:
-      "Explore female hair transplant treatment in London, including suitability, density blending, part-line restoration, hairline softness, candidacy, and recovery expectations.",
+      "Explore female hair transplant treatment in London, including suitability checks, donor assessment, part-line restoration, hairline softness, density blending, recovery, and aftercare.",
     keywords: [
       "female hair transplant london",
       "women hair transplant london",
@@ -128,24 +128,24 @@ export const serviceCatalog: ServiceDetail[] = [
     bestFor: "Diffuse thinning, part widening, soft frontal restoration, selective density support",
     outcome: "Subtle framing and density improvement that respects existing hair and styling habits",
     intro:
-      "Explore female hair transplant treatment in London with clear suitability explanation, softer framing, and proper respect for the complexity of female thinning.",
+      "Explore female hair transplant treatment in London with clear suitability explanation, softer framing, donor-area review, and proper respect for the complexity of female thinning.",
     consultation: [
-      "Review the thinning pattern and whether surgery is appropriate in the first place.",
-      "Discuss framing, density blending, and how the restored area needs to sit beside existing hair.",
-      "Clarify recovery, styling disruption, and whether a less visible method question matters.",
+      "Review the thinning pattern, medical history, donor strength, and whether surgery is appropriate in the first place.",
+      "Discuss frontal framing, part-line support, density blending, and how the restored area needs to sit beside existing hair.",
+      "Clarify recovery visibility, styling disruption, return-to-work timing, and whether a less visible method question matters.",
     ],
     highlights: [
       {
         title: "Suitability first",
-        text: "Not all patterns of female thinning are automatically suitable for surgery, and that nuance matters.",
+        text: "Not all patterns of female hair loss are automatically suitable for transplant surgery, so diagnosis, donor area, and expectations need careful review.",
       },
       {
         title: "Softer design language",
-        text: "Framing, blending, and density harmony usually matter more than aggressive lowering or heavy density rhetoric.",
+        text: "Framing, blending, part-line support, and density harmony usually matter more than aggressive lowering or heavy density rhetoric.",
       },
       {
         title: "Discretion matters",
-        text: "Recovery visibility, without-shaving interest, and styling impact are more likely to shape female enquiry behaviour.",
+        text: "Recovery visibility, without-shaving interest, work timing, and styling impact are more likely to shape female enquiry behaviour.",
       },
     ],
     guideHeading:
@@ -154,27 +154,30 @@ export const serviceCatalog: ServiceDetail[] = [
       {
         title: "What women usually want to understand",
         body: [
-          "Female patients often need the explanation to reflect how different the decision can feel. Suitability, discreet recovery, and believable density blending matter more than loud before-and-after promises.",
-          "Some women may need non-surgical support, timing adjustments, or a more cautious approach before surgery is considered.",
+          "Female patients often need the explanation to reflect how different the decision can feel. Suitability, discreet recovery, donor limitations, and believable density blending matter more than loud before-and-after promises.",
+          "A female hair transplant in London may be considered for selective cases such as frontal softening, part-line support, or localised thinning, but diffuse shedding or unstable loss may need diagnosis and non-surgical support first.",
+          "Some women may need medical investigation, timing adjustments, or a more cautious approach before surgery is considered.",
         ],
       },
       {
         title: "What a stronger consultation looks like",
         body: [
           "A strong female consultation discusses pattern of loss, donor suitability, part-line or frontal goals, styling habits, and how subtle or visible the desired change should be.",
+          "It should also explain whether the target area can be improved without overusing donor hair, how existing hair will be protected, and what result should be considered realistic.",
         ],
       },
       {
         title: "Why this matters in practice",
         body: [
           "Clear female explanation shows that the discussion goes beyond the standard male hairline conversation.",
+          "The best planning usually connects the visual goal with the practical details women ask about: styling, early healing, shedding, privacy, aftercare, and whether the treatment can be planned around normal life in London.",
         ],
       },
     ],
     londonContext: [
-      "Female treatment in London often matters most when it emphasises convenience, privacy, and a calmer overall experience.",
-      "Women may care more about visible downtime and styling disruption than broader transplant explanation usually suggests.",
-      "Separate cost and recovery explanation helps avoid forcing women through more generic wording.",
+      "Female hair transplant treatment in London often matters most when it emphasises consultation access, convenience, privacy, and a calmer overall experience.",
+      "Women may care more about visible downtime, styling disruption, travel around treatment day, and local follow-up than broader transplant explanation usually suggests.",
+      "Separate cost, suitability, recovery, and aftercare explanation helps avoid forcing women through more generic male-pattern wording.",
     ],
     selectionCriteria: [
       "Ask how the clinic decides whether surgery is suitable for female thinning patterns.",

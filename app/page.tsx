@@ -429,6 +429,12 @@ export default async function Home() {
             <p className="mt-4 text-sm leading-7 text-white/70 sm:text-base">
               {home.servicesIntro.intro}
             </p>
+            <Link
+              href="/services"
+              className="mt-5 inline-flex text-sm font-semibold text-[color:var(--gold-300)] transition hover:text-white"
+            >
+              Browse all hair transplant treatments
+            </Link>
           </div>
 
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">

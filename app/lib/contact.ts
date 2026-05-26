@@ -26,6 +26,11 @@ export const siteSocialLinks = [
     href: "https://www.facebook.com/ukhairtransplantco",
     label: "UK Hair Transplant",
   },
+  {
+    platform: "LinkedIn",
+    href: "https://www.linkedin.com/company/uk-hair-transplant-co/",
+    label: "UK Hair Transplant Co",
+  },
 ] as const;
 
 export function normalizePhoneNumber(value: string) {

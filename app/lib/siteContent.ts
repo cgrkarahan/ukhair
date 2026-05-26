@@ -103,7 +103,7 @@ export const primaryNavigation: HeaderNavItem[] = [
     description: "What shapes the quote, what is included, and how to compare value.",
   },
   {
-    href: "/#services",
+    href: "/services",
     label: "Treatments",
     description: "Scalp and facial-hair treatment options.",
     items: [
