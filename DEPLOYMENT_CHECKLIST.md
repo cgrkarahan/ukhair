@@ -35,6 +35,8 @@ Production launch checklist for `ukhairtransplant.co`.
 - [ ] Verify `sitemap.xml` loads on production
 - [ ] Verify `robots.txt` loads on production
 - [ ] Verify `llms.txt` loads on production
+- [ ] Verify the IndexNow key loads at `https://www.ukhairtransplant.co/81041f6f0c26422b91067fc9b7393a84.txt`
+- [ ] Run `npm run indexnow -- --dry-run`, then `npm run indexnow` after deployment
 
 ## 4. Metadata and sharing assets
 

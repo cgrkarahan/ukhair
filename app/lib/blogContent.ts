@@ -35,8 +35,7 @@ const rawBlogPosts: BaseBlogPost[] = [
   {
     slug: "hair-transplant-consultation-london-what-to-expect",
     title: "What to Expect From a Hair Transplant Consultation in London",
-    seoTitle:
-      "Hair Transplant Consultation London: What to Expect Before You Book",
+    seoTitle: "Hair Transplant Consultation London: What to Expect",
     description:
       "Learn what a good hair transplant consultation in London should cover, from donor area and suitability to quote structure, planning, and aftercare.",
     excerpt:
@@ -129,8 +128,7 @@ const rawBlogPosts: BaseBlogPost[] = [
   {
     slug: "hair-transplant-cost-london-what-changes-the-price",
     title: "Why Hair Transplant Costs Differ in London",
-    seoTitle:
-      "Hair Transplant Cost London: What Changes the Price and What to Compare",
+    seoTitle: "Hair Transplant Cost London: What Affects Price",
     description:
       "Understand why hair transplant costs vary in London, what should be included in a quote, and how to compare value beyond the first price.",
     excerpt:
@@ -223,8 +221,7 @@ const rawBlogPosts: BaseBlogPost[] = [
   {
     slug: "how-to-choose-a-hair-transplant-clinic-in-london",
     title: "How to Choose a Hair Transplant Clinic in London",
-    seoTitle:
-      "How to Choose a Hair Transplant Clinic in London: What Patients Should Check",
+    seoTitle: "How to Choose a Hair Transplant Clinic in London",
     description:
       "A practical guide to choosing a hair transplant clinic in London, including doctor registration, provider standards, consultation quality, and aftercare.",
     excerpt:
@@ -311,8 +308,7 @@ const rawBlogPosts: BaseBlogPost[] = [
   {
     slug: "uk-vs-turkey-hair-transplant-how-to-compare",
     title: "UK vs Turkey Hair Transplant: How to Compare the Two Routes",
-    seoTitle:
-      "UK vs Turkey Hair Transplant: How to Compare Cost, Standards, and Follow-Up",
+    seoTitle: "UK vs Turkey Hair Transplant: Cost and Aftercare",
     description:
       "A balanced guide to comparing UK and Turkey hair transplant routes, including cost, travel, follow-up, standards, and suitability considerations.",
     excerpt:
@@ -399,8 +395,7 @@ const rawBlogPosts: BaseBlogPost[] = [
   {
     slug: "hair-transplant-recovery-timeline-week-by-week",
     title: "Hair Transplant Recovery Timeline: What Happens Week by Week",
-    seoTitle:
-      "Hair Transplant Recovery Timeline: Week-by-Week Healing and Regrowth Guide",
+    seoTitle: "Hair Transplant Recovery Timeline: Week by Week",
     description:
       "A week-by-week guide to hair transplant recovery, including early healing, shedding, regrowth stages, and when patients usually see visible change.",
     excerpt:
@@ -481,8 +476,7 @@ const rawBlogPosts: BaseBlogPost[] = [
   {
     slug: "female-hair-transplant-london-who-may-be-suitable",
     title: "Female Hair Transplant in London: Who May Be Suitable?",
-    seoTitle:
-      "Female Hair Transplant London: Suitability, Planning, and What to Expect",
+    seoTitle: "Female Hair Transplant London: Suitability Guide",
     description:
       "Learn who may be suitable for female hair transplant in London, what a consultation should assess, and how planning differs from more standard male-pattern cases.",
     excerpt:

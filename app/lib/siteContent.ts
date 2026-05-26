@@ -370,7 +370,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "hair-transplant-london": {
     slug: "hair-transplant-london",
     title: "Hair Transplant in London",
-    seoTitle: "Hair Transplant London | Central London Options, Standards and Aftercare",
+    seoTitle: "Hair Transplant London: Standards and Aftercare",
     description:
       "Research hair transplant treatment in London with clear information on suitability, methods, pricing, aftercare, and the standards patients should check before moving forward.",
     eyebrow: "Hair transplant London",
@@ -524,7 +524,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "hair-transplant-cost-london": {
     slug: "hair-transplant-cost-london",
     title: "Hair Transplant Cost in London",
-    seoTitle: "Hair Transplant Cost London | What Shapes the Quote and What to Compare",
+    seoTitle: "Hair Transplant Cost London",
     description:
       "Understand hair transplant cost in London, what usually shapes the quote, what may be included, and what to compare before choosing treatment.",
     eyebrow: "Hair transplant cost London",
@@ -711,8 +711,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "how-we-select-clinics": {
     slug: "how-we-select-clinics",
     title: "How We Select Hair Transplant Clinics",
-    seoTitle:
-      "How We Select Hair Transplant Clinics | Standards, Governance and Aftercare",
+    seoTitle: "How We Select Hair Transplant Clinics",
     description:
       "See what to check when comparing hair transplant clinics, including doctor registration, regulated clinic environments, aftercare, suitability, and clear patient information.",
     eyebrow: "Clinic selection",
@@ -861,8 +860,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "our-clinical-standards": {
     slug: "our-clinical-standards",
     title: "Our Clinical Standards",
-    seoTitle:
-      "Our Clinical Standards | Hair Transplant Standards, GMC and CQC Explained",
+    seoTitle: "Hair Transplant Standards: GMC and CQC",
     description:
       "Understand the standards behind treatment recommendations, including GMC-registered doctors, CQC-registered providers in England, realistic planning, suitability, and aftercare.",
     eyebrow: "Clinical standards",
@@ -1019,8 +1017,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "patient-guidance-process": {
     slug: "patient-guidance-process",
     title: "Before You Enquire",
-    seoTitle:
-      "Before You Enquire | What to Prepare Before a Hair Transplant Assessment",
+    seoTitle: "Hair Transplant Assessment: What to Prepare",
     description:
       "See what to prepare before you enquire about treatment, including what information helps an initial assessment, what questions to ask, and what to review before deciding.",
     eyebrow: "Before you enquire",
@@ -1169,8 +1166,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "uk-vs-turkey-hair-transplant": {
     slug: "uk-vs-turkey-hair-transplant",
     title: "UK vs Turkey Hair Transplant",
-    seoTitle:
-      "UK vs Turkey Hair Transplant | London, Travel, Aftercare and Cost Compared",
+    seoTitle: "UK vs Turkey Hair Transplant: What to Compare",
     description:
       "Compare UK and Turkey hair transplant options with a balanced look at consultation access, travel, aftercare, clinic standards, and overall value.",
     eyebrow: "UK vs Turkey hair transplant",
@@ -1319,8 +1315,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "why-turkiye": {
     slug: "why-turkiye",
     title: "Why Turkiye for Hair Transplant",
-    seoTitle:
-      "Why Turkiye for Hair Transplant | What Patients Still Need to Compare Before Booking",
+    seoTitle: "Why Turkiye for Hair Transplants",
     description:
       "Understand why some patients still choose Turkiye for hair transplant treatment, and what to compare around travel, package structure, aftercare, communication, and clinic standards before booking.",
     eyebrow: "Why Turkiye",
@@ -1481,8 +1476,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "how-hair-transplant-works": {
     slug: "how-hair-transplant-works",
     title: "How Hair Transplant Works",
-    seoTitle:
-      "How Hair Transplant Works | What Happens Before, During and After Treatment",
+    seoTitle: "How Hair Transplant Works",
     description:
       "Understand how hair transplant works, including what happens before treatment, on procedure day, and during the recovery and growth stages afterwards.",
     eyebrow: "How the procedure works",
@@ -1650,8 +1644,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "hair-transplant-recovery-timeline": {
     slug: "hair-transplant-recovery-timeline",
     title: "Hair Transplant Recovery Timeline",
-    seoTitle:
-      "Hair Transplant Recovery Timeline | What to Expect in the First Days, Weeks and Months",
+    seoTitle: "Hair Transplant Recovery Timeline",
     description:
       "See a practical hair transplant recovery timeline covering the first days, weeks, and months after treatment, including healing, shedding, swelling, and when growth usually becomes more visible.",
     eyebrow: "Recovery timeline",
@@ -1822,7 +1815,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "hair-transplant-side-effects": {
     slug: "hair-transplant-side-effects",
     title: "Hair Transplant Side Effects",
-    seoTitle: "Hair Transplant Side Effects | What Patients Should Expect",
+    seoTitle: "Hair Transplant Side Effects",
     description:
       "Understand common hair transplant side effects such as swelling, itching, shedding, tenderness, scabbing, and tightness, plus when symptoms should be reviewed by the treating clinic.",
     eyebrow: "What side effects to expect",
@@ -1972,7 +1965,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "female-hair-transplant-london": {
     slug: "female-hair-transplant-london",
     title: "Female Hair Transplant London",
-    seoTitle: "Female Hair Transplant London | Women's Hair Restoration Guide",
+    seoTitle: "Female Hair Transplant London",
     description:
       "Explore female hair transplant treatment in London with explanation around suitability, planning, hairline softness, density blending, and what women should ask before booking.",
     eyebrow: "For women considering treatment",
@@ -2050,7 +2043,7 @@ export const topicPages: Record<string, TopicPageContent> = {
   "hair-transplant-without-shaving": {
     slug: "hair-transplant-without-shaving",
     title: "Hair Transplant Without Shaving",
-    seoTitle: "Hair Transplant Without Shaving | What Patients Should Know",
+    seoTitle: "Hair Transplant Without Shaving",
     description:
       "Learn when a hair transplant without shaving may be considered, what it changes in planning and recovery, and why not every patient is suited to this approach.",
     eyebrow: "Treatment without shaving",

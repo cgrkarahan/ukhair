@@ -148,7 +148,7 @@ export default async function SiteShell({ children }: SiteShellProps) {
               <a
                 href={whatsappHref}
                 target="_blank"
-                rel="noreferrer"
+                rel="nofollow noreferrer"
                 className="hidden rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-[#082E25] shadow-[0_18px_40px_rgba(37,211,102,0.24)] transition hover:bg-[#1fc15c] md:inline-flex"
               >
                 WhatsApp
