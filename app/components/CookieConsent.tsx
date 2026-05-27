@@ -13,6 +13,28 @@ import {
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-6WMF4W8F9K";
+const CLARITY_PROJECT_ID =
+  process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? "wxlwrp223r";
+
+function injectClarity(projectId: string) {
+  if (typeof window === "undefined" || window.__ukhairClarityLoaded) {
+    return;
+  }
+
+  window.clarity =
+    window.clarity ||
+    function clarity(...args: unknown[]) {
+      window.clarity!.q = window.clarity!.q || [];
+      window.clarity!.q.push(args);
+    };
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.clarity.ms/tag/${projectId}`;
+  script.dataset.ukhair = "clarity";
+  document.head.appendChild(script);
+  window.__ukhairClarityLoaded = true;
+}
 
 function injectGoogleTag(measurementId: string) {
   if (typeof window === "undefined" || window.__ukhairGoogleTagLoaded) {
@@ -68,6 +90,10 @@ export default function CookieConsent() {
   );
 
   useEffect(() => {
+    if (consent === "accepted" && CLARITY_PROJECT_ID) {
+      injectClarity(CLARITY_PROJECT_ID);
+    }
+
     if (consent === "accepted" && GA_MEASUREMENT_ID) {
       injectGoogleTag(GA_MEASUREMENT_ID);
     }
@@ -77,7 +103,7 @@ export default function CookieConsent() {
     }
   }, [consent]);
 
-  if ((!GTM_ID && !GA_MEASUREMENT_ID) || consent) {
+  if ((!GTM_ID && !GA_MEASUREMENT_ID && !CLARITY_PROJECT_ID) || consent) {
     return null;
   }
 
@@ -111,6 +137,9 @@ export default function CookieConsent() {
             onClick={() => {
               persistConsent("accepted");
               persistAttribution();
+              if (CLARITY_PROJECT_ID) {
+                injectClarity(CLARITY_PROJECT_ID);
+              }
               if (GA_MEASUREMENT_ID) {
                 injectGoogleTag(GA_MEASUREMENT_ID);
               }

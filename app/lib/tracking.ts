@@ -42,7 +42,9 @@ export const emptyAttributionData: AttributionData = {
 declare global {
   interface Window {
     dataLayer: unknown[];
+    clarity?: ((...args: unknown[]) => void) & { q?: unknown[][] };
     gtag?: (...args: unknown[]) => void;
+    __ukhairClarityLoaded?: boolean;
     __ukhairGoogleTagLoaded?: boolean;
     __ukhairGtmLoaded?: boolean;
   }
