@@ -14,6 +14,7 @@ export function iconForHref(href: string): SiteIconName {
     "/blog": "book-open",
     "/contact": "phone",
     "/cookies": "clipboard-check",
+    "/how-we-work": "route",
     "/privacy": "shield-check",
     "/terms": "clipboard-check",
     "/hair-transplant-london": "map-pin",

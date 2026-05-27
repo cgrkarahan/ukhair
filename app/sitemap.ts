@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = [
     "/assessment",
     "/about",
+    "/how-we-work",
     "/blog",
     "/contact",
     "/privacy",

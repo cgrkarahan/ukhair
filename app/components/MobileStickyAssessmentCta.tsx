@@ -7,7 +7,7 @@ import { CONSENT_EVENT_NAME, getConsentState } from "@/app/lib/tracking";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-6WMF4W8F9K";
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-TT92LPF3B8";
 const KEYBOARD_HEIGHT_THRESHOLD = 140;
 
 function isEditableElement(target: EventTarget | null) {

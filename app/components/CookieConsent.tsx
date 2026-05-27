@@ -12,7 +12,7 @@ import {
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-6WMF4W8F9K";
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-TT92LPF3B8";
 const CLARITY_PROJECT_ID =
   process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? "wxlwrp223r";
 

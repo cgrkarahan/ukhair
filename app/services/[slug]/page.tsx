@@ -157,9 +157,11 @@ export default async function ServicePage({ params }: ServicePageProps) {
       url: absoluteUrl(`/services/${service.slug}`),
       areaServed: ["London", "United Kingdom"],
       provider: {
-        "@type": "Organization",
+        "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
         name: siteName,
         url: absoluteUrl("/"),
+        description:
+          "Hair transplant guidance and patient mediation service helping people understand treatment options and access selected clinic partners.",
       },
     },
     {

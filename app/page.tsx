@@ -66,6 +66,8 @@ const featuredServiceSlugs = [
   "hair-loss-treatments",
 ] as const;
 
+const homepageBlogPosts = featuredBlogPosts.slice(0, 3);
+
 export default async function Home() {
   const [home, services, proofCases, reviews] = await Promise.all([
     getHomePageContent(),
@@ -80,18 +82,58 @@ export default async function Home() {
 
   const mobileTrustPillars = home.trustPillars.slice(0, 2);
   const mobileProofCases = proofCases.slice(0, 1);
-  const mobileGuides = featuredBlogPosts.slice(0, 2);
   const mobileFaq = home.faq.slice(0, 4);
 
   const structuredData = [
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
+      "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
       name: siteName,
       url: absoluteUrl("/"),
-      description: home.description,
+      description:
+        "UK Hair Transplant Co is a hair transplant guidance and patient mediation service helping people understand treatment options, compare selected clinic partners, and access consultation pathways.",
       email: siteContact.email,
+      telephone: siteContact.phoneNumber,
       areaServed: ["London", "United Kingdom"],
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: siteContact.email,
+        telephone: siteContact.phoneNumber,
+        areaServed: ["London", "United Kingdom"],
+        availableLanguage: ["English"],
+      },
+      knowsAbout: [
+        "Hair transplant guidance",
+        "Hair transplant clinic selection",
+        "FUE hair transplant",
+        "DHI hair transplant",
+        "Female hair transplant",
+        "Hair transplant recovery",
+        "UK and Turkey hair transplant comparison",
+      ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Hair transplant guidance and mediation services",
+        itemListElement: [
+          "Hair transplant guidance",
+          "Clinic selection support",
+          "Consultation mediation",
+          "Hair transplant treatment planning support",
+          "UK and Turkey treatment comparison guidance",
+        ].map((name) => ({
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name,
+            provider: {
+              "@type": "Organization",
+              name: siteName,
+              url: absoluteUrl("/"),
+            },
+          },
+        })),
+      },
       sameAs: siteSocialLinks.map((social) => social.href),
     },
     {
@@ -291,6 +333,53 @@ export default async function Home() {
               </p>
             </article>
           ))}
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+              How we work
+            </p>
+            <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+              We help patients prepare before they speak to a clinic.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-white/68 sm:text-base">
+              UK Hair Transplant Co is a guidance and mediation service. We help
+              you understand suitability, compare selected clinic pathways, and
+              ask better questions before you commit to treatment.
+            </p>
+            <Link
+              href="/how-we-work"
+              className="mt-6 inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
+            >
+              See how we work
+            </Link>
+          </section>
+
+          <section className="rounded-[38px] border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] p-6 sm:p-8">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-500)]">
+              Selection criteria
+            </p>
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
+              The route should be judged before the price.
+            </h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {[
+                "doctor involvement and clinical responsibility",
+                "regulated provider settings where applicable",
+                "donor-area and graft-range planning",
+                "aftercare, recovery, and quote clarity",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-start gap-3 rounded-[22px] border border-[color:var(--line-soft)] bg-white p-4 text-sm leading-7 text-[color:var(--ink-700)]"
+                >
+                  <IconBadge name="shield-check" tone="light" size="sm" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </section>
         </section>
 
         <section className="surface-card rounded-[38px] p-6 sm:p-8 lg:p-10">
@@ -637,45 +726,11 @@ export default async function Home() {
             </p>
           </div>
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {mobileGuides.map((item) => (
-              <Link
-                key={`${item.href}-mobile`}
-                href={item.href}
-                className="overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.08)] transition hover:-translate-y-0.5 hover:border-[color:var(--line-strong)] hover:shadow-[0_26px_64px_rgba(6,47,64,0.12)] md:hidden"
-              >
-                <div className="relative aspect-[16/10] border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)]">
-                  <Image
-                    src={item.imageSrc}
-                    alt={item.imageAlt}
-                    fill
-                    sizes="100vw"
-                    className="object-cover"
-                    style={{
-                      objectPosition: item.imagePosition ?? "center",
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,58,79,0.02)_0%,rgba(8,58,79,0.12)_100%)]" />
-                </div>
-                <div className="p-6">
-                  <div className="flex items-start gap-4">
-                    <IconBadge name={iconForHref(item.href)} tone="light" />
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
-                        Read next
-                      </p>
-                      <h3 className="mt-3 font-display text-3xl text-[color:var(--ink-950)]">
-                        {item.label}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-            {featuredBlogPosts.map((item) => (
+            {homepageBlogPosts.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="hidden overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.08)] transition hover:-translate-y-0.5 hover:border-[color:var(--line-strong)] hover:shadow-[0_26px_64px_rgba(6,47,64,0.12)] md:block"
+                className="overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.08)] transition hover:-translate-y-0.5 hover:border-[color:var(--line-strong)] hover:shadow-[0_26px_64px_rgba(6,47,64,0.12)]"
               >
                 <div className="relative aspect-[16/10] border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)]">
                   <Image
@@ -700,7 +755,7 @@ export default async function Home() {
                       <h3 className="mt-3 font-display text-3xl text-[color:var(--ink-950)]">
                         {item.label}
                       </h3>
-                      <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
+                      <p className="mt-3 hidden text-sm leading-7 text-[color:var(--ink-700)] md:block">
                         {item.description}
                       </p>
                     </div>

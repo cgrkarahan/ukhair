@@ -193,6 +193,17 @@ export default function AssessmentForm({
         />
       </label>
 
+      <div className="rounded-[22px] border border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] p-4 text-sm leading-7 text-[color:var(--ink-700)]">
+        <p className="font-semibold text-[color:var(--ink-950)]">
+          Helpful if photos are requested
+        </p>
+        <p className="mt-2">
+          Clear daylight photos of the hairline, temples, crown, and donor area
+          usually help the team give a more specific first response. You can
+          send these after submitting if the team asks for them.
+        </p>
+      </div>
+
       <label className="flex gap-3 rounded-[18px] border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] px-4 py-3 text-sm leading-6 text-[color:var(--ink-800)]">
         <input
           type="checkbox"

@@ -10,6 +10,7 @@ type AssessmentSectionProps = {
   title?: string;
   intro?: string;
   formFirst?: boolean;
+  titleAs?: "h1" | "h2";
 };
 
 export default function AssessmentSection({
@@ -18,8 +19,10 @@ export default function AssessmentSection({
   title = "Book your free consultation.",
   intro = "Send your case details so the next step starts with your pattern of loss, priorities, timing, and the most useful consultation guidance for your case.",
   formFirst = false,
+  titleAs = "h2",
 }: AssessmentSectionProps) {
   const dark = tone === "dark";
+  const TitleTag = titleAs;
   const nextSteps = [
     {
       icon: "clipboard-check" as const,
@@ -61,13 +64,13 @@ export default function AssessmentSection({
           >
             Free consultation
           </p>
-          <h2
+          <TitleTag
             className={`mt-4 font-display text-3xl sm:text-4xl ${
               dark ? "text-white" : "text-[color:var(--ink-950)]"
             }`}
           >
             {title}
-          </h2>
+          </TitleTag>
           <p
             className={`mt-4 max-w-xl text-sm leading-7 sm:text-base ${
               dark ? "text-white/70" : "text-[color:var(--ink-700)]"

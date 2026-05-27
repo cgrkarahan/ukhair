@@ -103,6 +103,11 @@ export const primaryNavigation: HeaderNavItem[] = [
     description: "What shapes the quote, what is included, and how to compare value.",
   },
   {
+    href: "/how-we-work",
+    label: "How we work",
+    description: "How we guide, prepare, and connect patients with selected pathways.",
+  },
+  {
     href: "/services",
     label: "Treatments",
     description: "Scalp and facial-hair treatment options.",
@@ -179,6 +184,7 @@ export const footerLinkGroups = [
     links: [
       "/hair-transplant-london",
       "/hair-transplant-cost-london",
+      "/how-we-work",
       "/our-clinical-standards",
       "/patient-guidance-process",
     ],

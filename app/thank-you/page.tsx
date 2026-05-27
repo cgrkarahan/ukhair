@@ -41,8 +41,9 @@ export default async function ThankYouPage({ searchParams }: ThankYouPageProps) 
               Your request has been sent.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
-              The team now has your core details. If extra scalp photos or timing details
-              would help, that can be requested in the next reply.
+              The team now has your core details. A follow-up will usually focus
+              on your goals, likely suitability, photos if needed, and the
+              clearest next route for your case.
             </p>
           </div>
         </section>
@@ -50,56 +51,92 @@ export default async function ThankYouPage({ searchParams }: ThankYouPageProps) 
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
           <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
             <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-              What to do next
+              What happens next
             </p>
             <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-              Make the follow-up more useful.
+              The next reply should make the route clearer.
             </h2>
             <ul className="mt-6 space-y-4 text-sm leading-7 text-white/68">
-              <li>Have clear scalp or facial hair photos ready in daylight if the team asks for them.</li>
-              <li>Keep note of what matters most to you, whether that is subtlety, density, recovery time, or cost clarity.</li>
-              <li>Review recovery and standards pages so your next conversation starts with better context.</li>
+              <li>The team will review your submitted concern, treatment-location preference, and timing.</li>
+              <li>If the information is enough, the follow-up can explain a suitable consultation pathway.</li>
+              <li>If more context is needed, you may be asked for photos or extra details before a useful recommendation is made.</li>
             </ul>
           </section>
 
           <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
             <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-              Contact options
+              Useful preparation
             </p>
             <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-              Need to send something else now?
+              Good photos can make the first response more specific.
             </h2>
-            <p className="mt-4 text-sm leading-7 text-white/68">
-              If you prefer to follow up immediately, use WhatsApp or call. These actions are
-              also useful if you want to send photos after your form submission.
-            </p>
-            <SecondaryContactActions tone="dark" className="mt-6" />
+            <ul className="mt-6 space-y-4 text-sm leading-7 text-white/68">
+              <li>Use daylight or a bright room, without filters or heavy styling products.</li>
+              <li>Prepare front hairline, temples, crown, donor area, and any specific area that worries you.</li>
+              <li>Keep note of what matters most: subtlety, density, recovery time, London access, Turkey comparison, or cost clarity.</li>
+            </ul>
           </section>
         </section>
 
         <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-            Keep researching
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/our-clinical-standards"
-              className="inline-flex rounded-full bg-[color:var(--ink-950)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--sage-500)]"
-            >
-              Review standards
-            </Link>
-            <Link
-              href="/hair-transplant-recovery-timeline"
-              className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
-            >
-              Recovery timeline
-            </Link>
-            <Link
-              href="/hair-transplant-cost-london"
-              className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
-            >
-              Cost guidance
-            </Link>
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+            <div>
+              <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+                Keep researching
+              </p>
+              <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+                Use the waiting time to check the standards behind the route.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-white/68">
+                These pages explain how the mediation process works, what clinic
+                standards should be checked, and how recovery or cost discussions
+                should be framed.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link
+                href="/how-we-work"
+                className="inline-flex rounded-full bg-[color:var(--gold-300)] px-4 py-2.5 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
+              >
+                How we work
+              </Link>
+              <Link
+                href="/our-clinical-standards"
+                className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+              >
+                Review standards
+              </Link>
+              <Link
+                href="/hair-transplant-recovery-timeline"
+                className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+              >
+                Recovery timeline
+              </Link>
+              <Link
+                href="/hair-transplant-cost-london"
+                className="inline-flex rounded-full border border-[color:var(--line-inverse-soft)] px-4 py-2.5 text-sm font-semibold text-white/84 transition hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+              >
+                Cost guidance
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[38px] border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] p-6 sm:p-8">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-500)]">
+                Contact options
+              </p>
+              <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
+                Need to send something else now?
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)]">
+                Use WhatsApp or phone if you want to add a note, send photos
+                after submitting the form, or clarify your availability.
+              </p>
+            </div>
+            <SecondaryContactActions tone="light" />
           </div>
         </section>
       </main>

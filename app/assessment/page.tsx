@@ -28,6 +28,7 @@ export default function AssessmentPage() {
           title="Book your free consultation."
           intro="This is the main route for a first enquiry. Once your request is submitted, the team can reply with the next useful questions, photo guidance, or a consultation recommendation."
           formFirst
+          titleAs="h1"
         />
       </main>
     </SiteShell>
