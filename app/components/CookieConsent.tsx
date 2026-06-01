@@ -1,43 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   clearStoredAttribution,
   CONSENT_EVENT_NAME,
   CONSENT_STORAGE_KEY,
   getConsentState,
   persistAttribution,
-  pushTrackingEvent,
 } from "@/app/lib/tracking";
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
-const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-TT92LPF3B8";
-const CLARITY_PROJECT_ID =
-  process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? "wxlwrp223r";
-
-function injectClarity(projectId: string) {
-  if (typeof window === "undefined" || window.__ukhairClarityLoaded) {
-    return;
-  }
-
-  window.clarity =
-    window.clarity ||
-    function clarity(...args: unknown[]) {
-      window.clarity!.q = window.clarity!.q || [];
-      window.clarity!.q.push(args);
-    };
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.clarity.ms/tag/${projectId}`;
-  script.dataset.ukhair = "clarity";
-  document.head.appendChild(script);
-  window.__ukhairClarityLoaded = true;
-}
-
-function injectGoogleTag(measurementId: string) {
-  if (typeof window === "undefined" || window.__ukhairGoogleTagLoaded) {
+function updateGoogleConsent(value: "accepted" | "declined") {
+  if (typeof window === "undefined") {
     return;
   }
 
@@ -48,34 +21,21 @@ function injectGoogleTag(measurementId: string) {
       window.dataLayer.push(args);
     };
 
-  window.gtag("js", new Date());
-  window.gtag("config", measurementId);
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-  script.dataset.ukhair = "gtag";
-  document.head.appendChild(script);
-  window.__ukhairGoogleTagLoaded = true;
-}
-
-function injectGtm(gtmId: string) {
-  if (typeof window === "undefined" || window.__ukhairGtmLoaded) {
-    return;
-  }
-
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    "gtm.start": Date.now(),
-    event: "gtm.js",
+  const consentValue = value === "accepted" ? "granted" : "denied";
+  window.gtag("consent", "update", {
+    ad_storage: consentValue,
+    ad_user_data: consentValue,
+    ad_personalization: consentValue,
+    analytics_storage: consentValue,
   });
 
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
-  script.dataset.ukhair = "gtm";
-  document.head.appendChild(script);
-  window.__ukhairGtmLoaded = true;
+  window.dataLayer.push({
+    event:
+      value === "accepted"
+        ? "cookie_consent_accepted"
+        : "cookie_consent_declined",
+    cookieConsent: value,
+  });
 }
 
 function persistConsent(value: "accepted" | "declined") {
@@ -88,22 +48,24 @@ export default function CookieConsent() {
   const [consent, setConsent] = useState(() =>
     typeof window === "undefined" ? "" : getConsentState(),
   );
+  const lastSyncedConsent = useRef("");
+
+  function syncGoogleConsent(value: "accepted" | "declined") {
+    updateGoogleConsent(value);
+    lastSyncedConsent.current = value;
+  }
 
   useEffect(() => {
-    if (consent === "accepted" && CLARITY_PROJECT_ID) {
-      injectClarity(CLARITY_PROJECT_ID);
-    }
-
-    if (consent === "accepted" && GA_MEASUREMENT_ID) {
-      injectGoogleTag(GA_MEASUREMENT_ID);
-    }
-
-    if (consent === "accepted" && GTM_ID) {
-      injectGtm(GTM_ID);
+    if (
+      (consent === "accepted" || consent === "declined") &&
+      lastSyncedConsent.current !== consent
+    ) {
+      updateGoogleConsent(consent);
+      lastSyncedConsent.current = consent;
     }
   }, [consent]);
 
-  if ((!GTM_ID && !GA_MEASUREMENT_ID && !CLARITY_PROJECT_ID) || consent) {
+  if (consent) {
     return null;
   }
 
@@ -126,6 +88,7 @@ export default function CookieConsent() {
             onClick={() => {
               clearStoredAttribution();
               persistConsent("declined");
+              syncGoogleConsent("declined");
               setConsent("declined");
             }}
             className="inline-flex rounded-full border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-800)] transition hover:bg-[color:var(--surface-subtle)]"
@@ -137,16 +100,7 @@ export default function CookieConsent() {
             onClick={() => {
               persistConsent("accepted");
               persistAttribution();
-              if (CLARITY_PROJECT_ID) {
-                injectClarity(CLARITY_PROJECT_ID);
-              }
-              if (GA_MEASUREMENT_ID) {
-                injectGoogleTag(GA_MEASUREMENT_ID);
-              }
-              if (GTM_ID) {
-                injectGtm(GTM_ID);
-              }
-              pushTrackingEvent("cookie_consent_accepted");
+              syncGoogleConsent("accepted");
               setConsent("accepted");
             }}
             className="inline-flex rounded-full bg-[color:var(--ink-950)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--palette-teal)]"

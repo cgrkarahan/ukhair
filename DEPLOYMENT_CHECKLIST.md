@@ -11,9 +11,8 @@ Production launch checklist for `ukhairtransplant.co`.
 - [ ] Set `RESEND_API_KEY`
 - [ ] Set `RESEND_FROM_EMAIL=UK Hair Transplant Co <hello@ukhairtransplant.co>`
 - [ ] Set `LEAD_NOTIFICATION_EMAIL=hello@ukhairtransplant.co`
-- [ ] Set production GTM / GA4 / Google Ads env vars if used
-- [ ] Set `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-TT92LPF3B8` for GA4 if not using the code default
-- [ ] Set `NEXT_PUBLIC_CLARITY_PROJECT_ID=wxlwrp223r` for Microsoft Clarity if not using the code default
+- [ ] Set `NEXT_PUBLIC_GTM_ID=GTM-M2P4W8DV`
+- [ ] Configure GA4, Microsoft Clarity, Google Ads, and lead events inside GTM
 
 ## 2. Domain, redirects, and DNS
 
@@ -68,8 +67,11 @@ Production launch checklist for `ukhairtransplant.co`.
 
 ## 7. Analytics and ads
 
-- [ ] Confirm GTM loads only in production as intended
-- [ ] Confirm GA4 page views fire correctly
+- [ ] Confirm GTM container `GTM-M2P4W8DV` loads
+- [ ] Confirm GA4 measurement ID `G-TT92LPF3B8` is configured inside GTM
+- [ ] Confirm Microsoft Clarity project `wxlwrp223r` is configured inside GTM if still required
+- [ ] Confirm consent mode defaults to denied before cookie acceptance
+- [ ] Confirm GA4 page views fire correctly after analytics consent
 - [ ] Confirm consultation submit event fires only on successful submit
 - [ ] Confirm WhatsApp click event fires
 - [ ] Confirm phone click event fires

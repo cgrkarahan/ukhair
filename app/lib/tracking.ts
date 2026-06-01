@@ -44,9 +44,6 @@ declare global {
     dataLayer: unknown[];
     clarity?: ((...args: unknown[]) => void) & { q?: unknown[][] };
     gtag?: (...args: unknown[]) => void;
-    __ukhairClarityLoaded?: boolean;
-    __ukhairGoogleTagLoaded?: boolean;
-    __ukhairGtmLoaded?: boolean;
   }
 }
 
@@ -170,10 +167,6 @@ export function pushTrackingEvent(
     event,
     ...payload,
   });
-
-  if (window.gtag) {
-    window.gtag("event", event, payload);
-  }
 }
 
 export function getConsentState() {

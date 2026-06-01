@@ -5,9 +5,7 @@ import Link from "next/link";
 import SecondaryContactActions from "@/app/components/SecondaryContactActions";
 import { CONSENT_EVENT_NAME, getConsentState } from "@/app/lib/tracking";
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
-const GA_MEASUREMENT_ID =
-  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-TT92LPF3B8";
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "GTM-M2P4W8DV";
 const KEYBOARD_HEIGHT_THRESHOLD = 140;
 
 function isEditableElement(target: EventTarget | null) {
@@ -100,7 +98,7 @@ export default function MobileStickyAssessmentCta() {
     };
   }, []);
 
-  if ((GTM_ID || GA_MEASUREMENT_ID) && !consent) {
+  if (GTM_ID && !consent) {
     return null;
   }
 
