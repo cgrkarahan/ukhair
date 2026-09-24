@@ -10,7 +10,12 @@ import {
   iconForTopicCard,
   iconForTopicSection,
 } from "@/app/lib/iconography";
-import { absoluteUrl, siteName } from "@/app/lib/seo";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildMedicalWebPageSchema,
+  compactSchemaList,
+} from "@/app/lib/schema";
 import {
   topicPages,
   type TopicHeroPanel,
@@ -58,50 +63,28 @@ export default function TopicPage({
     providedRelatedPages ??
     page.relatedSlugs.map((slug) => topicPages[slug]).filter(Boolean);
 
-  const structuredData = [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
+  const structuredData = compactSchemaList([
+    buildMedicalWebPageSchema({
+      path: `/${page.slug}`,
       name: page.title,
       description: page.description,
-      url: absoluteUrl(`/${page.slug}`),
-      isPartOf: {
-        "@type": "WebSite",
-        name: siteName,
-        url: absoluteUrl("/"),
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: absoluteUrl("/"),
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: page.title,
-          item: absoluteUrl(`/${page.slug}`),
-        },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: page.faq.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
-      })),
-    },
-  ];
+      ...(page.heroImageSrc
+        ? {
+            images: [
+              {
+                src: page.heroImageSrc,
+                alt: page.heroImageAlt ?? page.title,
+              },
+            ],
+          }
+        : {}),
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: page.title, path: `/${page.slug}` },
+    ]),
+    buildFaqSchema(page.faq),
+  ]);
 
   return (
     <SiteShell>

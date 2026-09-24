@@ -6,7 +6,13 @@ import AssessmentSection from "@/app/components/AssessmentSection";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { iconForHref, iconForServiceSlug } from "@/app/lib/iconography";
-import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildMedicalWebPageSchema,
+  compactSchemaList,
+} from "@/app/lib/schema";
+import { buildMetadata } from "@/app/lib/seo";
 import { serviceCatalog, type ServiceDetail } from "@/app/services/serviceData";
 import {
   getServiceCatalogContent,
@@ -147,60 +153,20 @@ export default async function ServicePage({ params }: ServicePageProps) {
   const serviceFaqs = buildServiceFaqs(service);
   const heroPanel = serviceHeroPanels[service.slug];
 
-  const structuredData = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
+  const structuredData = compactSchemaList([
+    buildMedicalWebPageSchema({
+      path: `/services/${service.slug}`,
       name: service.title,
-      serviceType: service.title,
       description: service.seoDescription,
-      url: absoluteUrl(`/services/${service.slug}`),
-      areaServed: ["London", "United Kingdom"],
-      provider: {
-        "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
-        name: siteName,
-        url: absoluteUrl("/"),
-        description:
-          "Hair transplant guidance and patient mediation service helping people understand treatment options and access selected clinic partners.",
-      },
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: absoluteUrl("/"),
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Services",
-          item: absoluteUrl("/#services"),
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: service.title,
-          item: absoluteUrl(`/services/${service.slug}`),
-        },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: serviceFaqs.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
-      })),
-    },
-  ];
+      images: [{ src: service.imageSrc, alt: service.imageAlt }],
+    }),
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Services", path: "/services" },
+      { name: service.title, path: `/services/${service.slug}` },
+    ]),
+    buildFaqSchema(serviceFaqs),
+  ]);
 
   return (
     <SiteShell>

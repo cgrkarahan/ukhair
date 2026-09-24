@@ -7,6 +7,14 @@ import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { blogPosts, blogPostsBySlug } from "@/app/lib/blogContent";
 import { iconForHref } from "@/app/lib/iconography";
+import { getClinicalReviewer, getPageReview } from "@/app/lib/clinicalReview";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildImageObjectNode,
+  buildPhysicianNode,
+  compactSchemaList,
+} from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
 
 type BlogArticlePageProps = {
@@ -48,7 +56,11 @@ export default async function BlogArticlePage({
     notFound();
   }
 
-  const structuredData = [
+  const blogReviewer = getClinicalReviewer(
+    getPageReview(`/blog/${post.slug}`)?.reviewerId,
+  );
+
+  const structuredData = compactSchemaList([
     {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -56,7 +68,7 @@ export default async function BlogArticlePage({
       description: post.description,
       dateModified: post.updatedAt,
       datePublished: post.updatedAt,
-      image: absoluteUrl(post.imageSrc),
+      image: buildImageObjectNode({ src: post.imageSrc, alt: post.imageAlt }),
       author: {
         "@type": "Organization",
         name: siteName,
@@ -65,45 +77,16 @@ export default async function BlogArticlePage({
         "@type": "Organization",
         name: siteName,
       },
+      ...(blogReviewer ? { reviewedBy: buildPhysicianNode(blogReviewer) } : {}),
       mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: absoluteUrl("/"),
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Articles",
-          item: absoluteUrl("/blog"),
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: post.title,
-          item: absoluteUrl(`/blog/${post.slug}`),
-        },
-      ],
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: post.faq.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
-      })),
-    },
-  ];
+    buildBreadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Articles", path: "/blog" },
+      { name: post.title, path: `/blog/${post.slug}` },
+    ]),
+    buildFaqSchema(post.faq),
+  ]);
 
   return (
     <SiteShell>

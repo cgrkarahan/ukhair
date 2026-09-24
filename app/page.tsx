@@ -14,6 +14,10 @@ import {
   iconForJourney,
   iconForSignal,
 } from "@/app/lib/iconography";
+import {
+  buildMedicalWebPageSchema,
+  type SchemaImage,
+} from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
 import {
   getHomePageContent,
@@ -143,13 +147,33 @@ export default async function Home() {
       url: absoluteUrl("/"),
       description: home.description,
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      name: "Hair Transplant London",
-      url: absoluteUrl("/"),
+    // proofCases is already consent-filtered, so ImageObject nodes appear only
+    // where a consented result set genuinely exists.
+    buildMedicalWebPageSchema({
+      path: "/",
+      name: home.seoTitle,
       description: home.description,
-    },
+      images: proofCases.flatMap((proofCase) => {
+        const images: (SchemaImage | undefined)[] = [
+          proofCase.beforeImageSrc
+            ? {
+                src: proofCase.beforeImageSrc,
+                alt: proofCase.beforeImageAlt,
+                caption: `${proofCase.title}, before treatment`,
+              }
+            : undefined,
+          proofCase.afterImageSrc
+            ? {
+                src: proofCase.afterImageSrc,
+                alt: proofCase.afterImageAlt,
+                caption: `${proofCase.title}, ${proofCase.timeline}`,
+              }
+            : undefined,
+        ];
+
+        return images.filter((image): image is SchemaImage => Boolean(image));
+      }),
+    }),
     {
       "@context": "https://schema.org",
       "@type": "ItemList",

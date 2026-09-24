@@ -533,27 +533,35 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
   },
   "hair-transplant-cost-london": {
     slug: "hair-transplant-cost-london",
-    title: "Hair Transplant Cost in London",
-    seoTitle: "Hair Transplant Cost London",
+    title: "Hair Transplant Cost: The Complete UK Price Guide",
+    seoTitle: "Hair Transplant Cost UK: Price Guide",
     description:
-      "Understand hair transplant cost in London, what usually shapes the quote, what may be included, and what to compare before choosing treatment.",
-    eyebrow: "Hair transplant cost London",
+      "Hair transplant cost in the UK explained, including hair implants, hair plugs, and per-graft pricing, what shapes the quote, and what to compare before choosing treatment.",
+    eyebrow: "Hair transplant cost",
     lead:
-      "If you are researching hair transplant cost in London, the quote will usually depend on graft range, method, doctor involvement, clinic setting, and aftercare. This page explains what commonly affects price, what should be included, and what to compare before moving ahead.",
+      "If you are researching hair transplant cost, the quote will usually depend on graft range, method, doctor involvement, clinic setting, and aftercare. This page explains what commonly affects price, what should be included, and what to compare before moving ahead, including the per-graft maths and the older \"hair plugs\" technique patients still ask about.",
     heroImageSrc: "/images/cost-london-hero.png",
     heroImageAlt:
       "Hair transplant consultation in a premium London clinic focused on quote and treatment-plan discussion",
     keywords: [
+      "hair transplant cost",
+      "hair transplant cost uk",
       "hair transplant cost london",
       "london hair transplant cost",
       "hair transplant price london",
       "hair transplant london price",
       "hair transplant quote london",
+      "hair implants",
+      "hair implants cost uk",
+      "hair plugs",
+      "hair plantation",
+      "cost per graft hair transplant",
     ],
     heroChips: [
       "Quote drivers explained",
       "What should be included",
-      "Central London treatment context",
+      "Hair implants, plugs & plantation explained",
+      "Per-graft pricing, honestly",
     ],
     cards: [
       {
