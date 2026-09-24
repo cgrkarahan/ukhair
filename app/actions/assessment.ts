@@ -9,6 +9,8 @@ import type {
 const HONEYPOT_FIELD = "__ukhair_contact_check";
 const MARKETING_CONSENT_WORDING =
   "I agree to receive hair restoration guidance, clinic updates, and occasional consultation offers or discounts from UK Hair Transplant Co. I can unsubscribe at any time.";
+const MAX_PHOTOS = 4;
+const MAX_PHOTO_SIZE_BYTES = 8 * 1024 * 1024;
 
 function getValue(formData: FormData, key: keyof AssessmentSubmission | typeof HONEYPOT_FIELD) {
   const value = formData.get(key);
@@ -51,7 +53,7 @@ function row(label: string, value: string): ReactNode {
   );
 }
 
-function buildEmailHtml(submission: AssessmentSubmission) {
+function buildEmailHtml(submission: AssessmentSubmission, photoCount: number) {
   return `
     <div style="font-family:Arial,sans-serif;background:#E5E1DD;padding:24px;color:#062F40;">
       <div style="max-width:760px;margin:0 auto;background:linear-gradient(180deg,#F4F7F6 0%,#E8EEED 100%);border:1px solid rgba(8,58,79,0.14);border-radius:20px;overflow:hidden;">
@@ -71,6 +73,7 @@ function buildEmailHtml(submission: AssessmentSubmission) {
             ${row("Primary concern", submission.primaryConcern)}
             ${row("UK only or open to Turkey", submission.ukOnlyOrOpenToTurkey)}
             ${row("Message", submission.message)}
+            ${row("Photos attached", photoCount > 0 ? String(photoCount) : "None")}
             ${row("Marketing consent", submission.marketingConsent)}
             ${row("Marketing consent wording", submission.marketingConsentWording)}
             ${row("Landing page", submission.landingPage)}
@@ -90,7 +93,7 @@ function buildEmailHtml(submission: AssessmentSubmission) {
   `;
 }
 
-function buildEmailText(submission: AssessmentSubmission) {
+function buildEmailText(submission: AssessmentSubmission, photoCount: number) {
   return [
     "UK Hair Transplant - New assessment request",
     "",
@@ -101,6 +104,7 @@ function buildEmailText(submission: AssessmentSubmission) {
     formatTextLine("Primary concern", submission.primaryConcern),
     formatTextLine("UK only or open to Turkey", submission.ukOnlyOrOpenToTurkey),
     formatTextLine("Message", submission.message),
+    formatTextLine("Photos attached", photoCount > 0 ? String(photoCount) : "None"),
     formatTextLine("Marketing consent", submission.marketingConsent),
     formatTextLine("Marketing consent wording", submission.marketingConsentWording),
     "",
@@ -169,6 +173,61 @@ export async function submitAssessment(
     };
   }
 
+  const photoFiles = formData
+    .getAll("photos")
+    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
+
+  if (photoFiles.length > MAX_PHOTOS) {
+    return {
+      status: "error",
+      message: `Please attach up to ${MAX_PHOTOS} photos.`,
+    };
+  }
+
+  const oversizedPhoto = photoFiles.find(
+    (file) => file.size > MAX_PHOTO_SIZE_BYTES,
+  );
+
+  if (oversizedPhoto) {
+    return {
+      status: "error",
+      message: `${oversizedPhoto.name} is too large. Photos must be under ${MAX_PHOTO_SIZE_BYTES / (1024 * 1024)}MB each.`,
+    };
+  }
+
+  const nonImagePhoto = photoFiles.find(
+    (file) => file.type && !file.type.startsWith("image/"),
+  );
+
+  if (nonImagePhoto) {
+    return {
+      status: "error",
+      message: "Photos must be image files (JPG or PNG).",
+    };
+  }
+
+  let attachments: { filename: string; content: string }[] = [];
+
+  try {
+    attachments = await Promise.all(
+      photoFiles.map(async (file) => {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        return {
+          filename: file.name || "photo.jpg",
+          content: buffer.toString("base64"),
+        };
+      }),
+    );
+  } catch (error) {
+    console.error("Failed to read uploaded photos", error);
+
+    return {
+      status: "error",
+      message:
+        "Your photos could not be read. Please try again or submit without photos.",
+    };
+  }
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const notificationEmail = process.env.LEAD_NOTIFICATION_EMAIL;
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? "UK Hair Transplant <onboarding@resend.dev>";
@@ -193,8 +252,9 @@ export async function submitAssessment(
         to: [notificationEmail],
         reply_to: sanitizeHeaderValue(submission.email),
         subject: `New assessment request - ${sanitizeHeaderValue(submission.fullName)}`,
-        html: buildEmailHtml(submission),
-        text: buildEmailText(submission),
+        html: buildEmailHtml(submission, attachments.length),
+        text: buildEmailText(submission, attachments.length),
+        ...(attachments.length > 0 ? { attachments } : {}),
       }),
       cache: "no-store",
     });

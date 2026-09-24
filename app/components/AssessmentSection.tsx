@@ -26,7 +26,7 @@ export default function AssessmentSection({
   const nextSteps = [
     {
       icon: "clipboard-check" as const,
-      text: "The team reviews your concern, timing, and any location details you share before replying with the most useful consultation route.",
+      text: "The team reviews your concern, timing, and any location details you share, then replies the same working day with the most useful consultation route.",
     },
     {
       icon: "message-dots" as const,

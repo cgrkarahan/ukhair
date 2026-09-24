@@ -179,6 +179,55 @@ export function buildMedicalWebPageSchema({
   };
 }
 
+export function buildContactPageSchema({
+  path,
+  name,
+  description,
+}: {
+  path: string;
+  name: string;
+  description: string;
+}): JsonLdNode {
+  const url = absoluteUrl(normalizePath(path));
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "ContactPage",
+    name,
+    description,
+    url,
+    isPartOf: {
+      "@type": "WebSite",
+      name: siteName,
+      url: absoluteUrl("/"),
+    },
+  };
+}
+
+export function buildContactPointSchema({
+  telephone,
+  email,
+  contactType = "customer service",
+  areaServed = "GB",
+  availableLanguage = ["English"],
+}: {
+  telephone?: string;
+  email?: string;
+  contactType?: string;
+  areaServed?: string;
+  availableLanguage?: string[];
+}): JsonLdNode {
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "ContactPoint",
+    contactType,
+    areaServed,
+    availableLanguage,
+    ...(telephone ? { telephone } : {}),
+    ...(email ? { email } : {}),
+  };
+}
+
 export function compactSchemaList(
   nodes: (JsonLdNode | undefined)[],
 ): JsonLdNode[] {
