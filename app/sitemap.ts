@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { blogPosts } from "@/app/lib/blogContent";
 import { getPageReviewDate } from "@/app/lib/clinicalReview";
+import { locationPageList } from "@/app/lib/locations";
 import { absoluteUrl } from "@/app/lib/seo";
 import { topicPageList } from "@/app/lib/siteContent";
 import { serviceCatalog } from "@/app/services/serviceData";
@@ -57,6 +58,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ),
     ...topicPageList.map((page) =>
       entry(`/${page.slug}`, { priority: 0.9, changeFrequency: "weekly" }),
+    ),
+    ...locationPageList.map((page) =>
+      entry(`/${page.slug}`, {
+        priority: 0.75,
+        changeFrequency: "monthly",
+        lastModified: new Date(page.publishedAt),
+      }),
     ),
     ...serviceCatalog.map((service) =>
       entry(`/services/${service.slug}`, {

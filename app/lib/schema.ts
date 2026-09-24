@@ -228,6 +228,40 @@ export function buildContactPointSchema({
   };
 }
 
+export function buildServiceSchema({
+  path,
+  name,
+  description,
+  areaServed,
+  serviceType,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  areaServed: string;
+  serviceType: string;
+}): JsonLdNode {
+  const url = absoluteUrl(normalizePath(path));
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "Service",
+    name,
+    description,
+    url,
+    serviceType,
+    areaServed: {
+      "@type": "City",
+      name: areaServed,
+    },
+    provider: {
+      "@type": "Organization",
+      name: siteName,
+      url: absoluteUrl("/"),
+    },
+  };
+}
+
 export function compactSchemaList(
   nodes: (JsonLdNode | undefined)[],
 ): JsonLdNode[] {
