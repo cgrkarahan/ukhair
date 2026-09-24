@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { brandName, replaceBrandText } from "@/app/lib/brand";
+import { siteConfig } from "@/app/lib/siteConfig";
 
 export const siteName = brandName;
-const canonicalSiteUrl = "https://www.ukhairtransplant.co";
+const canonicalSiteUrl = siteConfig.siteUrl;
+const canonicalHost = new URL(canonicalSiteUrl).hostname;
+const canonicalApexHost = canonicalHost.replace(/^www\./, "");
 
 function normalizeSiteUrl(value?: string) {
   if (!value) {
@@ -13,8 +16,8 @@ function normalizeSiteUrl(value?: string) {
     const url = new URL(value);
     url.protocol = "https:";
 
-    if (url.hostname === "ukhairtransplant.co") {
-      url.hostname = "www.ukhairtransplant.co";
+    if (url.hostname === canonicalApexHost && canonicalHost !== canonicalApexHost) {
+      url.hostname = canonicalHost;
     }
 
     url.pathname = "";
@@ -29,8 +32,7 @@ function normalizeSiteUrl(value?: string) {
 
 export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 export const defaultTitle = siteName;
-export const defaultDescription =
-  "UK Hair Transplant helps patients explore hair transplant treatment in London with stronger clinical standards, clearer guidance, and premium central London access.";
+export const defaultDescription = siteConfig.defaultDescription;
 export const defaultOgImage = "/opengraph-image";
 
 export function absoluteUrl(path = "/") {

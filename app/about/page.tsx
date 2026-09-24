@@ -4,6 +4,7 @@ import AssessmentSection from "@/app/components/AssessmentSection";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
+import { siteConfig } from "@/app/lib/siteConfig";
 
 const aboutDescription =
   "Learn who UK Hair Transplant is for, why the site exists, what standards it prioritises, and what patients can expect from a free consultation.";
@@ -65,14 +66,14 @@ const nextStepCards = [
 ];
 
 const companyDetails = [
-  { label: "Legal company name", value: "UK HAIR TRANSPLANT LTD" },
-  { label: "Company number", value: "17164087" },
-  { label: "Company status", value: "Active" },
-  { label: "Company type", value: "Private Limited Company" },
-  { label: "Incorporated", value: "17 April 2026" },
+  { label: "Legal company name", value: siteConfig.company.legalName },
+  { label: "Company number", value: siteConfig.company.number },
+  { label: "Company status", value: siteConfig.company.status },
+  { label: "Company type", value: siteConfig.company.type },
+  { label: "Incorporated", value: siteConfig.company.incorporated },
   {
     label: "Registered office",
-    value: "293 Northfield Avenue, London, England, W5 4XB",
+    value: siteConfig.company.registeredOffice.full,
   },
 ];
 
@@ -87,15 +88,15 @@ export default function AboutPage() {
       mainEntity: {
         "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
         name: siteName,
-        legalName: "UK HAIR TRANSPLANT LTD",
+        legalName: siteConfig.company.legalName,
         url: absoluteUrl("/"),
-        identifier: "17164087",
+        identifier: siteConfig.company.number,
         address: {
           "@type": "PostalAddress",
-          streetAddress: "293 Northfield Avenue",
-          addressLocality: "London",
-          postalCode: "W5 4XB",
-          addressCountry: "GB",
+          streetAddress: siteConfig.company.registeredOffice.streetAddress,
+          addressLocality: siteConfig.company.registeredOffice.locality,
+          postalCode: siteConfig.company.registeredOffice.postalCode,
+          addressCountry: siteConfig.company.registeredOffice.countryCode,
         },
       },
     },
@@ -233,13 +234,13 @@ export default function AboutPage() {
                 The legal company behind this website.
               </h2>
               <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
-                UK Hair Transplant is operated by UK HAIR TRANSPLANT LTD. The
+                UK Hair Transplant is operated by {siteConfig.company.legalName}. The
                 public company record is listed on Companies House, and the core
                 details are shown here for transparency.
               </p>
             </div>
             <a
-              href="https://find-and-update.company-information.service.gov.uk/company/17164087"
+              href={`https://find-and-update.company-information.service.gov.uk/company/${siteConfig.company.number}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex rounded-full border border-[color:var(--line-strong)] bg-white px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:border-[color:var(--gold-500)] hover:bg-[color:var(--surface-paper)]"

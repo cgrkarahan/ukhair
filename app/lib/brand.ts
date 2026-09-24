@@ -1,8 +1,13 @@
-export const brandName = "UK Hair Transplant";
-export const legacyBrandName = "UK Hair Transplant Co";
+import { siteConfig } from "@/app/lib/siteConfig";
+
+export const brandName = siteConfig.brandName;
+export const legacyBrandNames = siteConfig.legacyBrandNames;
 
 export function replaceBrandText(value: string) {
-  return value.replaceAll(legacyBrandName, brandName);
+  return legacyBrandNames.reduce(
+    (result, legacyBrandName) => result.replaceAll(legacyBrandName, brandName),
+    value,
+  );
 }
 
 export function replaceBrandDeep<T>(value: T): T {

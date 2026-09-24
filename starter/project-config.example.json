@@ -1,0 +1,66 @@
+{
+  "brandName": "Example Clinic",
+  "legacyBrandNames": [
+    "Example Clinic Co"
+  ],
+  "serviceCategory": "premium cosmetic or clinic treatment",
+  "siteUrl": "https://www.exampleclinic.co.uk",
+  "defaultDescription": "Example Clinic helps patients explore treatment options with stronger standards, clearer guidance, and a premium consultation pathway.",
+  "primaryMarket": "United Kingdom",
+  "primaryCity": "London",
+  "clinicLocation": "Premium clinic partner in central London",
+  "company": {
+    "legalName": "EXAMPLE CLINIC LTD",
+    "number": "00000000",
+    "status": "Active",
+    "type": "Private Limited Company",
+    "incorporated": "1 January 2026",
+    "registeredOffice": {
+      "full": "1 Example Street, London, England, W1 1AA",
+      "streetAddress": "1 Example Street",
+      "locality": "London",
+      "postalCode": "W1 1AA",
+      "countryCode": "GB"
+    }
+  },
+  "contact": {
+    "email": "hello@exampleclinic.co.uk",
+    "phoneNumber": "+441234567890",
+    "phoneDisplay": "+44 1234 567890",
+    "whatsappNumber": "+441234567890",
+    "whatsappLabel": "WhatsApp"
+  },
+  "socialLinks": [
+    {
+      "platform": "Instagram",
+      "href": "https://www.instagram.com/exampleclinic/",
+      "label": "@exampleclinic"
+    },
+    {
+      "platform": "Facebook",
+      "href": "https://www.facebook.com/exampleclinic",
+      "label": "Example Clinic"
+    },
+    {
+      "platform": "LinkedIn",
+      "href": "https://www.linkedin.com/company/example-clinic/",
+      "label": "Example Clinic"
+    }
+  ],
+  "positioningSummary": "Premium treatment guidance with stronger standards, clearer decision support, and a calmer route from research to consultation.",
+  "trustSignals": [
+    "Use precise, verifiable trust claims that patients can actually judge.",
+    "Avoid exaggeration, unsubstantiated superlatives, and vague outcome promises.",
+    "Make standards, process clarity, and aftercare expectations visible early."
+  ],
+  "seoPriorities": [
+    "Core commercial pages",
+    "Pricing and consultation pages",
+    "Trust and standards pages",
+    "Recovery, FAQ, and decision-support content"
+  ],
+  "audienceSummary": "The audience is mobile-first, trust-sensitive, and likely to compare providers before enquiring.",
+  "primaryCta": "Free consultation",
+  "secondaryCta": "See treatment guidance",
+  "paidSearchSummary": "Compete on trust, standards, suitability, and clearer next-step guidance rather than price-only messaging."
+}

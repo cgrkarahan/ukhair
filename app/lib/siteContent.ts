@@ -1,3 +1,5 @@
+import { applyProjectTokens } from "@/app/lib/contentTemplates";
+
 export type LinkCard = {
   href: string;
   label: string;
@@ -87,15 +89,16 @@ export type TopicPageContent = {
   relatedSlugs: string[];
 };
 
-export const siteContact = {
-  email: "hello@ukhairtransplant.co",
-};
+export const siteContact = applyProjectTokens({
+  email: "{{CONTACT_EMAIL}}",
+});
 
-export const primaryNavigation: HeaderNavItem[] = [
+export const primaryNavigation: HeaderNavItem[] = applyProjectTokens([
   {
     href: "/hair-transplant-london",
-    label: "Why London",
-    description: "Why patients choose a London route for access, standards, and aftercare.",
+    label: "{{WHY_CITY_LABEL}}",
+    description:
+      "Why patients choose a {{CITY}} route for access, standards, and aftercare.",
   },
   {
     href: "/hair-transplant-cost-london",
@@ -115,7 +118,7 @@ export const primaryNavigation: HeaderNavItem[] = [
       {
         href: "/services/male-hair-transplant",
         label: "Male Hair Transplant",
-        description: "Hairline, crown, and density restoration in London.",
+        description: "Hairline, crown, and density restoration in {{CITY}}.",
       },
       {
         href: "/services/female-hair-transplant",
@@ -162,7 +165,8 @@ export const primaryNavigation: HeaderNavItem[] = [
       {
         href: "/uk-vs-turkey-hair-transplant",
         label: "UK vs Turkey",
-        description: "Compare convenience, follow-up, standards, and cost.",
+        description:
+          "Compare convenience, follow-up, standards, and cost around {{CITY}} and Turkey routes.",
       },
       {
         href: "/why-turkiye",
@@ -176,9 +180,9 @@ export const primaryNavigation: HeaderNavItem[] = [
       },
     ],
   },
-];
+]);
 
-export const footerLinkGroups = [
+export const footerLinkGroups = applyProjectTokens([
   {
     title: "Core information",
     links: [
@@ -209,12 +213,12 @@ export const footerLinkGroups = [
       "/services/female-hair-transplant",
     ],
   },
-];
+]);
 
-export const homeTrustPillars: TopicCard[] = [
+export const homeTrustPillars: TopicCard[] = applyProjectTokens([
   {
-    title: "Central London access",
-    text: "For many patients, a London route makes consultation, treatment day, and follow-up easier to organise around normal life.",
+    title: "{{CITY_ACCESS_LABEL}}",
+    text: "For many patients, a {{CITY}} route makes consultation, treatment day, and follow-up easier to organise around normal life.",
   },
   {
     title: "GMC-registered doctors",
@@ -228,18 +232,18 @@ export const homeTrustPillars: TopicCard[] = [
     title: "Turkish hair restoration experience",
     text: "Turkish and international hair restoration experience can matter when it sits alongside UK registration, realistic planning, and clear follow-up.",
   },
-];
+]);
 
-export const homeSignals = [
+export const homeSignals = applyProjectTokens([
   {
-    value: "London",
+    value: "{{CITY}}",
     label:
-      "Choose a central London route if you want consultations, treatment day, and follow-up to feel easier to organise around work, travel, and normal life.",
+      "Choose a {{CITY}} route if you want consultations, treatment day, and follow-up to feel easier to organise around work, travel, and normal life.",
   },
   {
     value: "GMC",
     label:
-      "If you want treatment in London with stronger medical reassurance, GMC-registered doctors give you a clearer basis for trust before you commit.",
+      "If you want treatment in {{CITY}} with stronger medical reassurance, GMC-registered doctors give you a clearer basis for trust before you commit.",
   },
   {
     value: "CQC",
@@ -249,18 +253,18 @@ export const homeSignals = [
   {
     value: "UK + Turkey",
     label:
-      "If you are deciding between London and Turkey, you can compare both routes more clearly here before choosing the option that fits your priorities best.",
+      "If you are deciding between {{CITY}} and Turkey, you can compare both routes more clearly here before choosing the option that fits your priorities best.",
   },
-];
+]);
 
-export const homeJourney = [
+export const homeJourney = applyProjectTokens([
   {
     title: "Check whether treatment may suit you",
     text: "Start with your pattern of hair loss, donor area, goals, priorities, and whether transplant is likely to be the right route at all.",
   },
   {
     title: "Understand the London route",
-    text: "Review how a London decision changes consultation access, travel, aftercare, recovery planning, and the way a quote should be judged.",
+    text: "Review how a {{CITY}} decision changes consultation access, travel, aftercare, recovery planning, and the way a quote should be judged.",
   },
   {
     title: "Compare standards and cost properly",
@@ -270,16 +274,16 @@ export const homeJourney = [
     title: "Request an assessment",
     text: "When you are ready, share your concern, priorities, timing, and photos if available so the first response can be specific to your case.",
   },
-];
+]);
 
-export const homeAssessmentChecklist = [
+export const homeAssessmentChecklist = applyProjectTokens([
   "Include your age, location, and whether your main concern is hairline, crown, general thinning, or facial hair.",
   "Say whether you want to stay in the UK or may also consider Turkey.",
   "Clear scalp photos in daylight usually make the first assessment more useful.",
   "Tell the team whether your priorities are density, subtlety, recovery time, or a female-specific concern.",
-];
+]);
 
-export const homeGuideHighlights: LinkCard[] = [
+export const homeGuideHighlights: LinkCard[] = applyProjectTokens([
   {
     href: "/blog/hair-transplant-consultation-london-what-to-expect",
     label: "What to Expect From a Hair Transplant Consultation in London",
@@ -302,7 +306,7 @@ export const homeGuideHighlights: LinkCard[] = [
     href: "/blog/uk-vs-turkey-hair-transplant-how-to-compare",
     label: "UK vs Turkey Hair Transplant: How to Compare the Two Routes",
     description:
-      "A balanced guide to comparing cost, travel, convenience, standards, and follow-up before choosing London or Turkey.",
+      "A balanced guide to comparing cost, travel, convenience, standards, and follow-up before choosing {{CITY}} or Turkey.",
   },
   {
     href: "/blog/hair-transplant-recovery-timeline-week-by-week",
@@ -316,9 +320,9 @@ export const homeGuideHighlights: LinkCard[] = [
     description:
       "Female-specific guidance around pattern, donor area, discreet planning, density goals, and whether transplant may suit the case.",
   },
-];
+]);
 
-export const homeReviews = [
+export const homeReviews = applyProjectTokens([
   {
     name: "Daniel P.",
     rating: 5,
@@ -329,7 +333,7 @@ export const homeReviews = [
     name: "Amira S.",
     rating: 5,
     quote:
-      "I wanted London convenience without vague pricing and hype. The information here answered most of what I needed before speaking to anyone.",
+      "I wanted {{CITY}} convenience without vague pricing and hype. The information here answered most of what I needed before speaking to anyone.",
   },
   {
     name: "Michael R.",
@@ -337,16 +341,16 @@ export const homeReviews = [
     quote:
       "The clinical standards information was more useful than most clinic sites because it explained what to check, not just what to believe.",
   },
-];
+]);
 
-export const homeFaq: TopicFaq[] = [
+export const homeFaq: TopicFaq[] = applyProjectTokens([
   {
-        question: "Is UK Hair Transplant the clinic performing the procedure?",
-        answer:
-      "No. UK Hair Transplant helps patients understand treatment options, clinic standards, pricing factors, recovery, and what to check before moving toward a provider.",
+    question: "Is {{BRAND}} the clinic performing the procedure?",
+    answer:
+      "No. {{BRAND}} helps patients understand treatment options, clinic standards, pricing factors, recovery, and what to check before moving toward a provider.",
   },
   {
-    question: "Why does the site focus on London first?",
+    question: "Why does the site focus on {{CITY}} first?",
     answer:
       "Because many patients want local consultation access, easier follow-up, and a familiar healthcare setting before they consider travelling abroad. Turkey can still be part of the wider comparison, but it should not be the only route patients understand.",
   },
@@ -370,9 +374,9 @@ export const homeFaq: TopicFaq[] = [
     answer:
       "Your concern, timing, any useful location context, and any helpful photos are reviewed first. If more detail is needed, you will be told what to provide before the next step is discussed.",
   },
-];
+]);
 
-export const topicPages: Record<string, TopicPageContent> = {
+export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
   "hair-transplant-london": {
     slug: "hair-transplant-london",
     title: "Hair Transplant in London",
@@ -2192,7 +2196,7 @@ export const topicPages: Record<string, TopicPageContent> = {
       "hair-transplant-recovery-timeline",
     ],
   },
-};
+});
 
 export const topicPageList = Object.values(topicPages);
 

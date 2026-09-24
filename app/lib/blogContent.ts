@@ -1,4 +1,8 @@
 import type { LinkCard, TopicFaq } from "@/app/lib/siteContent";
+import {
+  applyProjectTokens,
+  buildBlogImageAlt,
+} from "@/app/lib/contentTemplates";
 
 export type BlogSection = {
   heading: string;
@@ -561,9 +565,13 @@ const rawBlogPosts: BaseBlogPost[] = [
   },
 ];
 
+type BlogPostImage = Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition"> & {
+  imageContext?: string;
+};
+
 const blogPostImages: Record<
   BaseBlogPost["slug"],
-  Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition">
+  BlogPostImage
 > = {
   "hair-transplant-consultation-london-what-to-expect": {
     imageSrc: "/images/home-hero-consultation.png",
@@ -603,10 +611,18 @@ const blogPostImages: Record<
   },
 };
 
-export const blogPosts: BlogPost[] = rawBlogPosts.map((post) => ({
-  ...post,
-  ...blogPostImages[post.slug],
-}));
+function createBlogPost(post: BaseBlogPost): BlogPost {
+  const image = blogPostImages[post.slug];
+
+  return applyProjectTokens({
+    ...post,
+    imageSrc: image.imageSrc,
+    imageAlt: image.imageAlt ?? buildBlogImageAlt(post.title, image.imageContext),
+    imagePosition: image.imagePosition,
+  });
+}
+
+export const blogPosts: BlogPost[] = rawBlogPosts.map(createBlogPost);
 
 export const blogPostsBySlug = Object.fromEntries(
   blogPosts.map((post) => [post.slug, post]),

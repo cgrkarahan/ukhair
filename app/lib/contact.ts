@@ -1,37 +1,21 @@
+import { siteConfig } from "@/app/lib/siteConfig";
+
 export const siteContact = {
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@ukhairtransplant.co",
-  phoneNumber: process.env.NEXT_PUBLIC_PHONE_NUMBER ?? "+447427051177",
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? siteConfig.contact.email,
+  phoneNumber:
+    process.env.NEXT_PUBLIC_PHONE_NUMBER ?? siteConfig.contact.phoneNumber,
   phoneDisplay:
     process.env.NEXT_PUBLIC_PHONE_DISPLAY ??
     process.env.NEXT_PUBLIC_PHONE_NUMBER ??
-    "+44 7427 051177",
-  whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "+447427051177",
-  whatsappLabel: process.env.NEXT_PUBLIC_WHATSAPP_LABEL ?? "WhatsApp",
-  clinicLocation: "Premium clinic partner in central London",
+    siteConfig.contact.phoneDisplay,
+  whatsappNumber:
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? siteConfig.contact.whatsappNumber,
+  whatsappLabel:
+    process.env.NEXT_PUBLIC_WHATSAPP_LABEL ?? siteConfig.contact.whatsappLabel,
+  clinicLocation: siteConfig.clinicLocation,
 };
 
-export const siteSocialLinks = [
-  {
-    platform: "TikTok",
-    href: "https://www.tiktok.com/@ukhairtransplant",
-    label: "@ukhairtransplant",
-  },
-  {
-    platform: "Instagram",
-    href: "https://www.instagram.com/ukhairtransplant.co/",
-    label: "@ukhairtransplant.co",
-  },
-  {
-    platform: "Facebook",
-    href: "https://www.facebook.com/ukhairtransplantco",
-    label: "UK Hair Transplant",
-  },
-  {
-    platform: "LinkedIn",
-    href: "https://www.linkedin.com/company/uk-hair-transplant-co/",
-    label: "UK Hair Transplant Co",
-  },
-] as const;
+export const siteSocialLinks = siteConfig.socialLinks;
 
 export function normalizePhoneNumber(value: string) {
   return value.replace(/[^\d+]/g, "");

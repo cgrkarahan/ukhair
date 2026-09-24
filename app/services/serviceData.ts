@@ -1,3 +1,9 @@
+import {
+  applyProjectTokens,
+  buildServiceImageAlt,
+  buildServiceSeoTitle,
+} from "@/app/lib/contentTemplates";
+
 export type ServiceDetail = {
   slug: string;
   title: string;
@@ -21,7 +27,19 @@ export type ServiceDetail = {
   relatedGuideSlugs: string[];
 };
 
-export const serviceCatalog: ServiceDetail[] = [
+type ServiceDetailInput = Omit<ServiceDetail, "seoTitle" | "imageAlt" | "intro"> &
+  Partial<Pick<ServiceDetail, "seoTitle" | "imageAlt" | "intro">>;
+
+function createServiceDetail(input: ServiceDetailInput): ServiceDetail {
+  return applyProjectTokens({
+    ...input,
+    seoTitle: input.seoTitle ?? buildServiceSeoTitle(input.title),
+    imageAlt: input.imageAlt ?? buildServiceImageAlt(input.title),
+    intro: input.intro ?? input.shortDescription,
+  });
+}
+
+const rawServiceCatalog: ServiceDetailInput[] = [
   {
     slug: "male-hair-transplant",
     title: "Male Hair Transplant",
@@ -532,6 +550,10 @@ export const serviceCatalog: ServiceDetail[] = [
     ],
   },
 ];
+
+export const serviceCatalog: ServiceDetail[] = rawServiceCatalog.map(
+  createServiceDetail,
+);
 
 export const serviceCatalogByTitle = Object.fromEntries(
   serviceCatalog.map((service) => [service.title, service]),
