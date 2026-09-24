@@ -19,8 +19,9 @@ import {
   type TopicTimeline,
 } from "@/app/lib/siteContent";
 import {
-  approvedProofCases,
+  allProofCases,
   approvedReviews,
+  filterPublishableProofCases,
   type ApprovedProofCase,
   type ApprovedReview,
 } from "@/app/lib/proof";
@@ -668,12 +669,12 @@ export async function getServiceCatalogContent(): Promise<ServiceDetail[]> {
 
 export async function getProofCasesContent(): Promise<ApprovedProofCase[]> {
   const proofCases = await safeFetch<ApprovedProofCase[]>(proofCasesQuery);
-  const resolvedCases = arrayOrFallback(proofCases, approvedProofCases);
+  const resolvedCases = arrayOrFallback(proofCases, allProofCases);
   const localOverridesBySlug = new Map(
-    approvedProofCases.map((proofCase) => [proofCase.slug, proofCase]),
+    allProofCases.map((proofCase) => [proofCase.slug, proofCase]),
   );
 
-  return resolvedCases.map((proofCase) => {
+  const mergedCases = resolvedCases.map((proofCase) => {
     const localOverride = localOverridesBySlug.get(proofCase.slug);
 
     if (!localOverride) {
@@ -685,6 +686,10 @@ export async function getProofCasesContent(): Promise<ApprovedProofCase[]> {
       ...localOverride,
     };
   });
+
+  // Consent is enforced here as well as in the data file, so a case published
+  // from Sanity without a consent record cannot reach the page either.
+  return filterPublishableProofCases(mergedCases);
 }
 
 export async function getReviewsContent(): Promise<ApprovedReview[]> {

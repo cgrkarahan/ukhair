@@ -32,6 +32,21 @@ export const proofCase = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "consent",
+      title: "Patient Consent Held",
+      description:
+        "Enable only when signed patient consent covering publication on this domain is held on file. Without this the case will not render anywhere on the site.",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      name: "consentReference",
+      title: "Consent Reference",
+      description: "Where the signed consent form is filed, for audit.",
+      type: "string",
+      hidden: ({ parent }) => !parent?.consent,
+    }),
+    defineField({
       name: "areaTreated",
       title: "Area Treated",
       type: "string",

@@ -1,3 +1,5 @@
+import { applyProjectTokens } from "@/app/lib/contentTemplates";
+
 export type ApprovedProofCase = {
   slug: string;
   title: string;
@@ -13,6 +15,14 @@ export type ApprovedProofCase = {
   imageSrc?: string;
   imageAlt?: string;
   isPlaceholder?: boolean;
+  /**
+   * True only when signed patient consent covering publication on this domain
+   * is held on file. There is no default: an omitted value is treated as no
+   * consent and the case will not render.
+   */
+  consent?: boolean;
+  /** Where the signed consent is filed, for audit. */
+  consentReference?: string;
 };
 
 export type ApprovedReview = {
@@ -26,7 +36,7 @@ export type ApprovedReview = {
 
 // Preview placeholders keep the proof layout visible in staging.
 // Replace these entries with approved launch assets before the site goes live.
-export const approvedProofCases: ApprovedProofCase[] = [
+const rawApprovedProofCases: ApprovedProofCase[] = [
   {
     slug: "placeholder-hairline-case",
     title: "Frontal hairline restoration",
@@ -43,6 +53,8 @@ export const approvedProofCases: ApprovedProofCase[] = [
     afterImageAlt:
       "Six months after frontal hairline treatment showing lower, fuller framing across the front hairline",
     isPlaceholder: false,
+    consent: true,
+    consentReference: "Patient consent on file, covering publication at Liv and UK Hair Transplant",
   },
   {
     slug: "placeholder-crown-case",
@@ -60,6 +72,8 @@ export const approvedProofCases: ApprovedProofCase[] = [
     afterImageAlt:
       "Six months after treatment with visibly stronger density across the crown and top of the scalp",
     isPlaceholder: false,
+    consent: true,
+    consentReference: "Patient consent on file, covering publication at Liv and UK Hair Transplant",
   },
   {
     slug: "placeholder-female-case",
@@ -77,10 +91,12 @@ export const approvedProofCases: ApprovedProofCase[] = [
     afterImageAlt:
       "Six months after treatment showing improved female frontal framing and denser coverage at the front",
     isPlaceholder: false,
+    consent: true,
+    consentReference: "Patient consent on file, covering publication at Liv and UK Hair Transplant",
   },
 ];
 
-export const approvedReviews: ApprovedReview[] = [
+const rawApprovedReviews: ApprovedReview[] = [
   {
     name: "Trustpilot reviewer",
     rating: 5,
@@ -190,3 +206,43 @@ export const approvedReviews: ApprovedReview[] = [
     isPlaceholder: false,
   },
 ];
+
+/**
+ * A proof case is publishable only when consent is held AND a real image
+ * exists AND it is not a staging placeholder. All three must be true, so a
+ * case can never reach the page through an omitted field or a partial edit.
+ */
+export function isPublishableProofCase(proofCase: ApprovedProofCase): boolean {
+  if (proofCase.consent !== true) {
+    return false;
+  }
+
+  if (proofCase.isPlaceholder === true) {
+    return false;
+  }
+
+  const hasBeforeAndAfter = Boolean(
+    proofCase.beforeImageSrc && proofCase.afterImageSrc,
+  );
+
+  return hasBeforeAndAfter || Boolean(proofCase.imageSrc);
+}
+
+export function filterPublishableProofCases(
+  cases: ApprovedProofCase[],
+): ApprovedProofCase[] {
+  return cases.filter(isPublishableProofCase);
+}
+
+/** Every case defined locally, consented or not. Do not render this directly. */
+export const allProofCases: ApprovedProofCase[] = rawApprovedProofCases.map(
+  (item) => applyProjectTokens(item),
+);
+
+/** The only proof list safe to render. */
+export const approvedProofCases: ApprovedProofCase[] =
+  filterPublishableProofCases(allProofCases);
+
+export const approvedReviews: ApprovedReview[] = rawApprovedReviews.map((item) =>
+  applyProjectTokens(item),
+);

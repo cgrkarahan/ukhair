@@ -228,7 +228,9 @@ export const proofCasesQuery = `*[_type == "proofCase" && published == true] | o
   afterImageAlt,
   "imageSrc": image.asset->url,
   imageAlt,
-  isPlaceholder
+  isPlaceholder,
+  consent,
+  consentReference
 }`;
 
 export const patientReviewsQuery = `*[_type == "patientReview" && published == true] | order(_createdAt desc){
