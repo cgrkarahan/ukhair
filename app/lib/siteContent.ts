@@ -616,6 +616,32 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
           "Compare recovery support and local follow-up, especially if reassurance matters to you.",
         ],
       },
+      {
+        title: "Hair implants, hair plugs, and hair plantation: same procedure, different names",
+        body: [
+          "Patients search for this procedure under several names, and it helps to know they usually mean the same thing. \"Hair implants\" and \"hair plantation\" are commonly used alternatives to \"hair transplant\", and the underlying surgery is the same: healthy follicles are moved from a donor area to thinning or balding areas.",
+          "\"Hair plugs\" is different. It refers to an older technique from the 1980s and earlier, where large round grafts of four to twenty hairs were punched out and reinserted in rows. The result was an unnatural, tufted look, often described as doll's hair, because the angle and density did not match how hair actually grows.",
+          "Nobody reputable still performs hair plugs. Modern follicular unit techniques such as FUE and DHI move individual follicular units, usually one to four hairs each, and place them at the natural growth angle. If a clinic still uses the word \"plugs\" to describe its own work, that is worth asking about directly.",
+        ],
+        bullets: [
+          "Hair implants and hair plantation are search terms for the same procedure as a hair transplant.",
+          "Hair plugs were a 1980s technique using large grafts. It is not what modern clinics do.",
+          "FUE and DHI move individual follicular units and are priced by graft range and method, not by the outdated term.",
+        ],
+      },
+      {
+        title: "What a hair transplant actually costs per graft",
+        body: [
+          "Across the UK market, per-graft pricing usually sits between £3 and £5, and it is worth looking at both ends of that range honestly. At £3 per graft, a 3,000-graft procedure works out at roughly £9,000. At £5 per graft, the same procedure reaches roughly £15,000, which is close to where several legacy Harley Street and Wimpole Street clinics price their treatment.",
+          "Our own fixed price for eligible cases up to 3,000 grafts is £2,750, including one complimentary PRP treatment, post-operative medication, and an aftercare pack. Measured crudely per graft, that is under £1 a graft. We would still argue you should not choose on that basis alone.",
+          "Per-graft pricing is a weak measure because it rewards a headline number rather than the plan behind it. A quote built purely around a low per-graft rate can leave out aftercare, medication, doctor involvement, and PRP, and graft counts themselves are sometimes estimated generously to make the per-graft figure look smaller. Ask what the total figure includes before comparing it to any per-graft rate you have seen quoted elsewhere.",
+        ],
+        bullets: [
+          "UK market per-graft pricing typically runs £3–£5, which puts a 3,000-graft procedure at roughly £9,000–£15,000 depending on the clinic.",
+          "A fixed, all-in price protects you from a graft count that grows once treatment begins.",
+          "Always ask whether aftercare, medication, and PRP sit inside the quoted figure or outside it.",
+        ],
+      },
     ],
     priceStory: {
       eyebrow: "The price story",
@@ -623,7 +649,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       intro:
         "One of the biggest pricing shifts in this category is the gap between what patients assume a premium UK clinic will cost and what they may actually be quoted once the route, graft range, and inclusions are explained properly.",
       note:
-        "Market ranges below are indicative context only. Individual quotes still vary by case, graft range, method, clinic structure, and what is included.",
+        "Market ranges below are indicative context only. Individual quotes still vary by case, graft range, method, clinic structure, and what is included. At £3–£5 per graft, that puts a 3,000-graft procedure at roughly £9,000–£15,000, which is why we price as a fixed package rather than a per-graft rate.",
       rows: [
         {
           title: "Legacy Central London Premium Clinics",
@@ -717,6 +743,26 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
         question: "Can women use the same cost logic?",
         answer:
           "Yes, in the sense that suitability, graft planning, method, and treatment scope still shape the quote. The underlying cause of thinning and whether transplant is appropriate at all should also be part of the discussion before price is judged.",
+      },
+      {
+        question: "How much are hair implants in the UK?",
+        answer:
+          "\"Hair implants\" is simply another name people use for a hair transplant, so the pricing logic is the same. Expect the quote to depend on graft range, method, and what aftercare is included, rather than on which of the two terms a clinic happens to use.",
+      },
+      {
+        question: "What is the cost per graft for a hair transplant?",
+        answer:
+          "UK per-graft pricing typically runs £3 to £5. That means a 3,000-graft procedure can cost anywhere from roughly £9,000 to £15,000 once priced purely per graft. We price as a fixed package instead, because a per-graft rate alone does not tell you what is included.",
+      },
+      {
+        question: "How much would 5,000 grafts cost?",
+        answer:
+          "At typical UK per-graft rates of £3 to £5, 5,000 grafts can cost roughly £15,000 to £25,000 depending on the clinic and what the quote includes. A case of that size needs its own assessment and plan rather than a fixed headline price, since donor availability and planning become more complex at that scale.",
+      },
+      {
+        question: "What are hair plugs, and why don't clinics use them anymore?",
+        answer:
+          "Hair plugs were an older technique from the 1980s that used large, multi-hair grafts placed in visible rows, producing an unnatural, tufted result. Modern hair transplants use individual follicular units instead, placed at the natural growth angle, and \"hair plugs\" is no longer how any reputable UK clinic operates.",
       },
     ],
     relatedSlugs: [
