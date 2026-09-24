@@ -124,6 +124,30 @@ const rawLocationPages: LocationPageContent[] = [
           "A clinic that cannot describe its remote aftercare process clearly is worth treating with caution.",
         ],
       },
+      {
+        title: "The Turkey option from Manchester",
+        body: [
+          "London is not the only alternative to a local clinic. Manchester Airport has direct flights to Istanbul, typically taking around four hours, which is why Turkey features heavily in what Manchester patients see advertised. Package pricing there is usually built around a lower headline figure than a UK clinic, most visibly on cost: our own curated Turkiye route starts from £1,800 against £2,750 for the London route, and independent Turkish clinics often price lower again.",
+          "The trade-off is not really about quality on average, since strong clinics exist in both countries. It is about what you can verify before you travel, how easily you can get back in front of the person who treated you if something needs following up, and whether English-language aftercare communication is as clear as you would want for a medical procedure. Our own comparison of UK and Turkey routes goes into this properly rather than assuming one is automatically right.",
+        ],
+        bullets: [
+          "Manchester Airport has direct flights to Istanbul, typically around four hours.",
+          "Turkey pricing is usually lower headline, London pricing usually easier to verify and follow up on.",
+          "See our full UK vs Turkey comparison before treating either as the obvious default.",
+        ],
+      },
+      {
+        title: "Reading Manchester clinic marketing critically",
+        body: [
+          "Hair transplant advertising is heavy on social media in the North West, and not all of it is straightforward. Common tactics worth recognising include headline prices that exclude PRP, medication, or aftercare, graft estimates given from a photo with no proper donor assessment, and countdown-style offers designed to rush a decision that should not be rushed.",
+          "A deposit-only booking process is not automatically a red flag, but it is worth understanding fully before you pay anything: what it secures, what happens if your circumstances change, and whether it is refundable. The strongest indicator of a trustworthy provider is usually how plainly they answer these questions when you ask directly, rather than how polished the advertising looks.",
+        ],
+        bullets: [
+          "Treat a headline price as a starting point to verify, not a final figure.",
+          "A graft estimate from a photo alone is provisional until a proper assessment happens.",
+          "Ask about deposit terms in writing before paying anything.",
+        ],
+      },
     ],
     faq: [
       {
@@ -166,12 +190,24 @@ const rawLocationPages: LocationPageContent[] = [
         answer:
           "Most clinics are comfortable with a companion attending a consultation, and many patients travelling from Manchester for treatment day bring someone along, particularly given the length of the appointment and the journey home afterwards. Ask the specific clinic about their policy and any space constraints.",
       },
+      {
+        question: "Can I fly to Turkey instead of travelling to London from Manchester?",
+        answer:
+          "Yes, and Manchester Airport's direct Istanbul route makes this a genuine third option alongside a local clinic or London. It is usually the lower headline price of the two travel routes, but it changes what you can verify in person and how you follow up afterwards, which is worth weighing properly rather than deciding on price alone.",
+      },
+      {
+        question: "What is the realistic total timeline from enquiry to finished recovery?",
+        answer:
+          "Expect several weeks between an initial enquiry and a treatment date, since proper planning takes time, followed by an immediate two-week visible recovery period and a longer growth timeline that typically runs to twelve months or more before the final result is clear. Our recovery timeline page sets this out stage by stage.",
+      },
     ],
     relatedSlugs: [
       "hair-transplant-london",
       "hair-transplant-cost-london",
       "our-clinical-standards",
       "uk-vs-turkey-hair-transplant",
+      "why-turkiye",
+      "hair-transplant-recovery-timeline",
     ],
     publishedAt: "2026-09-24",
   },
@@ -269,6 +305,30 @@ const rawLocationPages: LocationPageContent[] = [
           "A clinic that cannot describe its remote aftercare process clearly is worth treating with caution.",
         ],
       },
+      {
+        title: "The Turkey option from Birmingham",
+        body: [
+          "London is not the only alternative to a local clinic. Birmingham Airport has direct flights to Istanbul, typically around four to four and a half hours, which is why Turkey features heavily in what Birmingham patients see advertised. Package pricing there is usually built around a lower headline figure than a UK clinic, most visibly on cost: our own curated Turkiye route starts from £1,800 against £2,750 for the London route, and independent Turkish clinics often price lower again.",
+          "The trade-off is not really about quality on average, since strong clinics exist in both countries. It is about what you can verify before you travel, how easily you can get back in front of the person who treated you if something needs following up, and whether English-language aftercare communication is as clear as you would want for a medical procedure. Our own comparison of UK and Turkey routes goes into this properly rather than assuming one is automatically right.",
+        ],
+        bullets: [
+          "Birmingham Airport has direct flights to Istanbul, typically around four to four and a half hours.",
+          "Turkey pricing is usually lower headline, London pricing usually easier to verify and follow up on.",
+          "See our full UK vs Turkey comparison before treating either as the obvious default.",
+        ],
+      },
+      {
+        title: "Reading Birmingham clinic marketing critically",
+        body: [
+          "Hair transplant advertising is heavy on social media across the West Midlands, and not all of it is straightforward. Common tactics worth recognising include headline prices that exclude PRP, medication, or aftercare, graft estimates given from a photo with no proper donor assessment, and countdown-style offers designed to rush a decision that should not be rushed.",
+          "A deposit-only booking process is not automatically a red flag, but it is worth understanding fully before you pay anything: what it secures, what happens if your circumstances change, and whether it is refundable. The strongest indicator of a trustworthy provider is usually how plainly they answer these questions when you ask directly, rather than how polished the advertising looks.",
+        ],
+        bullets: [
+          "Treat a headline price as a starting point to verify, not a final figure.",
+          "A graft estimate from a photo alone is provisional until a proper assessment happens.",
+          "Ask about deposit terms in writing before paying anything.",
+        ],
+      },
     ],
     faq: [
       {
@@ -311,12 +371,24 @@ const rawLocationPages: LocationPageContent[] = [
         answer:
           "Most clinics are comfortable with a companion attending a consultation, and some patients bring someone along for treatment day given the length of the appointment. Ask the specific clinic about their policy and any space constraints.",
       },
+      {
+        question: "Can I fly to Turkey instead of travelling to London from Birmingham?",
+        answer:
+          "Yes, and Birmingham Airport's direct Istanbul route makes this a genuine third option alongside a local clinic or London. It is usually the lower headline price of the two travel routes, but it changes what you can verify in person and how you follow up afterwards, which is worth weighing properly rather than deciding on price alone.",
+      },
+      {
+        question: "What is the realistic total timeline from enquiry to finished recovery?",
+        answer:
+          "Expect several weeks between an initial enquiry and a treatment date, since proper planning takes time, followed by an immediate two-week visible recovery period and a longer growth timeline that typically runs to twelve months or more before the final result is clear. Our recovery timeline page sets this out stage by stage.",
+      },
     ],
     relatedSlugs: [
       "hair-transplant-london",
       "hair-transplant-cost-london",
       "our-clinical-standards",
       "uk-vs-turkey-hair-transplant",
+      "why-turkiye",
+      "hair-transplant-recovery-timeline",
     ],
     publishedAt: "2026-09-24",
   },
@@ -414,6 +486,30 @@ const rawLocationPages: LocationPageContent[] = [
           "A clinic that cannot describe its remote aftercare process clearly is worth treating with caution.",
         ],
       },
+      {
+        title: "The Turkey option from Leeds",
+        body: [
+          "London is not the only alternative to a local clinic. Leeds Bradford Airport's direct routes to Turkey have varied over time, so it is worth checking current schedules before assuming one is running. Where a direct flight is not available, a connection via Manchester, London, or another hub is the fallback, typically adding an hour or two to the overall journey. Turkey still features heavily in what Leeds patients see advertised regardless of the exact flight path.",
+          "Package pricing there is usually built around a lower headline figure than a UK clinic, most visibly on cost: our own curated Turkiye route starts from £1,800 against £2,750 for the London route, and independent Turkish clinics often price lower again. The trade-off is not really about quality on average, since strong clinics exist in both countries. It is about what you can verify before you travel, how easily you can get back in front of the person who treated you if something needs following up, and whether English-language aftercare communication is as clear as you would want for a medical procedure. Our own comparison of UK and Turkey routes goes into this properly rather than assuming one is automatically right.",
+        ],
+        bullets: [
+          "Check current Leeds Bradford Airport schedules rather than assuming a direct Istanbul route is running.",
+          "Turkey pricing is usually lower headline, London pricing usually easier to verify and follow up on.",
+          "See our full UK vs Turkey comparison before treating either as the obvious default.",
+        ],
+      },
+      {
+        title: "Reading Leeds clinic marketing critically",
+        body: [
+          "Hair transplant advertising is heavy on social media across West Yorkshire, and not all of it is straightforward. Common tactics worth recognising include headline prices that exclude PRP, medication, or aftercare, graft estimates given from a photo with no proper donor assessment, and countdown-style offers designed to rush a decision that should not be rushed.",
+          "A deposit-only booking process is not automatically a red flag, but it is worth understanding fully before you pay anything: what it secures, what happens if your circumstances change, and whether it is refundable. The strongest indicator of a trustworthy provider is usually how plainly they answer these questions when you ask directly, rather than how polished the advertising looks.",
+        ],
+        bullets: [
+          "Treat a headline price as a starting point to verify, not a final figure.",
+          "A graft estimate from a photo alone is provisional until a proper assessment happens.",
+          "Ask about deposit terms in writing before paying anything.",
+        ],
+      },
     ],
     faq: [
       {
@@ -456,12 +552,24 @@ const rawLocationPages: LocationPageContent[] = [
         answer:
           "Most clinics are comfortable with a companion attending a consultation, and many patients travelling from Leeds for treatment day bring someone along, particularly given the length of the appointment and the journey home afterwards. Ask the specific clinic about their policy and any space constraints.",
       },
+      {
+        question: "Can I fly to Turkey instead of travelling to London from Leeds?",
+        answer:
+          "It depends on current schedules, since Leeds Bradford Airport's direct routes to Turkey have varied over time. Where a direct flight is not running, a connection adds an hour or two. Either way, Turkey is usually the lower headline price of the two travel routes, but it changes what you can verify in person and how you follow up afterwards, which is worth weighing properly rather than deciding on price alone.",
+      },
+      {
+        question: "What is the realistic total timeline from enquiry to finished recovery?",
+        answer:
+          "Expect several weeks between an initial enquiry and a treatment date, since proper planning takes time, followed by an immediate two-week visible recovery period and a longer growth timeline that typically runs to twelve months or more before the final result is clear. Our recovery timeline page sets this out stage by stage.",
+      },
     ],
     relatedSlugs: [
       "hair-transplant-london",
       "hair-transplant-cost-london",
       "our-clinical-standards",
       "uk-vs-turkey-hair-transplant",
+      "why-turkiye",
+      "hair-transplant-recovery-timeline",
     ],
     publishedAt: "2026-09-24",
   },
