@@ -24,6 +24,7 @@ const footerCities = [...locationPageList].sort((a, b) => a.city.localeCompare(b
 function labelForHref(href: string) {
   if (href === "/") return "Home";
   if (href === "/blog") return "Articles";
+  if (href === "/how-we-work") return "How We Work";
   if (href.startsWith("/services/")) {
     return href
       .replace("/services/", "")
