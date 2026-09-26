@@ -7,6 +7,7 @@ import SecondaryContactActions from "@/app/components/SecondaryContactActions";
 import SiteIcon, { IconBadge } from "@/app/components/SiteIcon";
 import { normalizeWhatsappNumber, siteSocialLinks } from "@/app/lib/contact";
 import { iconForFooterGroup, iconForHref } from "@/app/lib/iconography";
+import { locationPageList } from "@/app/lib/locations";
 import {
   footerLinkGroups,
   primaryNavigation,
@@ -17,6 +18,8 @@ import { getSiteSettingsContent } from "@/sanity/lib/content";
 type SiteShellProps = {
   children: ReactNode;
 };
+
+const footerCities = [...locationPageList].sort((a, b) => a.city.localeCompare(b.city));
 
 function labelForHref(href: string) {
   if (href === "/") return "Home";
@@ -255,6 +258,26 @@ export default async function SiteShell({ children }: SiteShellProps) {
               </section>
             ))}
           </div>
+
+          <nav
+            aria-label="Hair transplant by city"
+            className="rounded-[28px] border border-[rgba(192,213,214,0.12)] bg-[rgba(192,213,214,0.05)] p-5 lg:col-span-2"
+          >
+            <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
+              Hair transplant by city
+            </p>
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+              {footerCities.map((page) => (
+                <Link
+                  key={page.slug}
+                  href={`/${page.slug}`}
+                  className="text-sm leading-6 text-white/68 transition hover:text-white"
+                >
+                  {page.city}
+                </Link>
+              ))}
+            </div>
+          </nav>
         </div>
 
         <div className="relative mx-auto flex w-full max-w-[90rem] flex-col gap-4 border-t border-[rgba(192,213,214,0.08)] px-5 py-6 text-sm text-white/48 lg:px-8">

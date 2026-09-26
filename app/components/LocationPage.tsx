@@ -7,7 +7,7 @@ import {
   iconForTopicCard,
   iconForTopicSection,
 } from "@/app/lib/iconography";
-import type { LocationPageContent } from "@/app/lib/locations";
+import { locationPageList, type LocationPageContent } from "@/app/lib/locations";
 import {
   buildBreadcrumbSchema,
   buildFaqSchema,
@@ -23,6 +23,18 @@ type LocationPageProps = {
 };
 
 export default function LocationPage({ page, relatedPages }: LocationPageProps) {
+  const { travel } = page;
+  const travelModes = [
+    { label: "By train", time: travel.trainTime, route: travel.trainRoute },
+    { label: "By car", time: travel.drivingTime, route: travel.drivingRoute },
+    ...(travel.flightTime && travel.flightRoute
+      ? [{ label: "By air", time: travel.flightTime, route: travel.flightRoute }]
+      : []),
+  ];
+  const otherCities = locationPageList
+    .filter((entry) => entry.slug !== page.slug)
+    .sort((a, b) => a.city.localeCompare(b.city));
+
   const structuredData = compactSchemaList([
     buildMedicalWebPageSchema({
       path: `/${page.slug}`,
@@ -129,37 +141,27 @@ export default function LocationPage({ page, relatedPages }: LocationPageProps) 
           <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
             If London is on your shortlist, here is the realistic journey.
           </h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-[24px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                By train
-              </p>
-              <p className="mt-3 font-display text-2xl text-white">
-                {page.travel.trainTime}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-white/64">
-                {page.travel.departureStation} to {page.travel.londonTerminus}
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                By car
-              </p>
-              <p className="mt-3 font-display text-2xl text-white">
-                {page.travel.drivingTime}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-white/64">
-                Outside peak traffic
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5 sm:col-span-2">
-              <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                Same-day return?
-              </p>
-              <p className="mt-3 text-sm leading-7 text-white/72">
-                {page.travel.sameDayReturnNote}
-              </p>
-            </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {travelModes.map((mode) => (
+              <div
+                key={mode.label}
+                className="rounded-[24px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5"
+              >
+                <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
+                  {mode.label}
+                </p>
+                <p className="mt-3 font-display text-2xl text-white">{mode.time}</p>
+                <p className="mt-2 text-sm leading-6 text-white/64">{mode.route}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-[24px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5">
+            <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
+              Same-day return?
+            </p>
+            <p className="mt-3 text-sm leading-7 text-white/72">
+              {page.travel.sameDayReturnNote}
+            </p>
           </div>
           <p className="mt-6 text-sm leading-7 text-white/60">
             Also covers patients travelling in from{" "}
@@ -270,6 +272,26 @@ export default function LocationPage({ page, relatedPages }: LocationPageProps) 
               ))}
             </div>
           </section>
+        </section>
+
+        <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+            Other UK cities
+          </p>
+          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+            Hair transplant guides for other cities.
+          </h2>
+          <div className="mt-6 flex flex-wrap gap-2.5">
+            {otherCities.map((entry) => (
+              <Link
+                key={entry.slug}
+                href={`/${entry.slug}`}
+                className="rounded-full border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] px-3.5 py-2 text-sm text-white/78 transition hover:border-[color:var(--line-inverse-strong)] hover:text-white"
+              >
+                {entry.city}
+              </Link>
+            ))}
+          </div>
         </section>
       </main>
     </SiteShell>
