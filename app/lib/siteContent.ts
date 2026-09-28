@@ -322,8 +322,8 @@ export const homeGuideHighlights: LinkCard[] = applyProjectTokens([
       "Understand what changes the quote, what should be included, and how to compare value rather than only chasing the lowest price.",
   },
   {
-    href: "/blog/how-to-choose-a-hair-transplant-clinic-in-london",
-    label: "How to Choose a Hair Transplant Clinic in London",
+    href: "/blog/how-to-choose-a-hair-transplant-clinic",
+    label: "How to Choose a Hair Transplant Clinic in the UK",
     description:
       "What patients should check around planning, doctor responsibility, provider standards, and aftercare before choosing a clinic.",
   },

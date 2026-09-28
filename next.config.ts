@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       ["uk-vs-turkey-hair-transplant-how-to-compare", "/uk-vs-turkey-hair-transplant"],
       ["hair-transplant-recovery-timeline-week-by-week", "/hair-transplant-recovery-timeline"],
       ["female-hair-transplant-london-who-may-be-suitable", "/female-hair-transplant-london"],
+      // Re-targeted from London to the UK.
+      ["how-to-choose-a-hair-transplant-clinic-in-london", "/blog/how-to-choose-a-hair-transplant-clinic"],
     ].map(([slug, destination]) => ({
       source: `/blog/${slug}`,
       destination,

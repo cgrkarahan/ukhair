@@ -95,6 +95,34 @@ const source = {
     label: "Citizens Advice: advice about health services",
     href: "https://www.citizensadvice.org.uk/health/get-advice-about-health-services/",
   },
+  cmaFakeReviews: {
+    label: "Competition and Markets Authority: fake reviews guidance",
+    href: "https://www.gov.uk/government/publications/fake-reviews",
+  },
+  dmcc: {
+    label: "Digital Markets, Competition and Consumers Act 2024",
+    href: "https://www.legislation.gov.uk/ukpga/2024/13/contents",
+  },
+  cra49: {
+    label: "Consumer Rights Act 2015, section 49: reasonable care and skill",
+    href: "https://www.legislation.gov.uk/ukpga/2015/15/section/49",
+  },
+  nhsSurgeryAbroad: {
+    label: "NHS: Cosmetic surgery abroad",
+    href: "https://www.nhs.uk/tests-and-treatments/cosmetic-procedures/advice/cosmetic-surgery-abroad/",
+  },
+  travelAware: {
+    label: "Travel Aware (UK government): surgery abroad",
+    href: "https://travelaware.campaign.gov.uk/surgery-abroad-cut-out-the-risk/",
+  },
+  fcdoTurkeyHealth: {
+    label: "GOV.UK: Turkey travel advice, health",
+    href: "https://www.gov.uk/foreign-travel-advice/turkey/health",
+  },
+  healthTurkiye: {
+    label: "HealthTürkiye (Turkish Ministry of Health portal)",
+    href: "https://healthturkiye.gov.tr/",
+  },
 } satisfies Record<string, BlogSource>;
 
 const blogPostSources: Record<string, BlogSource[]> = {
@@ -103,7 +131,7 @@ const blogPostSources: Record<string, BlogSource[]> = {
     source.gmcRegisters,
     source.cqcSearch,
   ],
-  "how-to-choose-a-hair-transplant-clinic-in-london": [
+  "how-to-choose-a-hair-transplant-clinic": [
     source.nhsHairTransplant,
     source.gmcRegisters,
     source.cqcSearch,
@@ -141,6 +169,28 @@ const blogPostSources: Record<string, BlogSource[]> = {
     source.nhsHairTransplant,
     source.cqcSearch,
     source.gmcRegisters,
+  ],
+  "how-to-read-hair-transplant-reviews": [
+    source.cmaFakeReviews,
+    source.dmcc,
+    source.nhsHairTransplant,
+  ],
+  "hair-transplant-guarantees": [source.cra49, source.nhsSurgeryAbroad, source.nhsHairTransplant],
+  "how-to-compare-hair-transplant-quotes": [
+    source.nhsHairTransplant,
+    source.gmcRegisters,
+    source.cqcSearch,
+  ],
+  "how-to-vet-a-turkish-hair-transplant-clinic": [
+    source.nhsSurgeryAbroad,
+    source.travelAware,
+    source.fcdoTurkeyHealth,
+    source.healthTurkiye,
+  ],
+  "harley-street-hair-transplant-address": [
+    source.cqcSearch,
+    source.gmcRegisters,
+    source.nhsHairTransplant,
   ],
 };
 
@@ -239,89 +289,110 @@ const rawBlogPosts: BaseBlogPost[] = [
     ],
   },
   {
-    slug: "how-to-choose-a-hair-transplant-clinic-in-london",
-    title: "How to Choose a Hair Transplant Clinic in London",
-    seoTitle: "How to Choose a Hair Transplant Clinic in London",
+    slug: "how-to-choose-a-hair-transplant-clinic",
+    title: "How to Choose a Hair Transplant Clinic in the UK",
+    seoTitle: "How to Choose a Hair Transplant Clinic in the UK",
     description:
-      "A practical guide to choosing a hair transplant clinic in London, including doctor registration, provider standards, consultation quality, and aftercare.",
+      "A practical guide to choosing a hair transplant clinic anywhere in the UK: who is responsible, how to check regulation, what a consultation should tell you, and when to travel.",
     excerpt:
-      "Patients should check who plans the treatment, who performs key stages, whether standards are clearly explained, and how aftercare will work after the procedure.",
+      "Judge the whole treatment structure, not the sales message: who is responsible, how the clinic is regulated, how honest the plan is, and what happens after treatment day.",
     eyebrow: "Clinic selection guide",
     answerSummary:
-      "The best way to choose a hair transplant clinic in London is to judge the full treatment structure, not just the sales message. Patients should understand who is medically responsible, how suitability is assessed, what provider standards are in place, how realistic the planning feels, and how aftercare will be handled once treatment is over.",
-    readTime: "8 min read",
-    updatedAt: "2026-05-07",
+      "The best way to choose a hair transplant clinic in the UK is to judge the whole treatment structure rather than the marketing. Find out who is medically responsible, check the doctor and the clinic on the right registers, judge whether the consultation was specific and honest about limits, and make sure aftercare is clear before you book. Price and location come after those.",
+    readTime: "7 min read",
+    updatedAt: "2026-09-28",
     keywords: [
-      "best hair transplant clinic london",
       "how to choose hair transplant clinic",
-      "gmc registered hair transplant doctor london",
-      "cqc hair transplant clinic",
+      "best hair transplant clinic uk",
+      "hair transplant clinic uk",
+      "choosing a hair transplant surgeon",
     ],
     keyTakeaways: [
-      "A clinic should be judged by planning, standards, and aftercare, not only before-and-after marketing.",
-      "Patients should know who is clinically responsible and how suitability is assessed.",
-      "A calm, specific consultation is usually more useful than a fast sales-driven one.",
+      "Judge a clinic by responsibility, regulation, planning, and aftercare before price or location.",
+      "Check both the doctor and the clinic, using the regulator for the nation the clinic is in.",
+      "A calm, specific consultation that talks about limits is one of the best signals you will get.",
     ],
     sections: [
       {
-        heading: "Start with who is responsible for your care",
+        heading: "Who is responsible for your care?",
         paragraphs: [
-          "One of the most important questions is also one of the simplest: who is medically responsible for your treatment plan? Patients should understand who assesses suitability, who approves the design, and who is responsible for clinical decisions before, during, and after the procedure.",
-          "That matters because hair transplant is not only a cosmetic purchase. It is a treatment decision with long-term consequences for donor use, appearance, and future planning.",
+          "One of the most important questions is also one of the simplest: who is medically responsible for your treatment plan? You should know who assesses your suitability, who approves the design, and who makes clinical decisions before, during, and after the procedure.",
+          "That matters because a hair transplant is not only a cosmetic purchase. It is a treatment decision with long-term consequences for your donor area, your appearance, and your options later on.",
         ],
       },
       {
-        heading: "Why consultation quality is one of the best signals",
+        heading: "How do you check a clinic's regulation?",
         paragraphs: [
-          "A strong consultation usually feels specific rather than scripted. It should discuss your pattern of loss, donor area, priorities, likely limitations, and what a realistic result may look like for your case.",
-          "If the conversation stays vague, rushes to a price, or avoids discussing limitations, you may not yet have enough information to judge the provider properly.",
-        ],
-      },
-      {
-        heading: "What standards should patients look for in London?",
-        paragraphs: [
-          "For many patients in England, doctor registration and provider regulation are part of the trust decision. Patients often want to know whether the treating doctors are GMC-registered and whether the provider setting is CQC-registered.",
-          "Those signals do not replace common sense, but they help patients assess the clinical setting, governance structure, and level of accountability around treatment and aftercare.",
+          "Check the doctor and the clinic separately. Every doctor should be on the GMC register with a licence to practise. The clinic's regulator depends on where it is: the Care Quality Commission in England, Healthcare Improvement Scotland, or Healthcare Inspectorate Wales.",
+          "Registration does not tell you a clinic is good, but a missing registration tells you it is not the right choice. Our guide to checking a surgeon's registration walks through each register step by step.",
         ],
         bullets: [
-          "Clear explanation of who performs each stage",
-          "Transparent consultation and suitability process",
-          "Credible discussion of aftercare and follow-up",
-          "Realistic language around outcomes and density",
+          "England: Care Quality Commission",
+          "Scotland: Healthcare Improvement Scotland",
+          "Wales: Healthcare Inspectorate Wales",
+          "Every doctor, anywhere in the UK: the GMC register",
         ],
       },
       {
-        heading: "Why before-and-after photos are only one part of the picture",
+        heading: "What should the consultation tell you?",
         paragraphs: [
-          "Photos can be useful, but they should not carry the entire decision. Patients should also know the area treated, how long after treatment the photo was taken, and whether the result reflects the kind of case they actually have.",
-          "Good proof supports the clinical discussion. It should not replace questions about planning, suitability, standards, and recovery.",
+          "A strong consultation feels specific rather than scripted. It should cover your pattern of loss, your donor area, your priorities, the likely limits, and what a realistic result looks like for someone with your hair.",
+          "If the conversation stays vague, rushes to a price, or never mentions limitations, you do not yet have enough information to judge the clinic. A clinic that sometimes tells people not to have a transplant yet is usually one worth trusting.",
+        ],
+        bullets: [
+          "A graft range explained against your donor area, in grafts rather than hairs",
+          "Who performs each stage of the procedure",
+          "A written quote that lists what is included",
+          "A clear aftercare plan, including who you contact and how",
+        ],
+      },
+      {
+        heading: "Should you choose a clinic near you or travel?",
+        paragraphs: [
+          "A local clinic makes consultations and follow-up easy, which is a real advantage. Travelling, whether to London or further, can widen your choice, but it adds cost and makes aftercare at a distance more important to get right.",
+          "Our city guides set out the realistic options, journey times, and trade-offs for 25 UK cities, from Glasgow to Exeter. Whichever you choose, the checks above apply in the same way.",
+        ],
+      },
+      {
+        heading: "Why are before-and-after photos only part of the picture?",
+        paragraphs: [
+          "Photos can be useful, but they should not carry the whole decision. You should also know the area treated, how long after treatment the photo was taken, how many grafts were used, and whether the case resembles yours.",
+          "Good proof supports the clinical discussion. It should not replace questions about planning, suitability, standards, and recovery, and it should come from the clinic's own patients.",
         ],
       },
     ],
     faq: [
       {
-        question: "Should I avoid clinics that will not answer detailed questions?",
+        question: "Is the most expensive clinic the best one?",
         answer:
-          "A provider does not need to promise everything immediately, but they should be willing to explain planning, standards, likely limits, and aftercare clearly enough for you to judge the route properly.",
+          "Not necessarily. Price often reflects location, overheads, and what is included as much as clinical quality. Compare full written quotes, and judge the clinic on responsibility, regulation, and aftercare first.",
       },
       {
-        question: "Is it reasonable to ask about GMC and CQC?",
+        question: "Should I choose a clinic close to home?",
         answer:
-          "Yes. Those are sensible trust questions for patients comparing treatment in England, especially if they want a clearer understanding of the doctor and provider setting involved.",
+          "It helps, especially for follow-up. Travelling can make sense if it gives you a better option, but plan how aftercare will work once you are home before you book.",
+      },
+      {
+        question: "Should I avoid clinics that will not answer detailed questions?",
+        answer:
+          "A clinic does not need to promise everything straight away, but it should explain planning, standards, likely limits, and aftercare clearly enough for you to judge it properly.",
+      },
+      {
+        question: "Is it reasonable to ask about GMC and CQC registration?",
+        answer:
+          "Yes. They are basic trust checks for anyone considering treatment. In Scotland or Wales, ask about Healthcare Improvement Scotland or Healthcare Inspectorate Wales instead of the CQC.",
       },
     ],
     relatedLinks: [
       {
-        href: "/how-we-select-clinics",
-        label: "How We Select Clinics",
-        description:
-          "See the criteria used when judging standards, consultation quality, and aftercare.",
+        href: "/blog/how-to-check-hair-transplant-surgeon-registration",
+        label: "How to Check a Surgeon's Registration",
+        description: "The ten-minute check on the GMC register and the clinic's regulator.",
       },
       {
-        href: "/our-clinical-standards",
-        label: "Our Clinical Standards",
-        description:
-          "Review the standards and trust signals patients should understand before treatment.",
+        href: "/blog/hair-transplant-red-flags",
+        label: "Hair Transplant Red Flags",
+        description: "Ten signs that a clinic is not the right choice.",
       },
     ],
   },
@@ -1107,6 +1178,512 @@ const rawBlogPosts: BaseBlogPost[] = [
       },
     ],
   },
+  {
+    slug: "how-to-read-hair-transplant-reviews",
+    title: "Hair Transplant Reviews: How to Tell Real Feedback From Marketing",
+    seoTitle: "Hair Transplant Reviews: How to Spot Real Feedback",
+    description:
+      "How to read hair transplant reviews properly: what makes a review useful, the signs of curated or incentivised feedback, and what UK law now says about fake reviews.",
+    excerpt:
+      "The most useful reviews are specific, spread over time, and written after the result has had time to grow. Here is how to tell them apart from marketing.",
+    eyebrow: "Clinic selection",
+    answerSummary:
+      "Useful hair transplant reviews are specific, spread over time, and written months after surgery, when the result can actually be judged. Be cautious with reviews posted on treatment day, clusters of similar five-star reviews, and anything offered in exchange for a discount. Since April 2025, fake reviews and hidden incentivised reviews have been illegal in the UK, but that does not mean every review you see is genuine.",
+    readTime: "5 min read",
+    updatedAt: "2026-09-28",
+    keywords: [
+      "hair transplant reviews",
+      "hair transplant clinic reviews uk",
+      "are hair transplant reviews real",
+      "fake hair transplant reviews",
+    ],
+    keyTakeaways: [
+      "A review written on treatment day can judge the service, not the result.",
+      "Detail, timing, and a spread of dates matter more than the star rating.",
+      "Fake and hidden incentivised reviews are now banned in the UK, but still worth watching for.",
+    ],
+    sections: [
+      {
+        heading: "Why are hair transplant reviews harder to judge than most?",
+        paragraphs: [
+          "A hair transplant result takes around a year to show, and the NHS puts the full result at 10 to 18 months. Most reviews are written far sooner, often on the day or within the first week, when the patient can describe how they were treated but not how their hair has grown.",
+          "Both kinds of review are useful, but they answer different questions. A treatment-day review tells you about communication and care. A review written a year later tells you about the outcome.",
+        ],
+      },
+      {
+        heading: "What does a useful review look like?",
+        paragraphs: [
+          "Useful reviews read like a real person's experience rather than a slogan. They mention specifics and are not all positive in exactly the same way.",
+        ],
+        bullets: [
+          "How long after surgery it was written",
+          "The area treated and, ideally, roughly how many grafts",
+          "What recovery and aftercare were actually like",
+          "Something that was not perfect, and how the clinic handled it",
+        ],
+      },
+      {
+        heading: "What are the signs of curated or incentivised reviews?",
+        paragraphs: [
+          "No single sign proves a review is fake, but a pattern should make you look more carefully.",
+        ],
+        bullets: [
+          "Many five-star reviews posted within a few days of each other",
+          "Short, similar wording across several reviewers",
+          "Reviews that praise the result within days of surgery",
+          "A discount or free product offered in exchange for a review",
+          "Reviews only on the clinic's own website, with none on independent platforms",
+          "Negative reviews met with hostility, or not answered at all",
+        ],
+      },
+      {
+        heading: "What does UK law say about fake reviews?",
+        paragraphs: [
+          "Since April 2025, under the Digital Markets, Competition and Consumers Act 2024, it has been illegal for businesses to post or commission fake reviews, to publish incentivised reviews without making that clear, or to present reviews in a misleading way, for example by hiding negative ones. The Competition and Markets Authority can now enforce these rules directly.",
+          "That raises the stakes for clinics that bend the rules, but it does not guarantee that every review you read is genuine. The practical checks above still matter.",
+        ],
+      },
+      {
+        heading: "How should reviews fit into your decision?",
+        paragraphs: [
+          "Use reviews to judge how a clinic treats people: whether it communicates clearly, keeps its promises, and looks after patients once they are home. Use registration checks, the consultation, and a written plan to judge whether it is the right clinic for your hair.",
+          "If the reviews and the consultation tell different stories, trust the consultation and the registers, and ask the clinic about the difference.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Are Trustpilot and Google reviews reliable for hair transplants?",
+        answer:
+          "They are useful for judging service and communication, especially when there are many reviews spread over time. Look for detailed reviews written months after surgery, and read the negative ones and how the clinic responded.",
+      },
+      {
+        question: "Is it illegal for a clinic to post fake reviews?",
+        answer:
+          "Yes. Since April 2025, posting or commissioning fake reviews, and publishing incentivised reviews without disclosing it, are banned practices under UK consumer law.",
+      },
+      {
+        question: "Should I trust reviews with before-and-after photos?",
+        answer:
+          "They can be more useful than text alone, but only if you know the timeframe, the area treated, and that the patient was treated by that clinic. A photo taken a few weeks after surgery cannot show the final result.",
+      },
+      {
+        question: "How many reviews should a clinic have?",
+        answer:
+          "There is no magic number. A steady spread of detailed reviews over months or years is more reassuring than a large number posted in a short burst.",
+      },
+    ],
+    relatedLinks: [
+      {
+        href: "/blog/hair-transplant-red-flags",
+        label: "Hair Transplant Red Flags",
+        description: "Photos without context are one of ten signs to slow down.",
+      },
+      {
+        href: "/how-we-select-clinics",
+        label: "How We Select Clinics",
+        description: "The criteria we use when judging standards and aftercare.",
+      },
+    ],
+  },
+  {
+    slug: "hair-transplant-guarantees",
+    title: "Hair Transplant Guarantees: What They Actually Cover",
+    seoTitle: "Hair Transplant Guarantees: What They Actually Cover",
+    description:
+      "What hair transplant growth and graft survival guarantees usually cover, the conditions attached, what they cannot cover, and the questions to ask before relying on one.",
+    excerpt:
+      "A guarantee is only as useful as its conditions. Here is what growth guarantees usually cover, what they exclude, and what to ask.",
+    eyebrow: "Before you pay",
+    answerSummary:
+      "Hair transplant guarantees usually promise a repeat procedure, not a refund, if growth falls below a stated level, and only if you meet conditions such as following aftercare, attending reviews, and sometimes taking medication. They cannot cover hair you lose naturally later. Read the written terms, check who decides whether the guarantee applies, and treat any promise of complete success with caution.",
+    readTime: "5 min read",
+    updatedAt: "2026-09-28",
+    keywords: [
+      "hair transplant guarantee",
+      "hair transplant growth guarantee",
+      "graft survival guarantee",
+      "hair transplant lifetime guarantee",
+    ],
+    keyTakeaways: [
+      "Most guarantees offer a repeat procedure rather than your money back.",
+      "The conditions matter more than the headline promise.",
+      "No guarantee can cover hair loss that continues naturally after treatment.",
+    ],
+    sections: [
+      {
+        heading: "What do hair transplant guarantees usually promise?",
+        paragraphs: [
+          "Most guarantees fall into one of a few types: a growth guarantee, where the clinic repeats some or all of the procedure if growth falls below a set level; a graft survival guarantee; or a lifetime guarantee, which usually refers to the transplanted hairs rather than your hair in general.",
+          "The remedy is usually further treatment at the same clinic, not a refund. That is worth knowing before you rely on it, because it assumes you would want to go back to the clinic whose first attempt did not work.",
+        ],
+      },
+      {
+        heading: "What conditions are usually attached?",
+        paragraphs: [
+          "Guarantees almost always come with conditions, and missing one can void the promise.",
+        ],
+        bullets: [
+          "Following the aftercare instructions exactly",
+          "Attending review appointments or sending photos at set intervals",
+          "Sometimes taking prescribed medication to protect existing hair",
+          "Raising a claim within a time limit, often at around twelve months",
+          "Travel and accommodation for a repeat procedure often being at your own cost",
+        ],
+      },
+      {
+        heading: "What can a guarantee not cover?",
+        paragraphs: [
+          "A transplant moves hair; it does not stop your hair loss. If the hair around the transplanted area continues to thin, the result can look weaker over time even though the grafts themselves survived. No guarantee covers that, and a clinic that implies otherwise is overselling.",
+          "Guarantees also cannot fix a poor plan. A hairline placed too low or a donor area over-harvested is a design problem, and repeating the procedure may not be the right remedy.",
+        ],
+      },
+      {
+        heading: "Who decides whether the guarantee applies?",
+        paragraphs: [
+          "Usually the clinic does, which is the weakness of most guarantees. Ask how growth is measured, whether photos taken at home count, and what happens if you disagree with the clinic's assessment.",
+          "Separately from any guarantee, UK consumer law generally expects a service to be carried out with reasonable care and skill. A guarantee sits on top of your rights; it does not replace them.",
+        ],
+      },
+      {
+        heading: "Is a guarantee a good sign or a red flag?",
+        paragraphs: [
+          "Neither on its own. A clear, conditional guarantee can show that a clinic stands behind its work. A promise of guaranteed density or complete success is a different thing: the NHS advises being wary of adverts that guarantee complete success, because no surgeon can promise that.",
+          "The best test is the same as for anything else: ask for the terms in writing, and judge the clinic on responsibility, regulation, and aftercare first.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Do hair transplant guarantees include a refund?",
+        answer:
+          "Usually not. Most offer a repeat procedure, in whole or in part, if growth falls below a stated level. Check whether any refund is possible, and in what circumstances.",
+      },
+      {
+        question: "What is a lifetime hair transplant guarantee?",
+        answer:
+          "It usually refers to the transplanted hairs being permanent, not to your hair as a whole. It does not cover hair loss that continues elsewhere on your scalp.",
+      },
+      {
+        question: "Can a clinic refuse to honour a guarantee?",
+        answer:
+          "It can if you have not met the conditions, which is why they need to be clear and in writing before treatment. Keep records of your aftercare and review photos from the start.",
+      },
+      {
+        question: "Should I choose a clinic because it offers a guarantee?",
+        answer:
+          "Not on that basis alone. A guarantee is worth having, but responsibility, regulation, a realistic plan, and good aftercare matter more to the result.",
+      },
+    ],
+    relatedLinks: [
+      {
+        href: "/blog/hair-transplant-gone-wrong",
+        label: "What to Do If a Hair Transplant Goes Wrong",
+        description: "Complaint routes, time limits, and what to know before a repair.",
+      },
+      {
+        href: "/blog/how-to-compare-hair-transplant-quotes",
+        label: "How to Compare Two Quotes",
+        description: "Where a guarantee fits in a line-by-line comparison.",
+      },
+    ],
+  },
+  {
+    slug: "how-to-compare-hair-transplant-quotes",
+    title: "How to Compare Two Hair Transplant Quotes Line by Line",
+    seoTitle: "How to Compare Hair Transplant Quotes Line by Line",
+    description:
+      "A line-by-line checklist for comparing two hair transplant quotes, with an illustrative example showing why the cheaper quote is not always the lower cost.",
+    excerpt:
+      "Two quotes only compare fairly when they describe the same thing. Here is the checklist, and a worked example of where the differences hide.",
+    eyebrow: "Quotes and grafts",
+    answerSummary:
+      "To compare two hair transplant quotes, put them side by side against the same list: graft range and the unit it is quoted in, technique, who performs the procedure, the clinic's registration, what is included, aftercare, deposit and refund terms, any guarantee, and travel costs. Two quotes that look far apart often move much closer, or swap places, once the exclusions are added back in.",
+    readTime: "5 min read",
+    updatedAt: "2026-09-28",
+    keywords: [
+      "hair transplant quote comparison",
+      "compare hair transplant quotes",
+      "hair transplant quote what to check",
+      "hair transplant price comparison",
+    ],
+    keyTakeaways: [
+      "Compare the same things in the same units, or the comparison means nothing.",
+      "Add the exclusions back in before judging which quote is cheaper.",
+      "The deciding line is usually aftercare and responsibility, not price.",
+    ],
+    sections: [
+      {
+        heading: "Why do two quotes rarely compare like for like?",
+        paragraphs: [
+          "Clinics quote in different units, include different things, and describe their plans at different levels of detail. One quote may give a firm number of grafts, another a range, and a third a count of hairs. One may include medication and PRP; another may list them as extras.",
+          "Until you line them up against the same questions, you are comparing presentation rather than treatment.",
+        ],
+      },
+      {
+        heading: "What should you compare?",
+        paragraphs: [
+          "Write each quote against this list. If a quote does not answer a line, ask the clinic in writing.",
+        ],
+        bullets: [
+          "Graft range, and whether it is in grafts or hairs",
+          "Technique, and whether shaving is needed",
+          "The doctor responsible, and who performs each stage",
+          "The clinic's registration with the right regulator",
+          "Exactly what is included: medication, PRP, aftercare products",
+          "Aftercare: review appointments, contact, and for how long",
+          "Deposit amount and refund terms",
+          "Any guarantee, and its conditions",
+          "Travel, accommodation, and time off work",
+        ],
+      },
+      {
+        heading: "What does a worked comparison look like?",
+        paragraphs: [
+          "The two quotes below are illustrative, not real clinics. Quote A is £3,000 for up to 3,500 grafts, with PRP and medication charged as extras and a single follow-up call. Quote B is £3,400 for 2,800 to 3,200 grafts, with PRP and medication included and reviews at one week and at three, six, and twelve months.",
+          "Quote A looks cheaper and bigger. Once the extras are added back, the gap narrows or disappears. And A's higher graft figure is only meaningful if your donor area can supply it and your plan needs it; if it was given without a proper donor assessment, it is a promise rather than a plan. B's structured follow-up is worth more than it appears on paper, because aftercare is where problems are caught early.",
+        ],
+      },
+      {
+        heading: "Which differences matter most?",
+        paragraphs: [
+          "Price differences are the easiest to see and often the least important. The lines that most affect your result are who is responsible for the procedure, whether the graft range was assessed properly, and how aftercare works once you are home.",
+          "If two quotes are close on those, choose on price and convenience. If they are not, the cheaper quote is rarely the better value.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Should I tell a clinic about another clinic's quote?",
+        answer:
+          "You can. A good clinic will explain where its plan differs and why, rather than simply matching the price. That explanation is often the most useful thing you get from the comparison.",
+      },
+      {
+        question: "Why is one quote so much cheaper than the other?",
+        answer:
+          "Usually because it includes less, uses a different team structure, or is based on a rougher graft estimate. Ask what is excluded and who performs each stage before assuming it is better value.",
+      },
+      {
+        question: "Is a fixed price better than a per-graft price?",
+        answer:
+          "A fixed price within a graft band removes the incentive to add grafts and makes budgeting simpler. A per-graft price can be fair too, as long as the count is assessed properly and confirmed in writing.",
+      },
+      {
+        question: "Should I include travel costs in the comparison?",
+        answer:
+          "Yes, including time off work and any overnight stay. For treatment abroad, also consider flights, accommodation, and the cost of any follow-up visit.",
+      },
+    ],
+    relatedLinks: [
+      {
+        href: "/prices",
+        label: "Our Prices",
+        description: "Fixed prices by treatment, technique, and graft band, with inclusions listed.",
+      },
+      {
+        href: "/blog/how-hair-transplant-graft-counts-get-inflated",
+        label: "How Graft Counts Get Inflated",
+        description: "Grafts versus hairs, and how to tell when a number is too high.",
+      },
+    ],
+  },
+  {
+    slug: "how-to-vet-a-turkish-hair-transplant-clinic",
+    title: "How to Vet a Turkish Hair Transplant Clinic From the UK",
+    seoTitle: "How to Vet a Turkish Hair Transplant Clinic From the UK",
+    description:
+      "The checks to make before booking a hair transplant in Turkey: licences, who performs the procedure, how many patients the clinic treats a day, packages, aftercare, and insurance.",
+    excerpt:
+      "UK registers do not cover Turkish clinics, so the checks are different. Here is what to verify before you book, and what changes once you are home.",
+    eyebrow: "Treatment abroad",
+    answerSummary:
+      "Before booking a hair transplant in Turkey, ask for the facility's Ministry of Health licence and its International Health Tourism Authorisation Certificate, get the full name of the doctor who will treat you, find out how many procedures the clinic runs each day, and check exactly what the package includes. Then plan aftercare and insurance for when you are home, because both are harder to arrange than for treatment in the UK.",
+    readTime: "6 min read",
+    updatedAt: "2026-09-28",
+    keywords: [
+      "turkey hair transplant risks",
+      "how to choose a hair transplant clinic in turkey",
+      "turkey hair transplant clinic checks",
+      "hair transplant turkey safe",
+    ],
+    keyTakeaways: [
+      "UK registers do not cover Turkish clinics, so ask for Turkish licences and check them.",
+      "Find out who performs each stage, and how many patients the clinic treats a day.",
+      "Plan aftercare and insurance for when you are home before you book.",
+    ],
+    sections: [
+      {
+        heading: "Why do Turkish clinics need different checks?",
+        paragraphs: [
+          "The GMC and CQC registers only cover the UK, so they cannot tell you anything about a clinic in Istanbul. The NHS also notes that standards and regulation abroad may differ from the UK, and that it can be harder to find out whether a surgeon is fully trained in the procedure you want.",
+          "Turkey has some excellent hair transplant clinics and some very poor ones. The difference is rarely visible in the advertising, which is why the checks below matter more than the price.",
+        ],
+      },
+      {
+        heading: "Which licences should a Turkish clinic have?",
+        paragraphs: [
+          "Ask for the facility's licence from the Turkish Ministry of Health, and its International Health Tourism Authorisation Certificate, which Turkey requires for providers treating international patients. You can also check whether the facility appears on HealthTürkiye, the Ministry of Health's official health tourism portal.",
+          "Then ask for the full name of the doctor who will be responsible for your procedure, and their qualifications. A clinic that cannot or will not provide these before you pay is not one to book with.",
+        ],
+      },
+      {
+        heading: "Who performs the procedure, and how many a day?",
+        paragraphs: [
+          "Concerns have been widely reported about high-volume clinics where one doctor oversees many patients a day and much of the procedure is carried out by technicians. Ask how many procedures the clinic performs on the same day, and which steps the doctor carries out personally.",
+          "A good answer is specific and consistent. A vague one, or one that changes when you ask a second time, tells you what you need to know.",
+        ],
+      },
+      {
+        heading: "What should the package include?",
+        paragraphs: [
+          "Turkish hair transplants are often sold as packages with hotel, transfers, and an interpreter. The NHS advises caution with packages that combine surgery with a holiday, so treat the trip as a medical visit: no sun, swimming, or drinking while you heal, and a plan for the first days rather than sightseeing.",
+          "Check in writing exactly what the price covers, including medication, aftercare products, and any follow-up, and what happens to the flights and hotel you have paid for if the clinic cancels.",
+        ],
+      },
+      {
+        heading: "What happens once you are home?",
+        paragraphs: [
+          "Ask how the clinic will follow up with you after you fly home, who you contact, and how quickly they reply. Ask when you will be safe to fly after the procedure. If something goes wrong, NHS services will deal with emergencies, but planned corrective or cosmetic treatment is not usually available on the NHS.",
+          "Standard travel insurance does not normally cover planned treatment abroad, so check whether you need specialist cover before you book.",
+        ],
+      },
+      {
+        heading: "Where do we fit in?",
+        paragraphs: [
+          "We offer our own curated Turkiye route, so we have a commercial interest here, and you should apply every check on this page to us as well. The trade-offs of treatment abroad are real, and our UK vs Turkey comparison sets them out alongside the lower price.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is it safe to have a hair transplant in Turkey?",
+        answer:
+          "It can be, at a properly licensed clinic with a named, qualified doctor and clear aftercare. The risk comes from choosing on price alone without making the checks. Verification is also harder from the UK than for a UK clinic.",
+      },
+      {
+        question: "How do I check a Turkish hair transplant clinic is licensed?",
+        answer:
+          "Ask for its Ministry of Health facility licence and International Health Tourism Authorisation Certificate, and check whether the facility appears on HealthTürkiye, the Ministry of Health's official health tourism portal.",
+      },
+      {
+        question: "Will my travel insurance cover a hair transplant in Turkey?",
+        answer:
+          "Standard travel insurance does not normally cover planned treatment abroad or its complications. Look for specialist cover and read what it excludes.",
+      },
+      {
+        question: "What if I have a problem after I get home?",
+        answer:
+          "Contact the clinic first. NHS services will deal with emergencies such as infection, but corrective cosmetic treatment is not usually available on the NHS, and complaints against a Turkish clinic are harder to pursue from the UK.",
+      },
+    ],
+    relatedLinks: [
+      {
+        href: "/uk-vs-turkey-hair-transplant",
+        label: "UK vs Turkey Hair Transplant",
+        description: "A balanced comparison of cost, travel, standards, and aftercare.",
+      },
+      {
+        href: "/why-turkiye",
+        label: "Why Turkiye",
+        description: "Why some patients still travel, and what to check before booking.",
+      },
+    ],
+  },
+  {
+    slug: "harley-street-hair-transplant-address",
+    title: "Is a Harley Street Address a Sign of a Good Hair Transplant Clinic?",
+    seoTitle: "Harley Street Hair Transplant: Does the Address Matter?",
+    description:
+      "What a Harley Street address does and does not tell you about a hair transplant clinic, and how to check a Harley Street clinic properly before you book.",
+    excerpt:
+      "Harley Street is home to some excellent clinicians. The address itself still tells you nothing about who will treat you or how the clinic is regulated.",
+    eyebrow: "Clinic selection",
+    answerSummary:
+      "A Harley Street address tells you where a clinic is, not how good it is. Harley Street has been a centre of private medicine since the 19th century and many respected clinicians practise there, but consulting rooms are often rented by the session, and the address is not a form of regulation. Check the doctor on the GMC register and the exact address on the CQC register, as you would anywhere else.",
+    readTime: "5 min read",
+    updatedAt: "2026-09-28",
+    keywords: [
+      "harley street hair transplant",
+      "harley street hair transplant clinic",
+      "is harley street better for hair transplant",
+      "harley street clinic check",
+    ],
+    keyTakeaways: [
+      "Harley Street is an address, not a standard or a regulator.",
+      "Check that the exact address you will attend is the one registered with the CQC.",
+      "The address often adds cost; make sure you are paying for more than the postcode.",
+    ],
+    sections: [
+      {
+        heading: "Why is Harley Street associated with medicine?",
+        paragraphs: [
+          "Harley Street and the surrounding streets in Marylebone have been a centre of private medicine since the 19th century. Many highly respected specialists practise there, and the name has become shorthand for private healthcare in London.",
+          "That reputation is real, and it is the reason the address is valuable in marketing. It is also the reason it is worth understanding what the address does and does not guarantee.",
+        ],
+      },
+      {
+        heading: "What does the address actually tell you?",
+        paragraphs: [
+          "It tells you the clinic, or at least some of its consultations, are in central London, and that its overheads are probably high, which is often reflected in the price. It does not tell you who will perform your procedure, how the clinic is regulated, or whether the procedure itself takes place at that address.",
+          "Many buildings in the area let consulting rooms by the session or by the day, so the name on the door may be one of several practices using the same room, and a clinic may consult on Harley Street but operate somewhere else.",
+        ],
+      },
+      {
+        heading: "How do you check a Harley Street clinic properly?",
+        paragraphs: [
+          "Treat it exactly as you would a clinic anywhere else.",
+        ],
+        bullets: [
+          "Ask where the procedure will be performed, not only where you will be consulted.",
+          "Check that exact address on the CQC register.",
+          "Check the responsible doctor on the GMC register.",
+          "Ask who performs each stage of the procedure.",
+          "Compare the full written quote with clinics elsewhere.",
+        ],
+      },
+      {
+        heading: "Is it worth paying more for Harley Street?",
+        paragraphs: [
+          "Sometimes. If a Harley Street clinic offers a surgeon you particularly trust, easier access for you, or better aftercare, the extra cost may be worth it. If the only difference is the postcode, it probably is not.",
+          "Excellent hair transplant surgeons work across London and the rest of the UK. The questions that separate good clinics from weak ones are the same wherever the door is.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Are Harley Street hair transplant clinics better?",
+        answer:
+          "Not automatically. Some of the UK's most respected clinicians practise there, but the address is not a standard in itself. Judge the doctor, the clinic's registration, and the plan, not the postcode.",
+      },
+      {
+        question: "Why are Harley Street clinics more expensive?",
+        answer:
+          "Mostly because of the cost of premises in central London, although some also offer more senior clinicians or more comprehensive aftercare. Ask what the extra cost pays for.",
+      },
+      {
+        question: "Is every clinic with a Harley Street address based there?",
+        answer:
+          "Not always. Some clinics consult there and perform procedures elsewhere, and consulting rooms are often shared. Ask where your procedure will happen and check that address with the CQC.",
+      },
+      {
+        question: "What if the clinic's CQC registration shows a different address?",
+        answer:
+          "That can be legitimate, since a provider may consult in one place and treat in another. What matters is that the address where your procedure actually takes place is a registered location, so ask the clinic to confirm it and check it yourself.",
+      },
+    ],
+    relatedLinks: [
+      {
+        href: "/blog/how-to-check-hair-transplant-surgeon-registration",
+        label: "How to Check a Surgeon's Registration",
+        description: "How to check a doctor and a clinic's exact address on the registers.",
+      },
+      {
+        href: "/blog/how-to-choose-a-hair-transplant-clinic",
+        label: "How to Choose a Hair Transplant Clinic in the UK",
+        description: "What matters most when choosing, wherever the clinic is.",
+      },
+    ],
+  },
 ];
 
 type BlogPostImage = Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition"> & {
@@ -1123,11 +1700,10 @@ const blogPostImages: Record<
       "Doctor explaining a hairline treatment plan during a premium London hair transplant consultation",
     imagePosition: "72% center",
   },
-  "how-to-choose-a-hair-transplant-clinic-in-london": {
-    imageSrc: "/services/male-hair-transplant.png",
-    imageAlt:
-      "Doctor reviewing a hairline plan on a tablet during a clinic selection consultation",
-    imagePosition: "58% center",
+  "how-to-choose-a-hair-transplant-clinic": {
+    imageSrc: "/images/blog/how-to-choose-a-hair-transplant-clinic.webp",
+    imageAlt: "Quiet consultation room with two chairs facing a desk beside a tall window",
+    imagePosition: "center",
   },
   "how-to-check-hair-transplant-surgeon-registration": {
     imageSrc: "/images/blog/how-to-check-hair-transplant-surgeon-registration.webp",
@@ -1167,6 +1743,32 @@ const blogPostImages: Record<
     imageSrc: "/images/blog/hair-transplant-agency-vs-clinic.webp",
     imageAlt:
       "Clinic lounge with armchairs and a window looking out over London chimney pots",
+    imagePosition: "center",
+  },
+  "how-to-read-hair-transplant-reviews": {
+    imageSrc: "/images/blog/how-to-read-hair-transplant-reviews.webp",
+    imageAlt: "Cup of tea and a smartphone on a side table in a quiet waiting area",
+    imagePosition: "center 70%",
+  },
+  "hair-transplant-guarantees": {
+    imageSrc: "/images/blog/hair-transplant-guarantees.webp",
+    imageAlt: "Sealed cream envelope with a gold wax seal beside a fountain pen on a dark desk",
+    imagePosition: "center",
+  },
+  "how-to-compare-hair-transplant-quotes": {
+    imageSrc: "/images/blog/how-to-compare-hair-transplant-quotes.webp",
+    imageAlt: "Two blank sheets of paper side by side on an oak desk with a pen and a brass ruler",
+    imagePosition: "center",
+  },
+  "how-to-vet-a-turkish-hair-transplant-clinic": {
+    imageSrc: "/images/blog/how-to-vet-a-turkish-hair-transplant-clinic.webp",
+    imageAlt: "Hotel room desk with a travel folder, looking out over the Istanbul skyline and the Bosphorus",
+    imagePosition: "center",
+  },
+  "harley-street-hair-transplant-address": {
+    imageSrc: "/images/blog/harley-street-hair-transplant-address.webp",
+    imageAlt:
+      "Navy Georgian front door with a brass letterbox, a blank plaque, and black iron railings in morning light",
     imagePosition: "center",
   },
 };
