@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import {
   clearStoredAttribution,
   CONSENT_EVENT_NAME,
   CONSENT_STORAGE_KEY,
-  getConsentState,
   persistAttribution,
 } from "@/app/lib/tracking";
+import { useConsentState } from "@/app/lib/useConsentState";
 
 function updateGoogleConsent(value: "accepted" | "declined") {
   if (typeof window === "undefined") {
@@ -45,9 +45,7 @@ function persistConsent(value: "accepted" | "declined") {
 }
 
 export default function CookieConsent() {
-  const [consent, setConsent] = useState(() =>
-    typeof window === "undefined" ? "" : getConsentState(),
-  );
+  const consent = useConsentState();
   const lastSyncedConsent = useRef("");
 
   function syncGoogleConsent(value: "accepted" | "declined") {
@@ -89,7 +87,6 @@ export default function CookieConsent() {
               clearStoredAttribution();
               persistConsent("declined");
               syncGoogleConsent("declined");
-              setConsent("declined");
             }}
             className="inline-flex rounded-full border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-800)] transition hover:bg-[color:var(--surface-subtle)]"
           >
@@ -101,7 +98,6 @@ export default function CookieConsent() {
               persistConsent("accepted");
               persistAttribution();
               syncGoogleConsent("accepted");
-              setConsent("accepted");
             }}
             className="inline-flex rounded-full bg-[color:var(--ink-950)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[color:var(--palette-teal)]"
           >

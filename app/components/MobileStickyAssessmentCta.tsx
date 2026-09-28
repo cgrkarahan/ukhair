@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import SecondaryContactActions from "@/app/components/SecondaryContactActions";
-import { CONSENT_EVENT_NAME, getConsentState } from "@/app/lib/tracking";
+import { useConsentState } from "@/app/lib/useConsentState";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "GTM-M2P4W8DV";
 const KEYBOARD_HEIGHT_THRESHOLD = 140;
@@ -24,24 +24,8 @@ function isEditableElement(target: EventTarget | null) {
 }
 
 export default function MobileStickyAssessmentCta() {
-  const [consent, setConsent] = useState(() =>
-    typeof window === "undefined" ? "" : getConsentState(),
-  );
+  const consent = useConsentState();
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-
-  useEffect(() => {
-    function syncConsent() {
-      setConsent(getConsentState());
-    }
-
-    window.addEventListener(CONSENT_EVENT_NAME, syncConsent);
-    window.addEventListener("storage", syncConsent);
-
-    return () => {
-      window.removeEventListener(CONSENT_EVENT_NAME, syncConsent);
-      window.removeEventListener("storage", syncConsent);
-    };
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
