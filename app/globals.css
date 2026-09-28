@@ -58,10 +58,6 @@ body {
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
-a {
-  color: inherit;
-}
-
 .font-display {
   font-family: var(--font-display), "Times New Roman", serif;
 }
