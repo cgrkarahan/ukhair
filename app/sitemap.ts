@@ -23,6 +23,7 @@ const contentUpdatedAt: Record<string, string> = {
   "/": "2026-09-28",
   "/assessment": "2026-09-24",
   "/prices": "2026-09-28",
+  "/results": "2026-09-28",
   "/editorial-policy": "2026-09-28",
   "/hair-transplant-cost-london": "2026-09-28",
   "/female-hair-transplant-london": "2026-09-28",
@@ -70,6 +71,7 @@ function entry(
 const staticPages = [
   "/assessment",
   "/prices",
+  "/results",
   "/services",
   "/about",
   "/how-we-work",
@@ -86,7 +88,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/", { priority: 1, changeFrequency: "weekly" }),
     ...staticPages.map((path) =>
       entry(path, {
-        priority: path === "/assessment" ? 0.95 : path === "/prices" ? 0.9 : 0.45,
+        priority:
+          path === "/assessment" ? 0.95 : path === "/prices" ? 0.9 : path === "/results" ? 0.8 : 0.45,
         changeFrequency: "monthly",
       }),
     ),

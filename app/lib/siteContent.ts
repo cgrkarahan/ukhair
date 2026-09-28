@@ -212,6 +212,7 @@ export const footerLinkGroups = applyProjectTokens([
     links: [
       "/hair-transplant-london",
       "/prices",
+      "/results",
       "/hair-transplant-cost-london",
       "/how-we-work",
       "/our-clinical-standards",

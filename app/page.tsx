@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import AssessmentSection from "@/app/components/AssessmentSection";
-import BeforeAfterCard from "@/app/components/BeforeAfterCard";
+import ProofCaseCard from "@/app/components/ProofCaseCard";
+import { proofDisclaimer } from "@/app/lib/proof";
 import ReviewSlider from "@/app/components/ReviewSlider";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
@@ -58,16 +59,6 @@ function explanatorySignalCopy(value: string, fallback: string) {
     default:
       return fallback;
   }
-}
-
-function variantForProofCase(area: string, title: string) {
-  const value = `${area} ${title}`.toLowerCase();
-
-  if (value.includes("crown")) return "crown" as const;
-  if (value.includes("temple")) return "temple" as const;
-  if (value.includes("female") || value.includes("diffuse")) return "diffuse" as const;
-
-  return "hairline" as const;
 }
 
 const featuredServiceSlugs = [
@@ -380,99 +371,35 @@ export default async function Home() {
             </p>
           </div>
           {proofCases.length > 0 ? (
-            <div className="mt-8 grid gap-5 xl:grid-cols-3">
-              {mobileProofCases.map((proofCase) => (
-                <article
-                  key={`${proofCase.slug}-mobile`}
-                  className="overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.1)] sm:hidden"
+            <>
+              <div className="mt-8 grid gap-5 xl:grid-cols-3">
+                {mobileProofCases.map((proofCase) => (
+                  <ProofCaseCard
+                    key={`${proofCase.slug}-mobile`}
+                    proofCase={proofCase}
+                    className="sm:hidden"
+                  />
+                ))}
+                {proofCases.map((proofCase) => (
+                  <ProofCaseCard
+                    key={proofCase.slug}
+                    proofCase={proofCase}
+                    className="hidden sm:block"
+                  />
+                ))}
+              </div>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-3xl text-xs leading-6 text-[color:var(--ink-600)]">
+                  {proofDisclaimer}
+                </p>
+                <Link
+                  href="/results"
+                  className="shrink-0 text-sm font-semibold text-[color:var(--ink-950)] underline-offset-4 hover:underline"
                 >
-                  <div className="border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] p-3">
-                    <BeforeAfterCard
-                      title={proofCase.title}
-                      area={proofCase.areaTreated}
-                      variant={
-                        proofCase.variant ??
-                        variantForProofCase(
-                          proofCase.areaTreated,
-                          proofCase.title,
-                        )
-                      }
-                      beforeImage={proofCase.beforeImageSrc}
-                      afterImage={proofCase.afterImageSrc ?? proofCase.imageSrc}
-                      beforeImageAlt={proofCase.beforeImageAlt}
-                      afterImageAlt={proofCase.afterImageAlt ?? proofCase.imageAlt}
-                    />
-                  </div>
-                  <div className="p-5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
-                        {proofCase.areaTreated}
-                      </p>
-                    </div>
-                    <h3 className="mt-2 font-display text-2xl text-[color:var(--ink-950)]">
-                      {proofCase.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
-                      {proofCase.summary}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-[color:var(--ink-600)]">
-                      <span>{proofCase.timeline}</span>
-                      {proofCase.treatmentNote ? (
-                        <span>• {proofCase.treatmentNote}</span>
-                      ) : null}
-                    </div>
-                  </div>
-                </article>
-              ))}
-              {proofCases.map((proofCase) => (
-                <article
-                  key={proofCase.slug}
-                  className="hidden overflow-hidden rounded-[28px] border border-[color:var(--line-soft)] bg-[rgba(255,255,255,0.72)] shadow-[0_22px_56px_rgba(6,47,64,0.1)] sm:block"
-                >
-                  <div className="border-b border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] p-3">
-                    <BeforeAfterCard
-                      title={proofCase.title}
-                      area={proofCase.areaTreated}
-                      variant={
-                        proofCase.variant ??
-                        variantForProofCase(
-                          proofCase.areaTreated,
-                          proofCase.title,
-                        )
-                      }
-                      beforeImage={proofCase.beforeImageSrc}
-                      afterImage={proofCase.afterImageSrc ?? proofCase.imageSrc}
-                      beforeImageAlt={proofCase.beforeImageAlt}
-                      afterImageAlt={proofCase.afterImageAlt ?? proofCase.imageAlt}
-                    />
-                  </div>
-                  <div className="p-5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--gold-500)]">
-                        {proofCase.areaTreated}
-                      </p>
-                      {proofCase.isPlaceholder ? (
-                        <span className="rounded-full border border-[color:var(--line-soft)] bg-[rgba(192,213,214,0.18)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--ink-700)]">
-                          Preview placeholder
-                        </span>
-                      ) : null}
-                    </div>
-                    <h3 className="mt-2 font-display text-2xl text-[color:var(--ink-950)]">
-                      {proofCase.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
-                      {proofCase.summary}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.2em] text-[color:var(--ink-600)]">
-                      <span>{proofCase.timeline}</span>
-                      {proofCase.treatmentNote ? (
-                        <span>• {proofCase.treatmentNote}</span>
-                      ) : null}
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  See all results
+                </Link>
+              </div>
+            </>
           ) : (
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {home.proofSection.fallbackItems.map((item) => (

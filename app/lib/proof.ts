@@ -6,6 +6,8 @@ export type ApprovedProofCase = {
   areaTreated: string;
   timeline: string;
   treatmentNote?: string;
+  /** Grafts transplanted; shown on the card when known. */
+  grafts?: number;
   summary: string;
   variant?: "hairline" | "crown" | "temple" | "diffuse";
   beforeImageSrc?: string;
@@ -206,6 +208,10 @@ const rawApprovedReviews: ApprovedReview[] = [
     isPlaceholder: false,
   },
 ];
+
+/** Shown wherever before-and-after cases appear. */
+export const proofDisclaimer =
+  "Cases from our partner clinics, published with each patient's consent. Results vary with hair type, donor area, and how you heal, so these are not a guarantee of your result.";
 
 /**
  * A proof case is publishable only when consent is held AND a real image
