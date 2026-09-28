@@ -10,7 +10,13 @@ export type BlogSection = {
   bullets?: string[];
 };
 
+export type BlogSource = {
+  label: string;
+  href: string;
+};
+
 export type BlogPost = {
+  sources: BlogSource[];
   slug: string;
   title: string;
   seoTitle: string;
@@ -32,8 +38,111 @@ export type BlogPost = {
 
 type BaseBlogPost = Omit<
   BlogPost,
-  "imageSrc" | "imageAlt" | "imagePosition"
+  "imageSrc" | "imageAlt" | "imagePosition" | "sources"
 >;
+
+// Every URL here was checked to resolve before it was added. Re-check them when
+// a regulator reorganises its site, since broken citations undo their purpose.
+const source = {
+  nhsHairTransplant: {
+    label: "NHS: Hair transplant",
+    href: "https://www.nhs.uk/tests-and-treatments/cosmetic-procedures/cosmetic-surgery/hair-transplant/",
+  },
+  nhsHairLoss: { label: "NHS: Hair loss", href: "https://www.nhs.uk/symptoms/hair-loss/" },
+  nhs111: { label: "NHS 111 online", href: "https://111.nhs.uk/" },
+  gmcRegisters: {
+    label: "General Medical Council: the medical register",
+    href: "https://www.gmc-uk.org/registration-and-licensing/our-registers",
+  },
+  gmcConcerns: {
+    label: "General Medical Council: raising a concern about a doctor",
+    href: "https://www.gmc-uk.org/concerns",
+  },
+  cqcSearch: {
+    label: "Care Quality Commission: find and check a service",
+    href: "https://www.cqc.org.uk/search/all",
+  },
+  cqcComplain: {
+    label: "Care Quality Commission: complaining about a service",
+    href: "https://www.cqc.org.uk/contact-us/how-complain/complain-about-service-or-provider",
+  },
+  his: {
+    label: "Healthcare Improvement Scotland",
+    href: "https://www.healthcareimprovementscotland.scot/",
+  },
+  hiw: {
+    label: "Healthcare Inspectorate Wales: find a service",
+    href: "https://www.hiw.org.uk/find-service",
+  },
+  nmc: {
+    label: "Nursing and Midwifery Council: search the register",
+    href: "https://www.nmc.org.uk/registration/search-the-register/",
+  },
+  ishrs: { label: "International Society of Hair Restoration Surgery", href: "https://ishrs.org/" },
+  iscas: {
+    label: "Independent Sector Complaints Adjudication Service (ISCAS)",
+    href: "https://iscas.org.uk/",
+  },
+  section75: {
+    label: "Consumer Credit Act 1974, section 75",
+    href: "https://www.legislation.gov.uk/ukpga/1974/39/section/75",
+  },
+  citizensAdviceCard: {
+    label: "Citizens Advice: getting your money back if you paid by card",
+    href: "https://www.citizensadvice.org.uk/consumer/somethings-gone-wrong-with-a-purchase/getting-your-money-back-if-you-paid-by-card-or-paypal/",
+  },
+  citizensAdviceHealth: {
+    label: "Citizens Advice: advice about health services",
+    href: "https://www.citizensadvice.org.uk/health/get-advice-about-health-services/",
+  },
+} satisfies Record<string, BlogSource>;
+
+const blogPostSources: Record<string, BlogSource[]> = {
+  "hair-transplant-consultation-london-what-to-expect": [
+    source.nhsHairTransplant,
+    source.gmcRegisters,
+    source.cqcSearch,
+  ],
+  "how-to-choose-a-hair-transplant-clinic-in-london": [
+    source.nhsHairTransplant,
+    source.gmcRegisters,
+    source.cqcSearch,
+    source.his,
+    source.hiw,
+  ],
+  "how-to-check-hair-transplant-surgeon-registration": [
+    source.nhsHairTransplant,
+    source.gmcRegisters,
+    source.cqcSearch,
+    source.his,
+    source.hiw,
+    source.nmc,
+    source.ishrs,
+  ],
+  "hair-transplant-red-flags": [source.nhsHairTransplant, source.gmcRegisters, source.cqcSearch],
+  "how-hair-transplant-graft-counts-get-inflated": [source.nhsHairTransplant, source.ishrs],
+  "hair-transplant-deposit-and-refund-terms": [source.section75, source.citizensAdviceCard],
+  "hair-transplant-second-opinion": [
+    source.nhsHairLoss,
+    source.nhsHairTransplant,
+    source.gmcRegisters,
+  ],
+  "hair-transplant-gone-wrong": [
+    source.nhsHairTransplant,
+    source.nhs111,
+    source.iscas,
+    source.cqcComplain,
+    source.gmcConcerns,
+    source.his,
+    source.hiw,
+    source.citizensAdviceHealth,
+  ],
+  "hair-transplant-agency-vs-clinic": [
+    source.nhsHairTransplant,
+    source.cqcSearch,
+    source.gmcRegisters,
+  ],
+};
 
 const rawBlogPosts: BaseBlogPost[] = [
   {
@@ -785,7 +894,7 @@ const rawBlogPosts: BaseBlogPost[] = [
       "Separate urgent problems from disappointing results, raise it with the clinic in writing, and know which complaint routes apply before you consider a repair.",
     eyebrow: "After treatment",
     answerSummary:
-      "If a hair transplant seems to have gone wrong, first separate urgent problems from disappointing results. Signs of infection need prompt medical attention, while poor growth usually cannot be judged until around a year after surgery. For a genuine problem, raise it with the clinic in writing, then use the complaints route that applies, and get an independent assessment before agreeing to any repair.",
+      "If a hair transplant seems to have gone wrong, first separate urgent problems from disappointing results. Signs of infection need prompt medical attention, while poor growth usually cannot be judged until at least 10 to 12 months after surgery. For a genuine problem, raise it with the clinic in writing, then use the complaints route that applies, and get an independent assessment before agreeing to any repair.",
     readTime: "6 min read",
     updatedAt: "2026-09-28",
     keywords: [
@@ -803,7 +912,7 @@ const rawBlogPosts: BaseBlogPost[] = [
       {
         heading: "Is something wrong, or is it just early?",
         paragraphs: [
-          "A lot of what worries patients in the first months is normal: redness, scabbing, some swelling, and the shedding of transplanted hairs a few weeks after surgery. Growth then comes slowly, and the final result is usually judged at around twelve months, sometimes later.",
+          "A lot of what worries patients in the first months is normal: redness, scabbing, some swelling, and the shedding of transplanted hairs a few weeks after surgery. New hair usually starts to appear at around four months, and the NHS puts the full result at 10 to 18 months after surgery.",
           "Some signs should not wait, though. Spreading redness, increasing pain, heat, pus, or a fever can point to infection. Contact the clinic urgently, call NHS 111 if you cannot reach them, and in an emergency call 999.",
         ],
       },
@@ -813,7 +922,7 @@ const rawBlogPosts: BaseBlogPost[] = [
           "Once the early stages have passed, the problems patients raise usually fall into a few groups.",
         ],
         bullets: [
-          "Poor growth that is still poor after around a year",
+          "Poor growth that is still poor 10 to 12 months or more after surgery",
           "A hairline that looks unnatural in shape, height, or direction",
           "A donor area that looks visibly thin",
           "Scarring that is worse than you were told to expect",
@@ -859,7 +968,7 @@ const rawBlogPosts: BaseBlogPost[] = [
       {
         question: "How long should I wait before deciding a hair transplant has failed?",
         answer:
-          "Usually around twelve months, because growth continues well after the first few months. Infection or unexpected scarring should be raised straight away, though.",
+          "Usually not before 10 to 12 months, and the full result can take up to 18 months, because growth continues well after new hair first appears. Infection or unexpected scarring should be raised straight away, though.",
       },
       {
         question: "Can I get a refund if my hair transplant didn't work?",
@@ -1021,44 +1130,44 @@ const blogPostImages: Record<
     imagePosition: "58% center",
   },
   "how-to-check-hair-transplant-surgeon-registration": {
-    imageSrc: "/images/why-london-hero.png",
+    imageSrc: "/images/blog/how-to-check-hair-transplant-surgeon-registration.webp",
     imageAlt:
-      "Clinician holding a tablet and talking with a patient in a London consultation room overlooking St Paul's Cathedral",
-    imagePosition: "70% center",
-  },
-  "hair-transplant-red-flags": {
-    imageSrc: "/images/cost-london-hero.png",
-    imageAlt:
-      "Hair transplant consultation in a London clinic focused on the treatment plan and quote",
+      "Clinic desk with a closed leather folder, a pen, reading glasses, and a laptop against a deep teal wall",
     imagePosition: "center",
   },
+  "hair-transplant-red-flags": {
+    imageSrc: "/images/blog/hair-transplant-red-flags.webp",
+    imageAlt:
+      "Paper agreement with a red pen beside a brass hourglass on a consultation table",
+    imagePosition: "center 70%",
+  },
   "how-hair-transplant-graft-counts-get-inflated": {
-    imageSrc: "/services/male-hair-transplant.png",
-    imageAlt: "Doctor reviewing a hairline plan on a tablet with a patient",
-    imagePosition: "58% center",
+    imageSrc: "/images/blog/how-hair-transplant-graft-counts-get-inflated.webp",
+    imageAlt: "Fine precision tweezers and a small magnifying loupe on a stainless steel tray",
+    imagePosition: "center",
   },
   "hair-transplant-deposit-and-refund-terms": {
-    imageSrc: "/images/london-location-section.png",
-    imageAlt:
-      "Doctor discussing treatment options with a patient in a London clinic, with the city visible through the window",
-    imagePosition: "42% center",
+    imageSrc: "/images/blog/hair-transplant-deposit-and-refund-terms.webp",
+    imageAlt: "Card payment terminal beside a paper agreement on an oak desk",
+    imagePosition: "center 65%",
   },
   "hair-transplant-second-opinion": {
-    imageSrc: "/images/home-hero-consultation.png",
-    imageAlt: "Doctor explaining a hairline treatment plan to a patient during a consultation",
-    imagePosition: "72% center",
+    imageSrc: "/images/blog/hair-transplant-second-opinion.webp",
+    imageAlt:
+      "Two folders side by side on a round consultation table with two gold-framed chairs",
+    imagePosition: "center",
   },
   "hair-transplant-gone-wrong": {
-    imageSrc: "/images/why-london-hero.png",
+    imageSrc: "/images/blog/hair-transplant-gone-wrong.webp",
     imageAlt:
-      "Clinician listening to a patient during a follow-up conversation in a London consultation room",
-    imagePosition: "70% center",
+      "Quiet clinic corridor seen through an archway, leading to a closed consultation room door",
+    imagePosition: "center",
   },
   "hair-transplant-agency-vs-clinic": {
-    imageSrc: "/images/london-location-section.png",
+    imageSrc: "/images/blog/hair-transplant-agency-vs-clinic.webp",
     imageAlt:
-      "Doctor and patient talking through treatment options in a London clinic",
-    imagePosition: "28% center",
+      "Clinic lounge with armchairs and a window looking out over London chimney pots",
+    imagePosition: "center",
   },
 };
 
@@ -1067,6 +1176,7 @@ function createBlogPost(post: BaseBlogPost): BlogPost {
 
   return applyProjectTokens({
     ...post,
+    sources: blogPostSources[post.slug] ?? [],
     imageSrc: image.imageSrc,
     imageAlt: image.imageAlt ?? buildBlogImageAlt(post.title, image.imageContext),
     imagePosition: image.imagePosition,

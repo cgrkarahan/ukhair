@@ -81,6 +81,15 @@ export default async function BlogArticlePage({
       publisher: organizationRef,
       ...(blogReviewer ? { reviewedBy: buildPhysicianNode(blogReviewer) } : {}),
       mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
+      ...(post.sources.length > 0
+        ? {
+            citation: post.sources.map((item) => ({
+              "@type": "CreativeWork",
+              name: item.label,
+              url: item.href,
+            })),
+          }
+        : {}),
     },
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
@@ -247,6 +256,31 @@ export default async function BlogArticlePage({
                 ))}
               </div>
             </section>
+
+            {post.sources.length > 0 ? (
+              <section className="panel-dark rounded-[32px] p-6 text-white">
+                <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+                  Sources
+                </p>
+                <p className="mt-3 text-sm leading-7 text-white/60">
+                  Official guidance and registers referred to in this article.
+                </p>
+                <ul className="mt-4 space-y-3 text-sm leading-6">
+                  {post.sources.map((item) => (
+                    <li key={item.href}>
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white/80 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white"
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
           </aside>
         </section>
 
