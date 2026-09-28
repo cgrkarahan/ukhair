@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import SiteShell from "@/app/components/SiteShell";
+import { buildBreadcrumbSchema } from "@/app/lib/schema";
 import { buildMetadata } from "@/app/lib/seo";
 import { getServiceCatalogContent } from "@/sanity/lib/content";
 
@@ -23,9 +24,17 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function ServicesIndexPage() {
   const services = await getServiceCatalogContent();
+  const breadcrumbs = buildBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Treatments", path: "/services" },
+  ]);
 
   return (
     <SiteShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       <main
         id="main"
         className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"

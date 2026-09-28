@@ -3,7 +3,8 @@ import Link from "next/link";
 import AssessmentSection from "@/app/components/AssessmentSection";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
-import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
+import { organizationRef } from "@/app/lib/schema";
+import { absoluteUrl, buildMetadata } from "@/app/lib/seo";
 import { siteConfig } from "@/app/lib/siteConfig";
 
 const aboutDescription =
@@ -85,20 +86,7 @@ export default function AboutPage() {
       name: "About UK Hair Transplant",
       url: absoluteUrl("/about"),
       description: aboutDescription,
-      mainEntity: {
-        "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
-        name: siteName,
-        legalName: siteConfig.company.legalName,
-        url: absoluteUrl("/"),
-        identifier: siteConfig.company.number,
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: siteConfig.company.registeredOffice.streetAddress,
-          addressLocality: siteConfig.company.registeredOffice.locality,
-          postalCode: siteConfig.company.registeredOffice.postalCode,
-          addressCountry: siteConfig.company.registeredOffice.countryCode,
-        },
-      },
+      mainEntity: organizationRef,
     },
     {
       "@context": "https://schema.org",

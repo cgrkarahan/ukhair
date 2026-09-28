@@ -14,6 +14,7 @@ import {
   buildImageObjectNode,
   buildPhysicianNode,
   compactSchemaList,
+  organizationRef,
 } from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
 
@@ -56,6 +57,13 @@ export default async function BlogArticlePage({
     notFound();
   }
 
+  const updatedLabel = new Date(post.updatedAt).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
   const blogReviewer = getClinicalReviewer(
     getPageReview(`/blog/${post.slug}`)?.reviewerId,
   );
@@ -69,14 +77,8 @@ export default async function BlogArticlePage({
       dateModified: post.updatedAt,
       datePublished: post.updatedAt,
       image: buildImageObjectNode({ src: post.imageSrc, alt: post.imageAlt }),
-      author: {
-        "@type": "Organization",
-        name: siteName,
-      },
-      publisher: {
-        "@type": "Organization",
-        name: siteName,
-      },
+      author: { ...organizationRef, "@type": "Organization", name: siteName },
+      publisher: organizationRef,
       ...(blogReviewer ? { reviewedBy: buildPhysicianNode(blogReviewer) } : {}),
       mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
     },
@@ -118,6 +120,16 @@ export default async function BlogArticlePage({
             </h1>
             <p className="mt-6 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
               {post.description}
+            </p>
+            <p className="mt-5 text-sm text-white/60">
+              By the {siteName} team · Updated{" "}
+              <time dateTime={post.updatedAt}>{updatedLabel}</time> ·{" "}
+              <Link
+                href="/editorial-policy"
+                className="text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                How we write our content
+              </Link>
             </p>
           </div>
 

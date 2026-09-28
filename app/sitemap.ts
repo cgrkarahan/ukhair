@@ -40,6 +40,7 @@ const staticPages = [
   "/services",
   "/about",
   "/how-we-work",
+  "/editorial-policy",
   "/blog",
   "/contact",
   "/privacy",

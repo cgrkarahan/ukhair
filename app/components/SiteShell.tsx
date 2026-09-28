@@ -8,6 +8,7 @@ import SiteIcon, { IconBadge } from "@/app/components/SiteIcon";
 import { normalizeWhatsappNumber, siteSocialLinks } from "@/app/lib/contact";
 import { iconForFooterGroup, iconForHref } from "@/app/lib/iconography";
 import { locationPageList } from "@/app/lib/locations";
+import { buildOrganizationSchema } from "@/app/lib/schema";
 import {
   footerLinkGroups,
   primaryNavigation,
@@ -20,6 +21,7 @@ type SiteShellProps = {
 };
 
 const footerCities = [...locationPageList].sort((a, b) => a.city.localeCompare(b.city));
+const organizationSchema = buildOrganizationSchema();
 
 function labelForHref(href: string) {
   if (href === "/") return "Home";
@@ -48,6 +50,10 @@ export default async function SiteShell({ children }: SiteShellProps) {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-[color:var(--surface-canvas)] text-[color:var(--ink-950)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-[color:var(--ink-950)] focus:px-4 focus:py-2 focus:text-sm focus:text-white"
@@ -285,6 +291,9 @@ export default async function SiteShell({ children }: SiteShellProps) {
           <div className="flex flex-wrap items-center gap-4">
             <Link href="/about" className="transition hover:text-white">
               About
+            </Link>
+            <Link href="/editorial-policy" className="transition hover:text-white">
+              Editorial policy
             </Link>
             <Link href="/contact" className="transition hover:text-white">
               Contact

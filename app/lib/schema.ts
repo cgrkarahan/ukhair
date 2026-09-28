@@ -3,12 +3,76 @@ import {
   getPageReview,
   type ClinicalReviewer,
 } from "@/app/lib/clinicalReview";
+import { siteContact, siteSocialLinks } from "@/app/lib/contact";
 import { getProcedureFacts } from "@/app/lib/medicalProcedures";
 import { absoluteUrl, siteName } from "@/app/lib/seo";
+import { siteConfig } from "@/app/lib/siteConfig";
 
 const SCHEMA_CONTEXT = "https://schema.org";
 
 type JsonLdNode = Record<string, unknown>;
+
+export const organizationId = absoluteUrl("/#organization");
+
+/** Every other node points at the single site-wide entity rather than redefining it. */
+export const organizationRef = { "@id": organizationId };
+
+/**
+ * Deliberately a plain `Organization`, not `MedicalBusiness`: the company refers
+ * patients to partner clinics and does not perform procedures itself.
+ */
+export function buildOrganizationSchema(): JsonLdNode {
+  const office = siteConfig.company.registeredOffice;
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "Organization",
+    "@id": organizationId,
+    name: siteName,
+    legalName: siteConfig.company.legalName,
+    alternateName: siteConfig.legacyBrandNames,
+    url: absoluteUrl("/"),
+    logo: {
+      "@type": "ImageObject",
+      url: absoluteUrl("/brand/ukht-logo.png"),
+    },
+    description: `${siteName} is a hair transplant guidance and patient referral service. It helps people understand treatment options, compare selected partner clinics, and prepare for consultation. Treatment is carried out by independent partner clinics, not by ${siteName} itself.`,
+    email: siteContact.email,
+    telephone: siteContact.phoneNumber,
+    publishingPrinciples: absoluteUrl("/editorial-policy"),
+    identifier: {
+      "@type": "PropertyValue",
+      propertyID: "Companies House company number",
+      value: siteConfig.company.number,
+    },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: office.streetAddress,
+      addressLocality: office.locality,
+      postalCode: office.postalCode,
+      addressCountry: office.countryCode,
+    },
+    areaServed: { "@type": "Country", name: siteConfig.primaryMarket },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: siteContact.email,
+      telephone: siteContact.phoneNumber,
+      areaServed: "GB",
+      availableLanguage: ["English"],
+    },
+    knowsAbout: [
+      "Hair transplant guidance",
+      "Hair transplant clinic selection",
+      "FUE hair transplant",
+      "DHI hair transplant",
+      "Female hair transplant",
+      "Hair transplant recovery",
+      "UK and Turkey hair transplant comparison",
+    ],
+    sameAs: siteSocialLinks.map((social) => social.href),
+  };
+}
 
 export type SchemaFaq = {
   question: string;
@@ -170,6 +234,7 @@ export function buildMedicalWebPageSchema({
       name: siteName,
       url: absoluteUrl("/"),
     },
+    publisher: organizationRef,
     ...(procedure ? { about: procedure, mainEntity: procedure } : {}),
     ...(reviewer ? { reviewedBy: buildPhysicianNode(reviewer) } : {}),
     ...(review?.lastReviewed ? { lastReviewed: review.lastReviewed } : {}),
@@ -201,6 +266,7 @@ export function buildContactPageSchema({
       name: siteName,
       url: absoluteUrl("/"),
     },
+    publisher: organizationRef,
   };
 }
 
@@ -254,11 +320,7 @@ export function buildServiceSchema({
       "@type": "City",
       name: areaServed,
     },
-    provider: {
-      "@type": "Organization",
-      name: siteName,
-      url: absoluteUrl("/"),
-    },
+    provider: organizationRef,
   };
 }
 

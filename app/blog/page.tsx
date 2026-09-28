@@ -5,7 +5,8 @@ import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { blogPosts } from "@/app/lib/blogContent";
 import { iconForHref } from "@/app/lib/iconography";
-import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
+import { buildBreadcrumbSchema, organizationRef } from "@/app/lib/schema";
+import { absoluteUrl, buildMetadata } from "@/app/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Hair Transplant Articles | UK Hair Transplant",
@@ -28,17 +29,22 @@ export default function BlogIndexPage() {
     url: absoluteUrl("/blog"),
     description:
       "Search-focused editorial guidance covering consultation, cost, standards, recovery, and treatment comparison questions.",
-    about: {
-      "@type": "Thing",
-      name: siteName,
-    },
+    publisher: organizationRef,
   };
+  const breadcrumbs = buildBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Articles", path: "/blog" },
+  ]);
 
   return (
     <SiteShell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
 
       <main

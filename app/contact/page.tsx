@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import AssessmentSection from "@/app/components/AssessmentSection";
 import SecondaryContactActions from "@/app/components/SecondaryContactActions";
 import SiteShell from "@/app/components/SiteShell";
-import { siteContact } from "@/app/lib/contact";
-import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
+import { organizationRef } from "@/app/lib/schema";
+import { absoluteUrl, buildMetadata } from "@/app/lib/seo";
 import { getSiteSettingsContent } from "@/sanity/lib/content";
 
 const contactDescription =
@@ -26,21 +26,7 @@ export default async function ContactPage() {
       name: "Contact UK Hair Transplant",
       url: absoluteUrl("/contact"),
       description: contactDescription,
-      mainEntity: {
-        "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
-        name: siteName,
-        url: absoluteUrl("/"),
-        email: settings.email,
-        telephone: siteContact.phoneNumber,
-        contactPoint: {
-          "@type": "ContactPoint",
-          contactType: "customer support",
-          email: settings.email,
-          telephone: siteContact.phoneNumber,
-          areaServed: ["London", "United Kingdom"],
-          availableLanguage: ["English"],
-        },
-      },
+      mainEntity: organizationRef,
     },
     {
       "@context": "https://schema.org",

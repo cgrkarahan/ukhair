@@ -7,7 +7,6 @@ import ReviewSlider from "@/app/components/ReviewSlider";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { featuredBlogPosts } from "@/app/lib/blogContent";
-import { siteContact, siteSocialLinks } from "@/app/lib/contact";
 import {
   iconForHref,
   iconForHomePillar,
@@ -16,6 +15,7 @@ import {
 } from "@/app/lib/iconography";
 import {
   buildMedicalWebPageSchema,
+  organizationRef,
   type SchemaImage,
 } from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
@@ -91,61 +91,11 @@ export default async function Home() {
   const structuredData = [
     {
       "@context": "https://schema.org",
-      "@type": ["Organization", "LocalBusiness", "MedicalBusiness"],
-      name: siteName,
-      url: absoluteUrl("/"),
-      description:
-        "UK Hair Transplant Co is a hair transplant guidance and patient mediation service helping people understand treatment options, compare selected clinic partners, and access consultation pathways.",
-      email: siteContact.email,
-      telephone: siteContact.phoneNumber,
-      areaServed: ["London", "United Kingdom"],
-      contactPoint: {
-        "@type": "ContactPoint",
-        contactType: "customer support",
-        email: siteContact.email,
-        telephone: siteContact.phoneNumber,
-        areaServed: ["London", "United Kingdom"],
-        availableLanguage: ["English"],
-      },
-      knowsAbout: [
-        "Hair transplant guidance",
-        "Hair transplant clinic selection",
-        "FUE hair transplant",
-        "DHI hair transplant",
-        "Female hair transplant",
-        "Hair transplant recovery",
-        "UK and Turkey hair transplant comparison",
-      ],
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: "Hair transplant guidance and mediation services",
-        itemListElement: [
-          "Hair transplant guidance",
-          "Clinic selection support",
-          "Consultation mediation",
-          "Hair transplant treatment planning support",
-          "UK and Turkey treatment comparison guidance",
-        ].map((name) => ({
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name,
-            provider: {
-              "@type": "Organization",
-              name: siteName,
-              url: absoluteUrl("/"),
-            },
-          },
-        })),
-      },
-      sameAs: siteSocialLinks.map((social) => social.href),
-    },
-    {
-      "@context": "https://schema.org",
       "@type": "WebSite",
       name: siteName,
       url: absoluteUrl("/"),
       description: home.description,
+      publisher: organizationRef,
     },
     // proofCases is already consent-filtered, so ImageObject nodes appear only
     // where a consented result set genuinely exists.
