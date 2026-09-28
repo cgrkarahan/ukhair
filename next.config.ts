@@ -8,6 +8,19 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: configDir,
   },
+  // Posts merged into the pillar page that targets the same intent.
+  async redirects() {
+    return [
+      ["hair-transplant-cost-london-what-changes-the-price", "/hair-transplant-cost-london"],
+      ["uk-vs-turkey-hair-transplant-how-to-compare", "/uk-vs-turkey-hair-transplant"],
+      ["hair-transplant-recovery-timeline-week-by-week", "/hair-transplant-recovery-timeline"],
+      ["female-hair-transplant-london-who-may-be-suitable", "/female-hair-transplant-london"],
+    ].map(([slug, destination]) => ({
+      source: `/blog/${slug}`,
+      destination,
+      permanent: true,
+    }));
+  },
   images: {
     remotePatterns: [
       {
