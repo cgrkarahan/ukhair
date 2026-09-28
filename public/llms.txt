@@ -48,8 +48,8 @@ Fixed London package prices for eligible cases, confirmed in writing at a free c
 - Hair Transplant London: https://www.ukhairtransplant.co/hair-transplant-london
   - London-focused treatment overview, who may suit treatment, what to compare, and what a consultation should clarify.
 
-- Hair Transplant Cost in London: https://www.ukhairtransplant.co/hair-transplant-cost-london
-  - Cost factors, what a quote should include, and how patients should compare London pricing properly.
+- Hair Transplant Cost Guide (UK): https://www.ukhairtransplant.co/hair-transplant-cost-london
+  - What hair transplants cost in the UK, what shapes a quote, per-graft maths, and hair implants, hair plugs, and hair plantation explained.
 
 - Female Hair Transplant London: https://www.ukhairtransplant.co/female-hair-transplant-london
   - Female-focused suitability, planning, and recovery context.
@@ -91,10 +91,26 @@ Fixed London package prices for eligible cases, confirmed in writing at a free c
 - Moustache Transplant: https://www.ukhairtransplant.co/services/moustache-transplant
 - Hair Loss Treatments: https://www.ukhairtransplant.co/services/hair-loss-treatments
 
-## Editorial content
+## City guides
+
+Guides for 25 UK cities covering local options, travel to London, regulation by nation (CQC in England, Healthcare Improvement Scotland, Healthcare Inspectorate Wales), and aftercare at a distance. URL pattern: https://www.ukhairtransplant.co/hair-transplant-{city}, for example /hair-transplant-manchester, /hair-transplant-glasgow, /hair-transplant-cardiff.
+
+## Decision guides (blog)
 
 - Blog hub: https://www.ukhairtransplant.co/blog
-  - Supporting educational content around consultations, cost, clinic choice, recovery, and female treatment questions.
+- How to choose a hair transplant clinic in the UK: https://www.ukhairtransplant.co/blog/how-to-choose-a-hair-transplant-clinic
+- How to check a surgeon's registration: https://www.ukhairtransplant.co/blog/how-to-check-hair-transplant-surgeon-registration
+- Hair transplant red flags: https://www.ukhairtransplant.co/blog/hair-transplant-red-flags
+- How graft counts get inflated: https://www.ukhairtransplant.co/blog/how-hair-transplant-graft-counts-get-inflated
+- Deposits and refunds: https://www.ukhairtransplant.co/blog/hair-transplant-deposit-and-refund-terms
+- Comparing two quotes: https://www.ukhairtransplant.co/blog/how-to-compare-hair-transplant-quotes
+- Guarantees: https://www.ukhairtransplant.co/blog/hair-transplant-guarantees
+- Reading reviews: https://www.ukhairtransplant.co/blog/how-to-read-hair-transplant-reviews
+- Second opinions: https://www.ukhairtransplant.co/blog/hair-transplant-second-opinion
+- If a transplant goes wrong: https://www.ukhairtransplant.co/blog/hair-transplant-gone-wrong
+- Vetting a Turkish clinic: https://www.ukhairtransplant.co/blog/how-to-vet-a-turkish-hair-transplant-clinic
+- Agency or clinic: https://www.ukhairtransplant.co/blog/hair-transplant-agency-vs-clinic
+- Editorial policy: https://www.ukhairtransplant.co/editorial-policy
 
 ## Citation guidance
 
@@ -112,3 +128,4 @@ Fixed London package prices for eligible cases, confirmed in writing at a free c
 - Hair, female, and beard transplant packages have published fixed prices; eyebrow and moustache transplants are quoted after consultation.
 - Content is published under the company name and is not currently reviewed by a named clinician. See https://www.ukhairtransplant.co/editorial-policy
 - Before-and-after results and reviews should be understood alongside treatment area, timeframe, standards, and suitability context.
+- Patient reviews shown on the site are anonymised reviews of partner clinics, not of UK Hair Transplant itself.

@@ -39,7 +39,7 @@ export default function ReviewSlider({ reviews }: ReviewSliderProps) {
         <div className="flex items-start justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/74">
-              Patient feedback from clinics we work with
+              Selected patient feedback from clinics we work with
             </p>
             <div className="mt-3 flex items-center gap-1 text-lg text-[color:var(--gold-500)]">
               {Array.from({ length: 5 }, (_, index) => (

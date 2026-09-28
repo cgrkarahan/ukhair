@@ -9,10 +9,39 @@ import { serviceCatalog } from "@/app/services/serviceData";
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
 /**
- * `lastmod` is emitted only where a real date exists, which currently means a
- * blog post's own update date or a recorded clinical review date. Stamping the
- * build date across every URL is why search engines learn to ignore the field.
+ * `lastmod` is emitted only where a real date exists: a blog post's update date,
+ * a city page's publish date, a recorded content change, or a clinical review
+ * date. Stamping the build date across every URL is why search engines learn to
+ * ignore the field.
  */
+/**
+ * Dates when a page's visible content genuinely changed. Update an entry when
+ * you change what a reader sees on that page; never bulk-stamp, and leave a page
+ * out rather than guess.
+ */
+const contentUpdatedAt: Record<string, string> = {
+  "/": "2026-09-28",
+  "/assessment": "2026-09-24",
+  "/prices": "2026-09-28",
+  "/editorial-policy": "2026-09-28",
+  "/hair-transplant-cost-london": "2026-09-28",
+  "/female-hair-transplant-london": "2026-09-28",
+  "/hair-transplant-london": "2026-09-28",
+  "/our-clinical-standards": "2026-09-28",
+  "/uk-vs-turkey-hair-transplant": "2026-09-28",
+  "/hair-transplant-recovery-timeline": "2026-09-28",
+  "/services/male-hair-transplant": "2026-09-28",
+  "/services/female-hair-transplant": "2026-09-28",
+  "/services/beard-transplant": "2026-09-28",
+};
+
+function latestDate(...dates: (Date | undefined)[]) {
+  const known = dates.filter((date): date is Date => Boolean(date));
+  return known.length > 0
+    ? new Date(Math.max(...known.map((date) => date.getTime())))
+    : undefined;
+}
+
 function entry(
   path: string,
   {
@@ -25,11 +54,14 @@ function entry(
     lastModified?: Date;
   },
 ): SitemapEntry {
-  const reviewDate = lastModified ?? getPageReviewDate(path);
+  const contentDate = contentUpdatedAt[path]
+    ? new Date(contentUpdatedAt[path])
+    : undefined;
+  const knownDate = latestDate(lastModified, contentDate, getPageReviewDate(path));
 
   return {
     url: absoluteUrl(path),
-    ...(reviewDate ? { lastModified: reviewDate } : {}),
+    ...(knownDate ? { lastModified: knownDate } : {}),
     changeFrequency,
     priority,
   };
