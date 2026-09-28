@@ -21,7 +21,8 @@ type SitemapEntry = MetadataRoute.Sitemap[number];
  */
 const contentUpdatedAt: Record<string, string> = {
   "/": "2026-09-28",
-  "/assessment": "2026-09-24",
+  "/assessment": "2026-09-28",
+  "/how-hair-transplant-works": "2026-09-28",
   "/prices": "2026-09-28",
   "/results": "2026-09-28",
   "/editorial-policy": "2026-09-28",

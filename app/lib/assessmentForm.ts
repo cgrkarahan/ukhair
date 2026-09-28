@@ -5,6 +5,7 @@ export type AssessmentSubmission = {
   location: string;
   primaryConcern: string;
   ukOnlyOrOpenToTurkey: string;
+  hairLossStage: string;
   message: string;
   marketingConsent: string;
   marketingConsentWording: string;

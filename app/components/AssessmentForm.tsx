@@ -49,23 +49,41 @@ export default function AssessmentForm({
   const [state, formAction] = useActionState(submitAssessment, initialAssessmentState);
   const [started, setStarted] = useState(false);
   const [attribution, setAttribution] = useState(getAttributionSnapshot);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [screen, setScreen] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [photoNames, setPhotoNames] = useState<string[]>([]);
   const [photoError, setPhotoError] = useState("");
-  const concernRef = useRef<HTMLSelectElement>(null);
-  const routeRef = useRef<HTMLSelectElement>(null);
-  const concernOptions = useMemo(
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const questions = useMemo(
     () => [
-      "Hairline recession",
-      "Crown thinning",
-      "General density loss",
-      "Female thinning",
-      "Beard transplant",
-      "Eyebrow transplant",
-      "Unsure / need advice",
+      {
+        name: "primaryConcern",
+        label: "What is your main concern?",
+        options: [
+          "Hairline recession",
+          "Crown thinning",
+          "General density loss",
+          "Female thinning",
+          "Beard transplant",
+          "Eyebrow transplant",
+          "Unsure / need advice",
+        ],
+      },
+      {
+        name: "hairLossStage",
+        label: "How is your hair loss changing?",
+        options: ["Still getting worse", "Stable for a year or more", "Not sure"],
+      },
+      {
+        name: "ukOnlyOrOpenToTurkey",
+        label: "Where would you consider treatment?",
+        options: ["UK only", "Open to both", "Need advice first"],
+      },
     ],
     [],
   );
+  const onDetails = screen >= questions.length;
+  const step = onDetails ? 2 : 1;
 
   useEffect(() => {
     pushTrackingEvent(TRACKING_EVENTS.assessmentFormView, {
@@ -74,21 +92,29 @@ export default function AssessmentForm({
     });
   }, [formId, sourceLabel]);
 
-  function goToStepTwo() {
-    const concernValid = concernRef.current?.reportValidity() ?? true;
-    const routeValid = routeRef.current?.reportValidity() ?? true;
+  useEffect(() => () => clearTimeout(advanceTimer.current), []);
 
-    if (!concernValid || !routeValid) {
-      return;
-    }
-
+  function goToScreen(next: number) {
+    clearTimeout(advanceTimer.current);
     markStarted();
-    setStep(2);
-    pushTrackingEvent(TRACKING_EVENTS.assessmentFormStart, {
+    setScreen(next);
+    pushTrackingEvent(TRACKING_EVENTS.assessmentQuizStep, {
       sourceLabel,
       formId,
-      step: "2",
+      step: next >= questions.length ? "details" : `question-${next + 1}`,
     });
+  }
+
+  function choose(name: string, value: string) {
+    setAnswers((current) => ({ ...current, [name]: value }));
+  }
+
+  // Tapping an option moves on; keyboard users step through with the Next button,
+  // because arrow keys in a radio group change the selection as they move.
+  function chooseAndAdvance(name: string, value: string, index: number) {
+    choose(name, value);
+    clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => goToScreen(index + 1), 250);
   }
 
   function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
@@ -161,67 +187,79 @@ export default function AssessmentForm({
         <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-[color:var(--line-soft)]">
           <div
             className="h-full rounded-full bg-[color:var(--sage-700)] transition-all duration-300"
-            style={{ width: step === 1 ? "50%" : "100%" }}
+            style={{ width: `${((screen + 1) / (questions.length + 1)) * 100}%` }}
           />
         </div>
         <span className="whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--ink-600)]">
-          Step {step} of 2
+          {onDetails ? "Last step" : `Question ${screen + 1} of ${questions.length}`}
         </span>
       </div>
 
-      <div hidden={step !== 1} className="grid gap-4">
-        <p className="text-sm leading-7 text-[color:var(--ink-700)]">
-          Two quick questions, then your details. Most people finish in under 60 seconds.
-        </p>
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-[color:var(--ink-900)]">Primary concern*</span>
-          <select
-            ref={concernRef}
-            name="primaryConcern"
-            required
-            defaultValue=""
-            className="rounded-[18px] border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] px-4 py-3 text-sm text-[color:var(--ink-950)] outline-none transition focus:border-[color:var(--sage-500)]"
-          >
-            <option value="" disabled>
-              Select your main concern
-            </option>
-            {concernOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-[color:var(--ink-900)]">UK only or open to Turkey?*</span>
-          <select
-            ref={routeRef}
-            name="ukOnlyOrOpenToTurkey"
-            required
-            defaultValue=""
-            className="rounded-[18px] border border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] px-4 py-3 text-sm text-[color:var(--ink-950)] outline-none transition focus:border-[color:var(--sage-500)]"
-          >
-            <option value="" disabled>
-              Choose an option
-            </option>
-            <option value="UK only">UK only</option>
-            <option value="Open to both">Open to both</option>
-            <option value="Need advice first">Need advice first</option>
-          </select>
-        </label>
-        <button
-          type="button"
-          onClick={goToStepTwo}
-          className="inline-flex justify-center rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold text-black shadow-[0_14px_32px_rgba(165,141,102,0.18)] transition hover:bg-[color:var(--gold-400)]"
-        >
-          Continue
-        </button>
-      </div>
+      {questions.map((question, index) => (
+        <fieldset key={question.name} hidden={screen !== index} className="grid gap-3">
+          {index === 0 ? (
+            <p className="text-sm leading-7 text-[color:var(--ink-700)]">
+              Three quick questions, then your details. Most people finish in under 60 seconds.
+            </p>
+          ) : null}
+          <legend className="font-display text-2xl text-[color:var(--ink-950)]">
+            {question.label}
+          </legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {question.options.map((option) => {
+              const selected = answers[question.name] === option;
+
+              return (
+                <label
+                  key={option}
+                  onPointerUp={() => chooseAndAdvance(question.name, option, index)}
+                  className={`flex cursor-pointer items-center gap-3 rounded-[18px] border px-4 py-3 text-sm transition focus-within:ring-2 focus-within:ring-[color:var(--sage-500)] ${
+                    selected
+                      ? "border-[color:var(--sage-700)] bg-[rgba(192,213,214,0.35)] font-semibold text-[color:var(--ink-950)]"
+                      : "border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] text-[color:var(--ink-800)] hover:border-[color:var(--sage-500)]"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={question.name}
+                    value={option}
+                    checked={selected}
+                    onChange={() => choose(question.name, option)}
+                    className="h-4 w-4 accent-[color:var(--sage-700)]"
+                  />
+                  {option}
+                </label>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between gap-3 pt-1">
+            {index > 0 ? (
+              <button
+                type="button"
+                onClick={() => setScreen(index - 1)}
+                className="text-sm font-medium text-[color:var(--ink-700)] underline-offset-4 hover:underline"
+              >
+                Back
+              </button>
+            ) : (
+              <span />
+            )}
+            <button
+              type="button"
+              disabled={!answers[question.name]}
+              onClick={() => goToScreen(index + 1)}
+              className="inline-flex justify-center rounded-full bg-[color:var(--gold-300)] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[color:var(--gold-400)] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {index === questions.length - 1 ? "Continue to your details" : "Next"}
+            </button>
+          </div>
+        </fieldset>
+      ))}
 
       <div hidden={step !== 2} className="grid gap-4">
         <button
           type="button"
-          onClick={() => setStep(1)}
+          onClick={() => setScreen(questions.length - 1)}
           className="justify-self-start text-sm font-medium text-[color:var(--ink-700)] underline-offset-4 hover:underline"
         >
           Back

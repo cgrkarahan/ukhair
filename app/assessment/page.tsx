@@ -14,7 +14,7 @@ import {
 export const metadata: Metadata = buildMetadata({
   title: "Free Consultation | UK Hair Transplant",
   description:
-    "Book a free hair transplant consultation with clearer guidance on planning, standards, recovery, and next steps. Two quick questions, then your details, under 60 seconds.",
+    "Book a free hair transplant consultation with clearer guidance on planning, standards, recovery, and next steps. Three quick questions, then your details, under 60 seconds.",
   path: "/assessment",
   keywords: [
     "free hair transplant consultation london",
@@ -84,7 +84,7 @@ export default function AssessmentPage() {
           sourceLabel="assessment-page"
           tone="dark"
           title="Book your free consultation in under 60 seconds."
-          intro="Two quick questions, then your details. Once your request is submitted, the team replies the same working day with the next useful questions, photo guidance, or a consultation recommendation."
+          intro="Three quick questions, then your details. Once your request is submitted, the team replies the same working day with the next useful questions, photo guidance, or a consultation recommendation."
           formFirst
           titleAs="h1"
         />

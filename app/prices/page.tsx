@@ -67,7 +67,41 @@ const treatmentNotes: Record<string, { icon: SiteIconName; body: string[] }> = {
 const perGraftBase = (hair.tiers[0].fue / hair.tiers[0].maxGrafts).toFixed(2);
 const perGraftLarge = (hair.tiers[1].fue / hair.tiers[1].maxGrafts).toFixed(2);
 
+const upTo = (grafts: number) => `Up to ${formatGrafts(grafts)} grafts`;
+
+const bandGuide = [
+  { concern: "Receding hairline or temples", pkg: hair.name, band: upTo(hair.tiers[0].maxGrafts) },
+  { concern: "Crown thinning on its own", pkg: hair.name, band: upTo(hair.tiers[0].maxGrafts) },
+  {
+    concern: "Frontal and crown loss together",
+    pkg: hair.name,
+    band: `${upTo(hair.tiers[1].maxGrafts)}, where the donor area allows`,
+  },
+  {
+    concern: "Advanced loss across the whole top",
+    pkg: hair.name,
+    band: "Discussed individually, as the donor area may not cover it in one go",
+  },
+  { concern: "Thinning at the parting or temples", pkg: female.name, band: upTo(female.tiers[0].maxGrafts) },
+  { concern: "Wider frontal thinning", pkg: female.name, band: upTo(female.tiers[1].maxGrafts) },
+  { concern: "Patchy beard or cheek line", pkg: beard.name, band: upTo(beard.tiers[0].maxGrafts) },
+  { concern: "Fuller beard from little growth", pkg: beard.name, band: upTo(beard.tiers[1].maxGrafts) },
+  { concern: "Eyebrows or moustache", pkg: "Eyebrow or moustache", band: "Quoted after consultation" },
+];
+
+const bandFactors = [
+  "The size of the area to be covered",
+  "The density you want, and what is realistic",
+  "How dense your donor area is, and how much it can safely give",
+  "Your hair: thicker, curlier hair, or hair close to your skin colour, can look fuller with fewer grafts",
+  "How much donor hair to keep in reserve for any future loss",
+];
+
 const faq = [
+  {
+    question: "How many grafts do I need?",
+    answer: `It depends on the area, the density you want, and what your donor area can safely give. As a rough guide, a receding hairline or crown on its own usually falls within ${formatGrafts(hair.tiers[0].maxGrafts)} grafts, and combined frontal and crown loss can need up to ${formatGrafts(hair.tiers[1].maxGrafts)}. Your band is confirmed at a free consultation.`,
+  },
   {
     question: "How much is a hair transplant with UK Hair Transplant?",
     answer: `A hair transplant costs ${formatPrice(hair.tiers[0].fue)} with Sapphire FUE or ${formatPrice(hair.tiers[0].dhi)} with DHI for up to ${formatGrafts(hair.tiers[0].maxGrafts)} grafts, and ${formatPrice(hair.tiers[1].fue)} or ${formatPrice(hair.tiers[1].dhi)} for up to ${formatGrafts(hair.tiers[1].maxGrafts)} grafts. These are fixed London prices for eligible cases. ${inclusionsSentence}`,
@@ -292,6 +326,62 @@ export default function PricesPage() {
               </article>
             );
           })}
+        </section>
+
+        <section
+          id="which-band"
+          className="rounded-[34px] border border-[rgba(8,58,79,0.08)] bg-[color:var(--surface-subtle)] p-6 text-[color:var(--ink-950)] sm:p-8"
+        >
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
+              How many grafts do I need?
+            </p>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl">Which band will I need?</h2>
+            <p className="mt-4 text-sm leading-7">
+              A rough guide to where common concerns usually fall. Your actual graft
+              range, and so your band, is set by an assessment of your hair and donor
+              area, not by this table.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] border-separate border-spacing-0 text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
+                    <th className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-medium">Your concern</th>
+                    <th className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-medium">Package</th>
+                    <th className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-medium">Usual band</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bandGuide.map((row) => (
+                    <tr key={row.concern}>
+                      <td className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-semibold">{row.concern}</td>
+                      <td className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 text-[color:var(--ink-700)]">{row.pkg}</td>
+                      <td className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 text-[color:var(--ink-700)]">{row.band}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <p className="font-display text-2xl">What decides your graft count</p>
+              <ul className="mt-4 space-y-3 text-sm leading-7 text-[color:var(--ink-700)]">
+                {bandFactors.map((factor) => (
+                  <li key={factor} className="flex gap-3">
+                    <span className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-[color:var(--gold-500)]" />
+                    <span>{factor}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/assessment"
+                className="mt-6 inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
+              >
+                Get your band confirmed free
+              </Link>
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">

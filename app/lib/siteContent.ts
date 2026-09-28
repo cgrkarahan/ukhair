@@ -1571,7 +1571,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
     title: "How Hair Transplant Works",
     seoTitle: "How Hair Transplant Works",
     description:
-      "Understand how hair transplant works, including what happens before treatment, on procedure day, and during the recovery and growth stages afterwards.",
+      "How a hair transplant works, from planning to procedure day and recovery, plus straight answers on pain, permanence, natural results, and whether it is worth it.",
     eyebrow: "How the procedure works",
     lead:
       "Hair transplant treatment usually involves moving healthy follicles from a donor area to areas where hair has thinned or receded. This page explains what usually happens before treatment, on procedure day, and through the recovery and growth stages that follow.",
@@ -1581,6 +1581,11 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       "hair transplant procedure",
       "what is hair transplant surgery",
       "how does a hair transplant work",
+      "does a hair transplant hurt",
+      "are hair transplants permanent",
+      "do hair transplants look natural",
+      "is a hair transplant worth it",
+      "nhs hair transplant",
     ],
     heroChips: [
       "Donor area to recipient area",
@@ -1714,17 +1719,37 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       {
         question: "How long does a hair transplant take?",
         answer:
-          "Procedure time varies by case, graft count, and method, so there is no one fixed answer. A consultation should explain the likely scale of treatment and what that means for the day itself.",
+          "Usually most of a day, depending on the number of grafts and the method. If a large area is being treated, the NHS notes it may need two or more sessions on different days. A consultation should tell you what to expect for your case.",
       },
       {
         question: "When do patients usually see results?",
         answer:
-          "Visible growth usually takes time. Early healing happens first, and patients often go through a shedding stage before new growth becomes more noticeable later in the process.",
+          "New hair usually starts to appear at around four months, after the transplanted hairs shed in the first weeks. The NHS puts the full result at 10 to 18 months.",
       },
       {
-        question: "Why should recovery be explained as part of how it works?",
+        question: "Does a hair transplant hurt?",
         answer:
-          "Because the procedure only makes full sense when patients also understand healing, shedding, washing guidance, and the longer growth timeline that follows treatment day.",
+          "It is done under local anaesthetic, often with sedation, so you are awake but should not feel pain during the procedure. Most people feel the anaesthetic injections at the start, and the scalp is usually tight, achy, and swollen for a few days afterwards.",
+      },
+      {
+        question: "Are hair transplant results permanent?",
+        answer:
+          "Transplanted hair is taken from the back and sides of the head, which are usually resistant to the hair loss that affects the top, so it generally keeps growing. Hair around the transplant can still thin over time, which is why a good plan allows for future loss.",
+      },
+      {
+        question: "Do hair transplants look natural?",
+        answer:
+          "They can, when the hairline is designed for your age and face, grafts are placed at the angle hair naturally grows, and density is realistic. Unnatural results usually come from poor planning rather than from the technique itself.",
+      },
+      {
+        question: "Is a hair transplant worth it?",
+        answer:
+          "For someone with a stable pattern of loss, enough donor hair, and realistic expectations, many find it worthwhile. It is less likely to be worth it if your hair loss is still changing quickly, your donor area is limited, or you want more density than your donor hair can supply. An honest consultation should tell you which applies.",
+      },
+      {
+        question: "Can I get a hair transplant on the NHS?",
+        answer:
+          "No. Hair transplants are cosmetic surgery and are not available on the NHS. Your GP can still help investigate the cause of hair loss and discuss treatment options.",
       },
     ],
     relatedSlugs: [

@@ -1,6 +1,7 @@
 export const TRACKING_EVENTS = {
   assessmentFormView: "assessment_form_view",
   assessmentFormStart: "assessment_form_start",
+  assessmentQuizStep: "assessment_quiz_step",
   assessmentFormSubmit: "assessment_form_submit",
   assessmentFormSuccess: "assessment_form_success",
   assessmentFormError: "assessment_form_error",

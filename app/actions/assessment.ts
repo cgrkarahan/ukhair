@@ -72,6 +72,7 @@ function buildEmailHtml(submission: AssessmentSubmission, photoCount: number) {
             ${row("Location", submission.location)}
             ${row("Primary concern", submission.primaryConcern)}
             ${row("UK only or open to Turkey", submission.ukOnlyOrOpenToTurkey)}
+            ${row("Hair loss is", submission.hairLossStage)}
             ${row("Message", submission.message)}
             ${row("Photos attached", photoCount > 0 ? String(photoCount) : "None")}
             ${row("Marketing consent", submission.marketingConsent)}
@@ -103,6 +104,7 @@ function buildEmailText(submission: AssessmentSubmission, photoCount: number) {
     formatTextLine("Location", submission.location),
     formatTextLine("Primary concern", submission.primaryConcern),
     formatTextLine("UK only or open to Turkey", submission.ukOnlyOrOpenToTurkey),
+    formatTextLine("Hair loss is", submission.hairLossStage),
     formatTextLine("Message", submission.message),
     formatTextLine("Photos attached", photoCount > 0 ? String(photoCount) : "None"),
     formatTextLine("Marketing consent", submission.marketingConsent),
@@ -143,6 +145,7 @@ export async function submitAssessment(
     location: getValue(formData, "location"),
     primaryConcern: getValue(formData, "primaryConcern"),
     ukOnlyOrOpenToTurkey: getValue(formData, "ukOnlyOrOpenToTurkey"),
+    hairLossStage: getValue(formData, "hairLossStage"),
     message: getValue(formData, "message"),
     marketingConsent: getCheckboxValue(formData, "marketingConsent"),
     marketingConsentWording: MARKETING_CONSENT_WORDING,
