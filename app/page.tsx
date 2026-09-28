@@ -8,6 +8,12 @@ import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { featuredBlogPosts } from "@/app/lib/blogContent";
 import {
+  describePackage,
+  formatPrice,
+  getPackage,
+  inclusionsSentence,
+} from "@/app/lib/pricing";
+import {
   iconForHref,
   iconForHomePillar,
   iconForJourney,
@@ -185,21 +191,24 @@ export default async function Home() {
                 </p>
                 <div className="mt-3 flex items-end gap-3">
                   <p className="font-display text-5xl leading-none text-white sm:text-6xl">
-                    £2750
+                    {formatPrice(getPackage("hair").tiers[0].fue)}
                   </p>
                   <p className="pb-1 text-sm text-white/56 line-through">
                     £4500
                   </p>
                 </div>
                 <p className="mt-3 text-sm leading-7 text-white/80">
-                  Clear fixed price for eligible cases, including up to 3,000
-                  grafts, one complimentary PRP treatment, post-operative
-                  medication, and an aftercare pack.
+                  Fixed price for eligible cases: {describePackage("hair")}
                 </p>
                 <p className="mt-3 text-xs leading-6 text-white/52">
-                  Sapphire FUE approach where suitable. No extras, no
-                  arrangement fees.
+                  {inclusionsSentence}
                 </p>
+                <Link
+                  href="/prices"
+                  className="mt-3 inline-flex text-sm font-semibold text-[color:var(--gold-300)] underline-offset-4 hover:underline"
+                >
+                  See all prices
+                </Link>
               </div>
               <p className="text-xs uppercase tracking-[0.36em] text-[color:var(--gold-300)]/82">
                 {home.hero.eyebrow}

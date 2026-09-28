@@ -37,6 +37,7 @@ function entry(
 
 const staticPages = [
   "/assessment",
+  "/prices",
   "/services",
   "/about",
   "/how-we-work",
@@ -53,7 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/", { priority: 1, changeFrequency: "weekly" }),
     ...staticPages.map((path) =>
       entry(path, {
-        priority: path === "/assessment" ? 0.95 : 0.45,
+        priority: path === "/assessment" ? 0.95 : path === "/prices" ? 0.9 : 0.45,
         changeFrequency: "monthly",
       }),
     ),

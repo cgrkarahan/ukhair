@@ -1,4 +1,5 @@
 import { applyProjectTokens } from "@/app/lib/contentTemplates";
+import { formatPrice, getPackage, turkiyeFromPrice } from "@/app/lib/pricing";
 import {
   locationInputs,
   type LocationInput,
@@ -82,7 +83,7 @@ function turkeySection({ city, turkey }: LocationInput): TopicSection {
     title: `The Turkey option from ${city}`,
     body: [
       turkey.airport,
-      "Package pricing there is usually built around a lower headline figure than a UK clinic: our own curated Turkiye route starts from £1,800 against £2,750 for the London route, and independent Turkish clinics often price lower again. The trade-off is not really about quality on average, since strong clinics exist in both countries. It is about what you can verify before you travel, how easily you can get back in front of the person who treated you if something needs following up, and whether English-language aftercare communication is as clear as you would want for a medical procedure. Our own comparison of UK and Turkey routes goes into this properly rather than assuming one is automatically right.",
+      `Package pricing there is usually built around a lower headline figure than a UK clinic: our own curated Turkiye route starts from ${formatPrice(turkiyeFromPrice)} against London packages from ${formatPrice(getPackage("hair").tiers[0].fue)}, and independent Turkish clinics often price lower again. The trade-off is not really about quality on average, since strong clinics exist in both countries. It is about what you can verify before you travel, how easily you can get back in front of the person who treated you if something needs following up, and whether English-language aftercare communication is as clear as you would want for a medical procedure. Our own comparison of UK and Turkey routes goes into this properly rather than assuming one is automatically right.`,
     ],
     bullets: [
       turkey.airportBullet,

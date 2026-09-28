@@ -27,6 +27,7 @@ function labelForHref(href: string) {
   if (href === "/") return "Home";
   if (href === "/blog") return "Articles";
   if (href === "/how-we-work") return "How We Work";
+  if (href === "/prices") return "Our Prices";
   if (href.startsWith("/services/")) {
     return href
       .replace("/services/", "")

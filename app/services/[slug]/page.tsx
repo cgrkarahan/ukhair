@@ -12,6 +12,12 @@ import {
   buildMedicalWebPageSchema,
   compactSchemaList,
 } from "@/app/lib/schema";
+import {
+  describePackage,
+  formatPrice,
+  getPackage,
+  inclusionsSentence,
+} from "@/app/lib/pricing";
 import { buildMetadata } from "@/app/lib/seo";
 import { serviceCatalog, type ServiceDetail } from "@/app/services/serviceData";
 import {
@@ -47,16 +53,16 @@ type ServiceHeroPanel =
 const serviceHeroPanels: Record<string, ServiceHeroPanel> = {
   "male-hair-transplant": {
     eyebrow: "Premium London Hair Transplant Price",
-    value: "£2750",
+    value: formatPrice(getPackage("hair").tiers[0].fue),
     compareValue: "£4500",
-    body: "Clear fixed price for eligible cases, including up to 3,000 grafts, one complimentary PRP treatment, post-operative medication, and an aftercare pack.",
-    note: "Sapphire FUE approach where suitable. No extras, no arrangement fees.",
+    body: `Fixed price for eligible cases: ${describePackage("hair")}`,
+    note: inclusionsSentence,
   },
   "female-hair-transplant": {
-    eyebrow: "Female Treatment Planning",
-    headline: "Free consultation before pricing",
-    body: "Female treatment planning depends on thinning pattern, donor suitability, density goals, recovery visibility, and how subtle the framing change needs to be.",
-    note: "A clearer quote follows suitability review, planning discussion, and the treatment approach being considered.",
+    eyebrow: "Female Hair Transplant Price",
+    value: formatPrice(getPackage("female").tiers[0].fue),
+    body: `Performed without shaving the head. ${describePackage("female")}`,
+    note: inclusionsSentence,
   },
   "eyebrow-transplant": {
     eyebrow: "Visible-Area Treatment Planning",
@@ -65,10 +71,10 @@ const serviceHeroPanels: Record<string, ServiceHeroPanel> = {
     note: "Planning, realistic density, and recovery advice should be clear before pricing is judged.",
   },
   "beard-transplant": {
-    eyebrow: "Facial-Hair Treatment Planning",
-    headline: "Quote after outline and density planning",
-    body: "Beard treatment pricing depends on patch distribution, cheek-line design, density transitions, and how much visible-area detail is needed.",
-    note: "A stronger quote follows realistic planning rather than a generic one-size number.",
+    eyebrow: "Beard Transplant Price",
+    value: formatPrice(getPackage("beard").tiers[0].fue),
+    body: describePackage("beard"),
+    note: inclusionsSentence,
   },
   "moustache-transplant": {
     eyebrow: "Visible-Area Treatment Planning",
@@ -225,6 +231,14 @@ export default async function ServicePage({ params }: ServicePageProps) {
                   <p className="mt-3 text-xs leading-6 text-white/52">
                     {heroPanel.note}
                   </p>
+                  {"value" in heroPanel ? (
+                    <Link
+                      href="/prices"
+                      className="mt-3 inline-flex text-sm font-semibold text-[color:var(--gold-300)] underline-offset-4 hover:underline"
+                    >
+                      See all prices
+                    </Link>
+                  ) : null}
                 </div>
               ) : null}
               <Link

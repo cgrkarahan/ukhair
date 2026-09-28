@@ -11,6 +11,12 @@ import {
   iconForTopicSection,
 } from "@/app/lib/iconography";
 import {
+  describePackage,
+  formatPrice,
+  getPackage,
+  inclusionsSentence,
+} from "@/app/lib/pricing";
+import {
   buildBreadcrumbSchema,
   buildFaqSchema,
   buildMedicalWebPageSchema,
@@ -48,10 +54,10 @@ export default function TopicPage({
   ]);
   const defaultHeroPricePanel: TopicHeroPanel = {
     eyebrow: "Premium London Hair Transplant Price",
-    value: "£2750",
+    value: formatPrice(getPackage("hair").tiers[0].fue),
     compareValue: "£4500",
-    body: "Clear fixed price for eligible cases, including up to 3,000 grafts, one complimentary PRP treatment, post-operative medication, and an aftercare pack.",
-    note: "Sapphire FUE approach where suitable. No extras, no arrangement fees.",
+    body: `Fixed price for eligible cases: ${describePackage("hair")}`,
+    note: inclusionsSentence,
   };
   const useClinicalIvoryTopicPanels = clinicalIvoryTopicSlugs.has(page.slug);
   const useClinicalIvorySectionCards =
@@ -148,6 +154,14 @@ export default function TopicPage({
                   <p className="mt-3 text-xs leading-6 text-white/52">
                     {heroPanel.note}
                   </p>
+                  {heroPanel.value ? (
+                    <Link
+                      href="/prices"
+                      className="mt-3 inline-flex text-sm font-semibold text-[color:var(--gold-300)] underline-offset-4 hover:underline"
+                    >
+                      See all prices
+                    </Link>
+                  ) : null}
                 </div>
               ) : null}
               <p className="text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
@@ -349,6 +363,14 @@ export default function TopicPage({
             <p className="mt-5 text-xs leading-6 text-white/54">
               {page.priceStory.note}
             </p>
+            {page.priceStory.link ? (
+              <Link
+                href={page.priceStory.link.href}
+                className="mt-4 inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
+              >
+                {page.priceStory.link.label}
+              </Link>
+            ) : null}
           </section>
         ) : null}
 

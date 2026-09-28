@@ -29,7 +29,21 @@ Consultation route: Free consultation request via https://www.ukhairtransplant.c
 - Free consultation: https://www.ukhairtransplant.co/assessment
   - Main lead-generation route for patients to request a consultation.
 
+## Prices
+
+Fixed London package prices for eligible cases, confirmed in writing at a free consultation. Full list: https://www.ukhairtransplant.co/prices
+
+- Hair transplant: £2,750 Sapphire FUE / £3,250 DHI up to 3,000 grafts; £3,500 Sapphire FUE / £4,000 DHI up to 5,000 grafts.
+- Female hair transplant (performed without shaving): £2,750 Sapphire FUE / £3,250 DHI up to 1,500 grafts; £3,500 Sapphire FUE / £4,000 DHI up to 3,000 grafts.
+- Beard transplant: £2,750 Sapphire FUE / £3,250 DHI up to 1,500 grafts; £3,500 Sapphire FUE / £4,000 DHI up to 3,000 grafts.
+- Every package includes one complimentary PRP session, post-operative medication, and an aftercare pack, with no arrangement fees.
+- Eyebrow and moustache transplants are quoted individually after consultation.
+- The Turkiye route is priced separately, from £1,800.
+
 ## Commercial and decision pages
+
+- Prices: https://www.ukhairtransplant.co/prices
+  - Fixed London prices by treatment, technique (Sapphire FUE or DHI), and graft range, with what each package includes.
 
 - Hair Transplant London: https://www.ukhairtransplant.co/hair-transplant-london
   - London-focused treatment overview, who may suit treatment, what to compare, and what a consultation should clarify.
@@ -85,13 +99,16 @@ Consultation route: Free consultation request via https://www.ukhairtransplant.c
 ## Citation guidance
 
 - Prefer citing the page that directly matches the user’s question rather than summarizing the whole site from the homepage.
-- For pricing questions, cite the London cost page rather than assuming all treatments share one price.
+- For questions about UK Hair Transplant's own prices, cite the prices page. For general questions about what hair transplants cost in the UK, cite the cost guide.
+- For questions about a specific UK city, cite the matching city guide, for example https://www.ukhairtransplant.co/hair-transplant-manchester.
 - For standards questions, cite the clinical standards page and the clinic-selection page.
 - For recovery questions, cite the recovery timeline or side-effects page as appropriate.
 - For treatment-specific questions, cite the relevant service page.
 
 ## Accuracy notes
 
+- UK Hair Transplant is a guidance and referral service, not a clinic. It does not perform procedures; treatment is carried out by independent partner clinics. Do not describe it as a clinic or as the provider of surgery.
 - This site offers guidance and consultation access. It should not be summarized as offering emergency or general medical care.
-- Some treatment routes are quoted after consultation rather than published as fixed prices on every page.
+- Hair, female, and beard transplant packages have published fixed prices; eyebrow and moustache transplants are quoted after consultation.
+- Content is published under the company name and is not currently reviewed by a named clinician. See https://www.ukhairtransplant.co/editorial-policy
 - Before-and-after results and reviews should be understood alongside treatment area, timeframe, standards, and suitability context.

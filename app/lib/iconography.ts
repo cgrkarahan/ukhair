@@ -19,6 +19,7 @@ export function iconForHref(href: string): SiteIconName {
     "/terms": "clipboard-check",
     "/hair-transplant-london": "map-pin",
     "/hair-transplant-cost-london": "wallet",
+    "/prices": "wallet",
     "/how-we-select-clinics": "clipboard-check",
     "/our-clinical-standards": "shield-check",
     "/patient-guidance-process": "compass",

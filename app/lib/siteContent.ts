@@ -1,4 +1,14 @@
 import { applyProjectTokens } from "@/app/lib/contentTemplates";
+import {
+  describePackage,
+  formatGrafts,
+  formatPrice,
+  getPackage,
+  inclusionsSentence,
+  turkiyeFromPrice,
+} from "@/app/lib/pricing";
+
+const hairPackage = getPackage("hair");
 
 export type LinkCard = {
   href: string;
@@ -57,6 +67,7 @@ export type TopicPriceStory = {
   intro: string;
   note: string;
   rows: TopicPriceStoryRow[];
+  link?: { href: string; label: string };
 };
 
 export type TopicHeroPanel = {
@@ -101,9 +112,21 @@ export const primaryNavigation: HeaderNavItem[] = applyProjectTokens([
       "Why patients choose a {{CITY}} route for access, standards, and aftercare.",
   },
   {
-    href: "/hair-transplant-cost-london",
-    label: "Cost",
-    description: "What shapes the quote, what is included, and how to compare value.",
+    href: "/prices",
+    label: "Prices",
+    description: "Our fixed prices, and how hair transplant costs compare.",
+    items: [
+      {
+        href: "/prices",
+        label: "Our Prices",
+        description: "Fixed prices by treatment, technique, and graft range.",
+      },
+      {
+        href: "/hair-transplant-cost-london",
+        label: "Cost Guide",
+        description: "What shapes a quote, per-graft maths, and how to compare value.",
+      },
+    ],
   },
   {
     href: "/how-we-work",
@@ -187,6 +210,7 @@ export const footerLinkGroups = applyProjectTokens([
     title: "Core information",
     links: [
       "/hair-transplant-london",
+      "/prices",
       "/hair-transplant-cost-london",
       "/how-we-work",
       "/our-clinical-standards",
@@ -633,7 +657,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
         title: "What a hair transplant actually costs per graft",
         body: [
           "Across the UK market, per-graft pricing usually sits between £3 and £5, and it is worth looking at both ends of that range honestly. At £3 per graft, a 3,000-graft procedure works out at roughly £9,000. At £5 per graft, the same procedure reaches roughly £15,000, which is close to where several legacy Harley Street and Wimpole Street clinics price their treatment.",
-          "Our own fixed price for eligible cases up to 3,000 grafts is £2,750, including one complimentary PRP treatment, post-operative medication, and an aftercare pack. Measured crudely per graft, that is under £1 a graft. We would still argue you should not choose on that basis alone.",
+          `Our own fixed London prices for eligible cases start at ${formatPrice(hairPackage.tiers[0].fue)} for Sapphire FUE up to ${formatGrafts(hairPackage.tiers[0].maxGrafts)} grafts, and ${formatPrice(hairPackage.tiers[1].fue)} up to ${formatGrafts(hairPackage.tiers[1].maxGrafts)} grafts. ${inclusionsSentence} Measured crudely per graft, that is under £1 a graft. We would still argue you should not choose on that basis alone.`,
           "Per-graft pricing is a weak measure because it rewards a headline number rather than the plan behind it. A quote built purely around a low per-graft rate can leave out aftercare, medication, doctor involvement, and PRP, and graft counts themselves are sometimes estimated generously to make the per-graft figure look smaller. Ask what the total figure includes before comparing it to any per-graft rate you have seen quoted elsewhere.",
         ],
         bullets: [
@@ -665,9 +689,8 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
         },
         {
           title: "UK Hair Transplant — London",
-          context:
-            "Premium central London route. Fixed price for eligible cases up to 3,000 grafts, including one complimentary PRP treatment, post-operative medication, and an aftercare pack.",
-          price: "£2,750",
+          context: `Premium central London route. Fixed prices for eligible cases: ${describePackage("hair")} ${inclusionsSentence}`,
+          price: `From ${formatPrice(hairPackage.tiers[0].fue)}`,
           badge: "Hero price",
           featured: true,
         },
@@ -675,9 +698,10 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
           title: "UK Hair Transplant — Turkiye",
           context:
             "Curated Turkiye option for patients who are open to travel and want package-led treatment planning.",
-          price: "From £1,800",
+          price: `From ${formatPrice(turkiyeFromPrice)}`,
         },
       ],
+      link: { href: "/prices", label: "See our full price list" },
     },
     comparison: {
       title: "What to compare when reviewing a London quote",
@@ -716,8 +740,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
     faq: [
       {
         question: "How much does a hair transplant in London cost?",
-        answer:
-          "There is rarely one meaningful figure that applies to every patient. The quote usually depends on graft range, method, planning complexity, doctor involvement, and aftercare. A good consultation should explain the likely cost for your case rather than rely on a generic number.",
+        answer: `Across London, quotes vary widely with graft range, method, doctor involvement, and aftercare, which is why a generic figure is rarely useful. Our own London packages are fixed: ${formatPrice(hairPackage.tiers[0].fue)} for Sapphire FUE or ${formatPrice(hairPackage.tiers[0].dhi)} for DHI up to ${formatGrafts(hairPackage.tiers[0].maxGrafts)} grafts, and ${formatPrice(hairPackage.tiers[1].fue)} or ${formatPrice(hairPackage.tiers[1].dhi)} up to ${formatGrafts(hairPackage.tiers[1].maxGrafts)} grafts, for eligible cases.`,
       },
       {
         question: "What usually changes the quote most?",
@@ -756,8 +779,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       },
       {
         question: "How much would 5,000 grafts cost?",
-        answer:
-          "At typical UK per-graft rates of £3 to £5, 5,000 grafts can cost roughly £15,000 to £25,000 depending on the clinic and what the quote includes. A case of that size needs its own assessment and plan rather than a fixed headline price, since donor availability and planning become more complex at that scale.",
+        answer: `At typical UK per-graft rates of £3 to £5, 5,000 grafts can cost roughly £15,000 to £25,000 depending on the clinic and what the quote includes. Our fixed London package for up to 5,000 grafts is ${formatPrice(hairPackage.tiers[1].fue)} with Sapphire FUE or ${formatPrice(hairPackage.tiers[1].dhi)} with DHI. Not every donor area can safely supply that many grafts, so whether your case fits that band is confirmed at consultation.`,
       },
       {
         question: "What are hair plugs, and why don't clinics use them anymore?",
