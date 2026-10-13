@@ -20,6 +20,9 @@ type SiteShellProps = {
   children: ReactNode;
 };
 
+// Preserve a direct site-wide path to every existing city guide. The dedicated
+// directory and regional links add structure without weakening pages that have
+// already earned indexation.
 const footerCities = [...locationPageList].sort((a, b) => a.city.localeCompare(b.city));
 const organizationSchema = buildOrganizationSchema();
 
@@ -269,11 +272,11 @@ export default async function SiteShell({ children }: SiteShellProps) {
           </div>
 
           <nav
-            aria-label="Hair transplant by city"
+            aria-label="UK hair transplant city guides"
             className="rounded-[28px] border border-[rgba(192,213,214,0.12)] bg-[rgba(192,213,214,0.05)] p-5 lg:col-span-2"
           >
             <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-              Hair transplant by city
+              UK city guides
             </p>
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
               {footerCities.map((page) => (
@@ -285,6 +288,13 @@ export default async function SiteShell({ children }: SiteShellProps) {
                   {page.city}
                 </Link>
               ))}
+              <Link
+                href="/locations"
+                className="inline-flex items-center gap-2 rounded-full border border-[rgba(192,213,214,0.2)] bg-[rgba(192,213,214,0.08)] px-3.5 py-1.5 text-sm font-semibold text-white/88 transition hover:border-[rgba(192,213,214,0.34)] hover:bg-[rgba(192,213,214,0.14)] hover:text-white"
+              >
+                View all UK city guides
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </nav>
         </div>

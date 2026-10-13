@@ -31,6 +31,12 @@ export type LocationInput = {
   travel: LocationTravelInfo;
   localMarket: TopicSection;
   londonRoute: TopicSection;
+  /**
+   * Optional city-specific decision support. Use this only when the local
+   * shortlist or travel trade-off needs more explanation than the shared
+   * location template can provide.
+   */
+  decisionSection?: TopicSection;
   turkey: { airport: string; airportBullet: string };
   answers: {
     clinic: string;
@@ -596,6 +602,18 @@ export const locationInputs: LocationInput[] = [
         "Ask how follow-up works once you are back in Scotland.",
       ],
     },
+    decisionSection: {
+      title: "Build an Edinburgh shortlist before booking travel",
+      body: [
+        "Start by separating three decisions that are easy to blur together: whether surgery is suitable, whether a Scottish clinic meets the standard you want, and whether travelling to London adds enough value to justify the distance. A remote consultation can help with the first question, but it should not replace checking the named doctor and provider yourself.",
+        "For an Edinburgh or Glasgow clinic, verify the provider on Healthcare Improvement Scotland's register and the doctor on the GMC register. For a London option, check that the provider is CQC-registered, then compare its written aftercare plan with the Scottish quote. That gives you a like-for-like shortlist rather than a postcode comparison.",
+      ],
+      bullets: [
+        "Check Scottish and English providers on the regulator that applies in each nation.",
+        "Ask every option to name the doctor and explain who performs each stage.",
+        "Compare remote follow-up arrangements before adding rail, flights, and accommodation to the total cost.",
+      ],
+    },
     turkey: {
       airport:
         "London is not the only alternative to a local clinic. Direct flights from Edinburgh Airport to Istanbul, where most Turkish hair transplant clinics are based, have operated at times, but schedules change, so check what is currently running. Where there is no direct option, a connection via London or a European hub is the usual fallback.",
@@ -877,6 +895,18 @@ export const locationInputs: LocationInput[] = [
         "London is roughly an hour away, which makes it a practical local option.",
         "Treatment day can be a return trip if you allow for tiredness.",
         "Take the train or arrange a lift rather than driving yourself home.",
+      ],
+    },
+    decisionSection: {
+      title: "Use Leicester's rail position to compare like for like",
+      body: [
+        "Leicester patients can compare a local clinic, a wider East Midlands option, and London without turning the research into three separate trips. Start remotely and ask each provider for the same information: the proposed graft range, the named doctor, the treatment setting, what the price includes, and the follow-up schedule.",
+        "Only travel once the written answers are comparable. Leicester's direct St Pancras service makes an in-person London consultation practical, while Nottingham and Derby remain realistic regional alternatives. The useful advantage is choice, but only if every quote is judged on the same basis.",
+      ],
+      bullets: [
+        "Collect written graft ranges and inclusions before arranging consultations.",
+        "Use the same checklist for Leicester, Nottingham, Derby, and London providers.",
+        "Treat easy travel as a convenience, not evidence that one clinic is clinically stronger.",
       ],
     },
     turkey: {
@@ -1510,6 +1540,18 @@ export const locationInputs: LocationInput[] = [
         "Take the train or arrange a lift rather than driving after surgery.",
       ],
     },
+    decisionSection: {
+      title: "Coventry makes a three-way comparison practical",
+      body: [
+        "From Coventry, the realistic shortlist is not simply local versus London. Birmingham is close enough to function as the main regional market, while direct trains keep London within the same-day consultation range. That means the first filter should be suitability and standards, not distance.",
+        "Ask a Coventry, Birmingham, and London option to provide the same written breakdown: named doctor, provider registration, graft estimate, method, included medication or PRP, and the exact aftercare contacts. Once those answers line up, journey time and treatment-day recovery become useful tie-breakers rather than the whole decision.",
+      ],
+      bullets: [
+        "Compare Coventry, Birmingham, and London on one written checklist.",
+        "Confirm the provider and doctor rather than relying on a city-centre address.",
+        "Use travel and follow-up convenience only after clinical responsibilities are clear.",
+      ],
+    },
     turkey: {
       airport:
         "London is not the only alternative to a local clinic. Birmingham Airport, around twenty minutes from Coventry, has direct flights to Istanbul, where most Turkish hair transplant clinics are based, which makes Turkey unusually easy to reach from Warwickshire.",
@@ -1648,6 +1690,18 @@ export const locationInputs: LocationInput[] = [
         "Ask how remote aftercare works before committing to a clinic further away.",
       ],
     },
+    decisionSection: {
+      title: "Plan a York shortlist around Leeds and the East Coast line",
+      body: [
+        "York's local search naturally extends to Leeds, while the direct East Coast route also makes London available for a planned comparison. The three options should not be treated as equivalent just because they are reachable: each still needs a named doctor, a verifiable provider, a realistic graft range, and a clear explanation of follow-up.",
+        "A sensible sequence is to compare written information remotely, use an in-person consultation only for the strongest options, and decide before treatment day whether you would return to York or stay overnight. That keeps the shortlist focused on care rather than allowing a convenient train time to decide it for you.",
+      ],
+      bullets: [
+        "Include Leeds in the local comparison rather than judging York in isolation.",
+        "Use remote consultations to narrow the list before travelling south.",
+        "Confirm how reviews and urgent questions are handled once you are back in North Yorkshire.",
+      ],
+    },
     turkey: {
       airport:
         "London is not the only alternative to a local clinic. Leeds Bradford Airport, the closest to York, has had varying direct routes to Turkey, so check current schedules. Otherwise Manchester Airport, which has direct flights to Istanbul, where most Turkish hair transplant clinics are based, is the usual alternative.",
@@ -1716,6 +1770,18 @@ export const locationInputs: LocationInput[] = [
         "A London consultation is an easy day trip from Bath Spa.",
         "Treatment day works as a return trip for many patients.",
         "Take the train or arrange a lift rather than driving after surgery.",
+      ],
+    },
+    decisionSection: {
+      title: "Compare Bath, Bristol, and London as one shortlist",
+      body: [
+        "Bath's smaller local market does not mean patients have only one nearby option. Bristol is minutes away by train, and Paddington is reachable directly, so the practical shortlist can cover three locations without committing to three treatment routes.",
+        "Ask each provider for a written plan before deciding where to travel: who performs the procedure, the graft range and method, what is included, and how aftercare works from Bath. Bristol may offer the simplest regional follow-up; London may offer a broader curated comparison. The better choice depends on the answers, not the size of the city.",
+      ],
+      bullets: [
+        "Treat Bath and Bristol as one regional market when collecting quotes.",
+        "Compare provider registration, named clinicians, inclusions, and follow-up in writing.",
+        "Decide on same-day travel or an overnight stay before treatment, not after the procedure.",
       ],
     },
     turkey: {

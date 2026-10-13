@@ -32,7 +32,7 @@ export default function LocationPage({ page, relatedPages }: LocationPageProps) 
       : []),
   ];
   const otherCities = locationPageList
-    .filter((entry) => entry.slug !== page.slug)
+    .filter((entry) => page.relatedLocationSlugs.includes(entry.slug))
     .sort((a, b) => a.city.localeCompare(b.city));
 
   const structuredData = compactSchemaList([
@@ -276,10 +276,10 @@ export default function LocationPage({ page, relatedPages }: LocationPageProps) 
 
         <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
-            Other UK cities
+            Relevant city comparisons
           </p>
           <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-            Hair transplant guides for other cities.
+            Compare nearby and well-connected UK cities.
           </h2>
           <div className="mt-6 flex flex-wrap gap-2.5">
             {otherCities.map((entry) => (

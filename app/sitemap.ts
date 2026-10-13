@@ -22,6 +22,7 @@ type SitemapEntry = MetadataRoute.Sitemap[number];
 const contentUpdatedAt: Record<string, string> = {
   "/": "2026-09-28",
   "/assessment": "2026-09-28",
+  "/locations": "2026-10-13",
   "/how-hair-transplant-works": "2026-09-28",
   "/prices": "2026-09-28",
   "/results": "2026-09-28",
@@ -35,6 +36,11 @@ const contentUpdatedAt: Record<string, string> = {
   "/services/male-hair-transplant": "2026-09-28",
   "/services/female-hair-transplant": "2026-09-28",
   "/services/beard-transplant": "2026-09-28",
+  "/hair-transplant-leicester": "2026-10-13",
+  "/hair-transplant-coventry": "2026-10-13",
+  "/hair-transplant-edinburgh": "2026-10-13",
+  "/hair-transplant-bath": "2026-10-13",
+  "/hair-transplant-york": "2026-10-13",
 };
 
 function latestDate(...dates: (Date | undefined)[]) {
@@ -71,6 +77,7 @@ function entry(
 
 const staticPages = [
   "/assessment",
+  "/locations",
   "/prices",
   "/results",
   "/services",

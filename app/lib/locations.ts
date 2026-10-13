@@ -25,6 +25,7 @@ export type LocationPageContent = {
   sections: TopicSection[];
   faq: TopicFaq[];
   relatedSlugs: string[];
+  relatedLocationSlugs: string[];
   publishedAt: string;
 };
 
@@ -36,6 +37,34 @@ const relatedSlugs = [
   "why-turkiye",
   "hair-transplant-recovery-timeline",
 ];
+
+const relatedCitiesByCity: Record<string, string[]> = {
+  Manchester: ["Liverpool", "Leeds", "Sheffield", "Bradford"],
+  Birmingham: ["Coventry", "Leicester", "Derby", "Nottingham"],
+  Leeds: ["Bradford", "York", "Sheffield", "Manchester"],
+  Liverpool: ["Manchester", "Leeds", "Sheffield"],
+  Sheffield: ["Leeds", "Manchester", "Nottingham", "Derby"],
+  Newcastle: ["Edinburgh", "York", "Leeds"],
+  Glasgow: ["Edinburgh", "Newcastle"],
+  Edinburgh: ["Glasgow", "Newcastle", "York"],
+  Bristol: ["Bath", "Cardiff", "Exeter"],
+  Cardiff: ["Swansea", "Bristol", "Bath"],
+  Nottingham: ["Derby", "Leicester", "Sheffield", "Birmingham"],
+  Leicester: ["Nottingham", "Derby", "Coventry", "Birmingham"],
+  Derby: ["Nottingham", "Leicester", "Sheffield", "Birmingham"],
+  Bradford: ["Leeds", "York", "Manchester", "Sheffield"],
+  Swansea: ["Cardiff", "Bristol", "Bath"],
+  Southampton: ["Portsmouth", "Brighton", "Reading"],
+  Brighton: ["Portsmouth", "Southampton", "Reading"],
+  Oxford: ["Reading", "Coventry", "Bath", "Cambridge"],
+  Cambridge: ["Oxford", "Leicester", "Coventry", "Reading"],
+  Reading: ["Oxford", "Bath", "Southampton", "Coventry"],
+  Coventry: ["Birmingham", "Leicester", "Oxford", "Derby"],
+  Portsmouth: ["Southampton", "Brighton", "Reading"],
+  York: ["Leeds", "Bradford", "Sheffield", "Newcastle"],
+  Bath: ["Bristol", "Cardiff", "Exeter", "Reading"],
+  Exeter: ["Bristol", "Bath", "Cardiff", "Swansea"],
+};
 
 // The CQC covers England only, so the regulator check has to follow the city.
 const regulatorCheck: Record<Nation, string> = {
@@ -179,6 +208,7 @@ function buildLocationPage(input: LocationInput): LocationPageContent {
     travel: input.travel,
     sections: [
       input.localMarket,
+      ...(input.decisionSection ? [input.decisionSection] : []),
       chooseProviderSection(input),
       input.londonRoute,
       recoverySection(input),
@@ -187,6 +217,10 @@ function buildLocationPage(input: LocationInput): LocationPageContent {
     ],
     faq: buildFaq(input),
     relatedSlugs,
+    relatedLocationSlugs: (relatedCitiesByCity[city] ?? []).map(
+      (relatedCity) =>
+        `hair-transplant-${relatedCity.toLowerCase().replace(/[^a-z]+/g, "-")}`,
+    ),
     publishedAt: input.publishedAt,
   });
 }
