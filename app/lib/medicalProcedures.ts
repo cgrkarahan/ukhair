@@ -109,6 +109,27 @@ export const procedureFactsByPath: Record<string, ProcedureFacts> = {
     preparation: graftPreparation,
     followup: graftFollowup,
   },
+  "/hair-transplant-for-scars": {
+    name: "Hair transplant into scar tissue",
+    procedureType: "SurgicalProcedure",
+    bodyLocation: ["Scalp", "Eyebrow", "Face"],
+    howPerformed:
+      "Grafts are taken from the donor area and placed into a mature, settled scar, usually at a lower density in the first session because scar tissue has a weaker blood supply.",
+    preparation:
+      "Assessment of the scar's age, texture and blood supply alongside the donor area, with any scarring hair loss condition confirmed as inactive by a dermatologist first.",
+    followup: graftFollowup,
+  },
+  "/cleft-lip-scar-hair-transplant": {
+    name: "Moustache hair transplant into a cleft lip scar",
+    procedureType: "SurgicalProcedure",
+    bodyLocation: ["Upper lip"],
+    howPerformed:
+      "Single-hair grafts, usually from the back of the scalp, are placed one by one into the cleft lip repair scar at the angle and direction of the surrounding moustache.",
+    preparation:
+      "Assessment of the scar and surrounding facial hair, planned after any further cleft surgery such as lip revision, nose or jaw surgery has been completed.",
+    followup:
+      "Scabs on the lip usually clear within 7 to 10 days, with no shaving of the treated area for around two weeks. Shedding follows, with new growth from about three to four months.",
+  },
 };
 
 export function getProcedureFacts(path: string): ProcedureFacts | undefined {

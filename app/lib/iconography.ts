@@ -31,6 +31,18 @@ export function iconForHref(href: string): SiteIconName {
     "/fue-vs-dhi": "route",
     "/hair-transplant-without-shaving": "sparkles",
     "/female-hair-transplant-london": "sparkles",
+    "/types-of-hair-loss": "compass",
+    "/norwood-scale": "clipboard-check",
+    "/ludwig-scale": "clipboard-check",
+    "/male-pattern-baldness": "droplet",
+    "/receding-hairline": "droplet",
+    "/crown-thinning": "droplet",
+    "/female-hair-loss": "sparkles",
+    "/diffuse-thinning": "droplet",
+    "/alopecia-areata": "alert-circle",
+    "/traction-alopecia": "alert-circle",
+    "/hair-transplant-for-scars": "stethoscope",
+    "/cleft-lip-scar-hair-transplant": "stethoscope",
   };
 
   if (directMap[normalized]) {
@@ -162,6 +174,7 @@ export function iconForFooterGroup(title: string): SiteIconName {
     "Core information": "book-open",
     "What to know": "compass",
     Recovery: "clock",
+    "Hair loss": "droplet",
   };
 
   return map[title] ?? "book-open";

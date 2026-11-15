@@ -41,6 +41,18 @@ const contentUpdatedAt: Record<string, string> = {
   "/hair-transplant-edinburgh": "2026-10-13",
   "/hair-transplant-bath": "2026-10-13",
   "/hair-transplant-york": "2026-10-13",
+  "/types-of-hair-loss": "2026-11-15",
+  "/norwood-scale": "2026-11-15",
+  "/ludwig-scale": "2026-11-15",
+  "/male-pattern-baldness": "2026-11-15",
+  "/receding-hairline": "2026-11-15",
+  "/crown-thinning": "2026-11-15",
+  "/female-hair-loss": "2026-11-15",
+  "/diffuse-thinning": "2026-11-15",
+  "/alopecia-areata": "2026-11-15",
+  "/traction-alopecia": "2026-11-15",
+  "/hair-transplant-for-scars": "2026-11-15",
+  "/cleft-lip-scar-hair-transplant": "2026-11-15",
 };
 
 function latestDate(...dates: (Date | undefined)[]) {

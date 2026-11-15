@@ -199,18 +199,54 @@ export function buildMedicalProcedureNode({
  * `MedicalWebPage` with the review line, procedure, and result imagery attached
  * only where the underlying facts genuinely exist.
  */
+export type SchemaCondition = {
+  name: string;
+  alternateName?: string[];
+  signOrSymptom?: string[];
+  possibleTreatment?: string[];
+};
+
+function buildMedicalConditionNode(condition: SchemaCondition): JsonLdNode {
+  return {
+    "@type": "MedicalCondition",
+    name: condition.name,
+    ...(condition.alternateName?.length ? { alternateName: condition.alternateName } : {}),
+    ...(condition.signOrSymptom?.length
+      ? {
+          signOrSymptom: condition.signOrSymptom.map((item) => ({
+            "@type": "MedicalSignOrSymptom",
+            name: item,
+          })),
+        }
+      : {}),
+    ...(condition.possibleTreatment?.length
+      ? {
+          possibleTreatment: condition.possibleTreatment.map((item) => ({
+            "@type": "MedicalTherapy",
+            name: item,
+          })),
+        }
+      : {}),
+  };
+}
+
 export function buildMedicalWebPageSchema({
   path,
   name,
   description,
   images = [],
   specialty = "https://schema.org/PlasticSurgery",
+  condition,
+  citations = [],
 }: {
   path: string;
   name: string;
   description: string;
   images?: SchemaImage[];
   specialty?: string;
+  /** The hair loss condition the page explains, where it explains one. */
+  condition?: SchemaCondition;
+  citations?: { label: string; href: string }[];
 }): JsonLdNode {
   const normalized = normalizePath(path);
   const url = absoluteUrl(normalized);
@@ -221,6 +257,7 @@ export function buildMedicalWebPageSchema({
     name,
     description,
   });
+  const conditionNode = condition ? buildMedicalConditionNode(condition) : undefined;
 
   return {
     "@context": SCHEMA_CONTEXT,
@@ -235,7 +272,22 @@ export function buildMedicalWebPageSchema({
       url: absoluteUrl("/"),
     },
     publisher: organizationRef,
-    ...(procedure ? { about: procedure, mainEntity: procedure } : {}),
+    ...(procedure && conditionNode
+      ? { about: [procedure, conditionNode], mainEntity: procedure }
+      : procedure
+        ? { about: procedure, mainEntity: procedure }
+        : conditionNode
+          ? { about: conditionNode, mainEntity: conditionNode }
+          : {}),
+    ...(citations.length > 0
+      ? {
+          citation: citations.map((item) => ({
+            "@type": "CreativeWork",
+            name: item.label,
+            url: item.href,
+          })),
+        }
+      : {}),
     ...(reviewer ? { reviewedBy: buildPhysicianNode(reviewer) } : {}),
     ...(review?.lastReviewed ? { lastReviewed: review.lastReviewed } : {}),
     ...(images.length > 0

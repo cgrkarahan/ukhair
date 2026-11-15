@@ -1,3 +1,4 @@
+import { conditionTopicPages } from "@/app/lib/conditionContent";
 import { applyProjectTokens } from "@/app/lib/contentTemplates";
 import {
   describePackage,
@@ -80,6 +81,19 @@ export type TopicHeroPanel = {
   headline?: string;
 };
 
+export type TopicSource = {
+  label: string;
+  href: string;
+};
+
+/** Facts for `MedicalCondition` markup on pages about a type of hair loss. */
+export type TopicCondition = {
+  name: string;
+  alternateName?: string[];
+  signOrSymptom?: string[];
+  possibleTreatment?: string[];
+};
+
 export type TopicPageContent = {
   slug: string;
   title: string;
@@ -98,7 +112,13 @@ export type TopicPageContent = {
   priceStory?: TopicPriceStory;
   comparison?: TopicComparison;
   faq: TopicFaq[];
+  /** Topic page slugs, or `services/<slug>` for a treatment page. */
   relatedSlugs: string[];
+  /** External references shown on the page and cited in the schema. */
+  sources?: TopicSource[];
+  condition?: TopicCondition;
+  /** Middle breadcrumb, for pages that belong to a hub. */
+  breadcrumbParent?: { name: string; path: string };
 };
 
 export const siteContact = applyProjectTokens({
@@ -172,6 +192,54 @@ export const primaryNavigation: HeaderNavItem[] = applyProjectTokens([
     ],
   },
   {
+    href: "/types-of-hair-loss",
+    label: "Hair loss",
+    description:
+      "The main types of hair loss, how to recognise them, and which ones a transplant can help.",
+    items: [
+      {
+        href: "/types-of-hair-loss",
+        label: "Types of Hair Loss",
+        description: "Which types a transplant can help, and when to see your GP first.",
+      },
+      {
+        href: "/norwood-scale",
+        label: "Norwood Scale",
+        description: "The seven stages of male hair loss and typical graft ranges.",
+      },
+      {
+        href: "/male-pattern-baldness",
+        label: "Male Pattern Baldness",
+        description: "Causes, DHT, and when surgery makes sense.",
+      },
+      {
+        href: "/female-hair-loss",
+        label: "Female Hair Loss",
+        description: "Causes in women and who may suit a transplant.",
+      },
+      {
+        href: "/alopecia-areata",
+        label: "Alopecia Areata",
+        description: "Patchy hair loss, and why surgery is usually not advised.",
+      },
+      {
+        href: "/traction-alopecia",
+        label: "Traction Alopecia",
+        description: "Hair loss from tight hairstyles, and when a transplant helps.",
+      },
+      {
+        href: "/hair-transplant-for-scars",
+        label: "Scars",
+        description: "Hair transplants into scalp, brow and beard scars.",
+      },
+      {
+        href: "/cleft-lip-scar-hair-transplant",
+        label: "Cleft Lip Scar",
+        description: "Growing a moustache or beard through a cleft lip repair scar.",
+      },
+    ],
+  },
+  {
     href: "/our-clinical-standards",
     label: "Guides",
     description: "Standards, recovery, comparison, and deeper research before treatment.",
@@ -228,6 +296,17 @@ export const footerLinkGroups = applyProjectTokens([
       "/how-hair-transplant-works",
       "/fue-vs-dhi",
       "/hair-transplant-without-shaving",
+    ],
+  },
+  {
+    title: "Hair loss",
+    links: [
+      "/types-of-hair-loss",
+      "/norwood-scale",
+      "/ludwig-scale",
+      "/male-pattern-baldness",
+      "/female-hair-loss",
+      "/cleft-lip-scar-hair-transplant",
     ],
   },
   {
@@ -555,6 +634,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       "hair-transplant-recovery-timeline",
       "uk-vs-turkey-hair-transplant",
       "why-turkiye",
+      "types-of-hair-loss",
     ],
   },
   "hair-transplant-cost-london": {
@@ -1757,6 +1837,7 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       "hair-transplant-recovery-timeline",
       "hair-transplant-side-effects",
       "hair-transplant-london",
+      "norwood-scale",
     ],
   },
   "hair-transplant-recovery-timeline": {
@@ -2190,6 +2271,8 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       "hair-transplant-cost-london",
       "our-clinical-standards",
       "hair-transplant-recovery-timeline",
+      "female-hair-loss",
+      "ludwig-scale",
     ],
   },
   "hair-transplant-without-shaving": {
@@ -2339,6 +2422,8 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
     ],
   },
 });
+
+Object.assign(topicPages, applyProjectTokens(conditionTopicPages));
 
 export const topicPageList = Object.values(topicPages);
 

@@ -124,6 +124,8 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "hair-transplant-cost-london",
       "hair-transplant-recovery-timeline",
       "fue-vs-dhi",
+      "norwood-scale",
+      "receding-hairline",
     ],
   },
   {
@@ -212,6 +214,8 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "hair-transplant-without-shaving",
       "hair-transplant-recovery-timeline",
       "our-clinical-standards",
+      "female-hair-loss",
+      "ludwig-scale",
     ],
   },
   {
@@ -296,6 +300,7 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "hair-transplant-recovery-timeline",
       "our-clinical-standards",
       "patient-guidance-process",
+      "hair-transplant-for-scars",
     ],
   },
   {
@@ -380,6 +385,8 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "how-we-select-clinics",
       "patient-guidance-process",
       "our-clinical-standards",
+      "hair-transplant-for-scars",
+      "cleft-lip-scar-hair-transplant",
     ],
   },
   {
@@ -463,6 +470,7 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "our-clinical-standards",
       "how-we-select-clinics",
       "patient-guidance-process",
+      "cleft-lip-scar-hair-transplant",
     ],
   },
   {
@@ -547,6 +555,8 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "our-clinical-standards",
       "hair-transplant-london",
       "hair-transplant-cost-london",
+      "types-of-hair-loss",
+      "diffuse-thinning",
     ],
   },
 ];
