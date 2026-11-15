@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import AssessmentSection from "@/app/components/AssessmentSection";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
-import { blogPosts, blogPostsBySlug } from "@/app/lib/blogContent";
 import { iconForHref } from "@/app/lib/iconography";
 import { getClinicalReviewer, getPageReview } from "@/app/lib/clinicalReview";
 import {
@@ -17,6 +16,12 @@ import {
   organizationRef,
 } from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
+import {
+  getBlogPostContent,
+  getBlogPostsContent,
+} from "@/sanity/lib/content";
+
+export const revalidate = 60;
 
 type BlogArticlePageProps = {
   params: Promise<{
@@ -24,15 +29,16 @@ type BlogArticlePageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+export async function generateStaticParams() {
+  const posts = await getBlogPostsContent();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: BlogArticlePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = blogPostsBySlug[slug];
+  const post = await getBlogPostContent(slug);
 
   if (!post) {
     return {};
@@ -51,7 +57,7 @@ export default async function BlogArticlePage({
   params,
 }: BlogArticlePageProps) {
   const { slug } = await params;
-  const post = blogPostsBySlug[slug];
+  const post = await getBlogPostContent(slug);
 
   if (!post) {
     notFound();
@@ -75,7 +81,7 @@ export default async function BlogArticlePage({
       headline: post.title,
       description: post.description,
       dateModified: post.updatedAt,
-      datePublished: post.updatedAt,
+      datePublished: post.publishedAt ?? post.updatedAt,
       image: buildImageObjectNode({ src: post.imageSrc, alt: post.imageAlt }),
       author: { ...organizationRef, "@type": "Organization", name: siteName },
       publisher: organizationRef,
@@ -140,6 +146,12 @@ export default async function BlogArticlePage({
                 How we write our content
               </Link>
             </p>
+            {post.isResearchDigest ? (
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/58">
+                Evidence-led research digest based on the cited publication and UK guidance.
+                It is general information, not medical advice or a personal treatment recommendation.
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-8 relative aspect-[16/8.8] overflow-hidden rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)]">
@@ -263,7 +275,9 @@ export default async function BlogArticlePage({
                   Sources
                 </p>
                 <p className="mt-3 text-sm leading-7 text-white/60">
-                  Official guidance and registers referred to in this article.
+                  {post.isResearchDigest
+                    ? "Research publication and independent guidance used for this evidence summary."
+                    : "Official guidance and registers referred to in this article."}
                 </p>
                 <ul className="mt-4 space-y-3 text-sm leading-6">
                   {post.sources.map((item) => (

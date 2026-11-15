@@ -32,6 +32,11 @@ const principles = [
     body: "Our pages are not currently reviewed by a named clinician. When a qualified, registered clinician reviews a page, that page will show their name, their registration, and the date of the review. We will not add a review claim we cannot back up.",
   },
   {
+    title: "Automated research digests",
+    icon: "sparkles" as const,
+    body: "Some research updates are generated automatically from a recent PubMed-indexed publication and independent UK guidance. They pass automated evidence, originality, medical-safety, and SEO-quality checks before publication. These pages are labelled as research digests, cite their sources, explain limitations, and are not presented as clinician-reviewed medical advice.",
+  },
+  {
     title: "Prices and figures",
     icon: "clipboard-check" as const,
     body: "Prices shown for our own routes are our published prices at the time the page was last updated. Wider market figures, such as typical per-graft ranges, are indicative context and are labelled as such. Travel times on our city guides are approximate and vary by service and traffic.",

@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
-import { blogPosts } from "@/app/lib/blogContent";
 import { getPageReviewDate } from "@/app/lib/clinicalReview";
 import { locationPageList } from "@/app/lib/locations";
 import { absoluteUrl } from "@/app/lib/seo";
 import { topicPageList } from "@/app/lib/siteContent";
 import { serviceCatalog } from "@/app/services/serviceData";
+import { getBlogPostsContent } from "@/sanity/lib/content";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -26,7 +26,7 @@ const contentUpdatedAt: Record<string, string> = {
   "/how-hair-transplant-works": "2026-09-28",
   "/prices": "2026-09-28",
   "/results": "2026-09-28",
-  "/editorial-policy": "2026-09-28",
+  "/editorial-policy": "2026-11-15",
   "/hair-transplant-cost-london": "2026-09-28",
   "/female-hair-transplant-london": "2026-09-28",
   "/hair-transplant-london": "2026-09-28",
@@ -91,7 +91,8 @@ const staticPages = [
   "/cookies",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const blogPosts = await getBlogPostsContent();
   return [
     entry("/", { priority: 1, changeFrequency: "weekly" }),
     ...staticPages.map((path) =>

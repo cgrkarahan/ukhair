@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/cron/publish-research?slot=morning", "schedule": "20 6 * * *" },
+    { "path": "/api/cron/publish-research?slot=afternoon", "schedule": "20 15 * * *" }
+  ]
+}

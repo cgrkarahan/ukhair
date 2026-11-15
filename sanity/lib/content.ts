@@ -1,4 +1,9 @@
 import type { SiteIconName } from "@/app/components/SiteIcon";
+import { blogPosts, blogPostsBySlug, type BlogPost } from "@/app/lib/blogContent";
+import {
+  getAutomatedBlogPostBySlug,
+  getAutomatedBlogPosts,
+} from "@/app/lib/blogDatabase";
 import { replaceBrandDeep } from "@/app/lib/brand";
 import { siteContact } from "@/app/lib/contact";
 import {
@@ -711,4 +716,34 @@ export async function getReviewsContent(): Promise<ApprovedReview[]> {
   }
 
   return fetchedReviews;
+}
+
+function validBlogPost(value: BlogPost | null | undefined): value is BlogPost {
+  return Boolean(
+    value?.slug &&
+      value.title &&
+      value.description &&
+      Array.isArray(value.sections) &&
+      value.sections.length > 0 &&
+      Array.isArray(value.sources),
+  );
+}
+
+export async function getBlogPostsContent(): Promise<BlogPost[]> {
+  const automatedPosts = (await getAutomatedBlogPosts()).filter(validBlogPost);
+  const automatedSlugs = new Set(automatedPosts.map((post) => post.slug));
+
+  return [
+    ...automatedPosts,
+    ...blogPosts.filter((post) => !automatedSlugs.has(post.slug)),
+  ].sort((left, right) =>
+    (right.publishedAt ?? right.updatedAt).localeCompare(left.publishedAt ?? left.updatedAt),
+  );
+}
+
+export async function getBlogPostContent(slug: string): Promise<BlogPost | null> {
+  const automatedPost = await getAutomatedBlogPostBySlug(slug);
+  return validBlogPost(automatedPost)
+    ? automatedPost
+    : blogPostsBySlug[slug] ?? null;
 }

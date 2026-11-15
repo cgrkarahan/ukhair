@@ -34,6 +34,10 @@ export type BlogPost = {
   imageSrc: string;
   imageAlt: string;
   imagePosition?: string;
+  publishedAt?: string;
+  isResearchDigest?: boolean;
+  primaryPmid?: string;
+  studyDesign?: string;
 };
 
 type BaseBlogPost = Omit<

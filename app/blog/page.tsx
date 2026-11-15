@@ -3,10 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
-import { blogPosts } from "@/app/lib/blogContent";
 import { iconForHref } from "@/app/lib/iconography";
 import { buildBreadcrumbSchema, organizationRef } from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata } from "@/app/lib/seo";
+import { getBlogPostsContent } from "@/sanity/lib/content";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = buildMetadata({
   title: "Hair Transplant Articles | UK Hair Transplant",
@@ -21,7 +23,8 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
-export default function BlogIndexPage() {
+export default async function BlogIndexPage() {
+  const blogPosts = await getBlogPostsContent();
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
