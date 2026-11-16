@@ -492,8 +492,8 @@ const fallbackArticleSchema = {
     readTime: { type: "string", pattern: "^[0-9]+ min read$" },
     keywords: { type: "array", minItems: 4, maxItems: 8, items: { type: "string" } },
     keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 160 } },
-    sections: { type: "array", minItems: 7, maxItems: 8, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 3, items: { type: "string", minLength: 80, maxLength: 700 } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160 } } } } },
-    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110 }, answer: { type: "string", minLength: 100, maxLength: 400 } } } },
+    sections: { type: "array", minItems: 7, maxItems: 7, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 2, items: { type: "string", minLength: 300, maxLength: 700 } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160 } } } } },
+    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110 }, answer: { type: "string", minLength: 220, maxLength: 400 } } } },
     studyDesign: { type: "string", minLength: 3, maxLength: 100 },
   },
 } as const;
@@ -531,7 +531,7 @@ function articleRequest(
   const targetLength =
     mode === "fallback" ? "900-1,025 words" : "950-1,150 words";
   return {
-    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain ${targetLength}. Use concise paragraphs. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
+    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The complete reader-visible article must contain ${targetLength}. Write exactly seven required sections in the supplied order, with exactly two substantial paragraphs of roughly 55-75 words in each section. Write 3-4 FAQ answers of roughly 40-65 words each. Before returning, check that every required section has enough evidence-based explanation; expand limitations or practical interpretation when needed, never with filler or repetition. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
     input: JSON.stringify({
       assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
       primaryStudy: primaryStudyContext(candidate),
@@ -539,6 +539,13 @@ function articleRequest(
       allowedSources,
       existingArticlesToAvoidDuplicating: existingContext,
       requiredSections: ["Direct answer", "What the study examined", "What the researchers found", "Important limitations", "How this fits with independent UK guidance", "What this may mean for patients", "When to seek professional advice"],
+      lengthPlan: {
+        sectionCount: 7,
+        paragraphsPerSection: 2,
+        wordsPerParagraph: "55-75",
+        faqCount: "3-4",
+        wordsPerFaqAnswer: "40-65",
+      },
     }),
   };
 }
@@ -746,9 +753,10 @@ function reviewRequest(
 ) {
   return {
     instructions:
-      `Act as a strict UK medical-content fact checker and SEO quality editor. Today's date is ${londonDate()}. Approve only when all medical claims are traceable to the supplied study metadata, abstract, or guidance notes, uncertainty and limitations are prominent, no diagnosis/prescription/guarantee is made, the piece is genuinely useful and non-duplicative, and there is no invented statistic, source, quote, registration, or clinical-review claim. Treat the supplied current date as authoritative when checking publication dates. Any unsupported medical claim means approved=false. Scores below 82 in any category mean approved=false.`,
+      `Act as a strict UK medical-content fact checker and SEO quality editor. Today's date is ${londonDate()}. Approve only when all medical claims are traceable to the supplied study metadata, abstract, or guidance notes, uncertainty and limitations are prominent, no diagnosis/prescription/guarantee is made, the piece is genuinely useful and non-duplicative, and there is no invented statistic, source, quote, registration, or clinical-review claim. Judge whether the required questions are answered with enough substance; do not reject an otherwise complete, useful article solely because of an arbitrary word-count target. Treat the supplied current date as authoritative when checking publication dates. Any unsupported medical claim means approved=false. Scores below 82 in any category mean approved=false.`,
     input: JSON.stringify({
       publisherContext: "UK Hair Transplant is a UK referral and patient-information service, not a clinic.",
+      articleWordCount: wordCount(article),
       article,
       primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
@@ -757,7 +765,18 @@ function reviewRequest(
 }
 
 function wordCount(article: GeneratedArticle) {
-  return article.sections.flatMap((section) => section.paragraphs).join(" ").split(/\s+/).filter(Boolean).length;
+  return [
+    article.answerSummary,
+    ...article.keyTakeaways,
+    ...article.sections.flatMap((section) => [
+      ...section.paragraphs,
+      ...(section.bullets ?? []),
+    ]),
+    ...article.faq.flatMap((item) => [item.question, item.answer]),
+  ]
+    .join(" ")
+    .split(/\s+/)
+    .filter(Boolean).length;
 }
 
 function incompleteProseFields(article: GeneratedArticle) {
@@ -779,7 +798,6 @@ function incompleteProseFields(article: GeneratedArticle) {
 }
 
 function deterministicValidation(article: GeneratedArticle, existing: ExistingFingerprint[]) {
-  const count = wordCount(article);
   const similarity = similarityToExisting(article, existing);
   const incompleteFields = incompleteProseFields(article);
   // Match promotional claims, while allowing safety language such as
@@ -787,10 +805,6 @@ function deterministicValidation(article: GeneratedArticle, existing: ExistingFi
   const forbidden =
     /\b(?:guaranteed results?|results? (?:are|is) guaranteed|risk[- ]free treatment|100% (?:safe|effective|success)|clinically proven to|the best treatment|completely safe)\b/i;
   const allText = JSON.stringify(article);
-  // Evidence digests can be complete and useful below an arbitrary 900-word
-  // threshold. Let the medical/SEO review judge quality once the article has
-  // enough substance to cover the required sections.
-  if (count < 750) throw new Error(`Article too short (${count} words)`);
   if (similarity > 0.62) throw new Error(`Article too similar to existing content (${similarity.toFixed(2)})`);
   if (forbidden.test(allText)) throw new Error("Article contains a prohibited claim");
   if (/<\/?[a-z][^>]*>/i.test(allText)) throw new Error("Article contains HTML markup");
