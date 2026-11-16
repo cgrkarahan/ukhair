@@ -1,6 +1,10 @@
+import { formatGrafts, formatPrice, getPackage } from "@/app/lib/pricing";
 import type { LocationInput } from "./types";
 
 const updatedAt = "2026-11-16";
+
+/** Published London prices, read from pricing.ts so a price change lands here too. */
+const [hairBase, hairLarge] = getPackage("hair").tiers;
 
 export const midlandsLocations: LocationInput[] = [
   {
@@ -312,6 +316,11 @@ export const midlandsLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "How much more does DHI cost than FUE for a Nottingham patient?",
+        answer:
+          `DHI is usually priced above FUE because the grafts are implanted with a different technique. In our London packages the difference is ${formatPrice(hairBase.dhi - hairBase.fue)}: ${formatPrice(hairBase.fue)} for Sapphire FUE or ${formatPrice(hairBase.dhi)} for DHI up to ${formatGrafts(hairBase.maxGrafts)} grafts. Whether DHI is worth the extra for you depends on your hair and the area being treated, which is a question for the consultation rather than the price list.`,
+      },
       {
         question: "Is Newark quicker than Nottingham for getting to London?",
         answer:

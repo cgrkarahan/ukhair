@@ -1,6 +1,11 @@
+import { formatGrafts, formatPrice, getPackage } from "@/app/lib/pricing";
 import type { LocationInput } from "./types";
 
 const updatedAt = "2026-11-16";
+
+/** Published London prices, read from pricing.ts so a price change lands here too. */
+const [hairBase, hairLarge] = getPackage("hair").tiers;
+const [beardBase] = getPackage("beard").tiers;
 
 export const scotlandNorthEastLocations: LocationInput[] = [
   {
@@ -95,9 +100,9 @@ export const scotlandNorthEastLocations: LocationInput[] = [
     publishedAt: "2026-09-26",
     updatedAt,
     title: "Hair Transplant Glasgow: Scottish Clinics, Regulation and London",
-    seoTitle: "Hair Transplant Glasgow: Scotland Patient Guide",
+    seoTitle: "Hair Transplant Glasgow: Costs, Checks and Travel",
     description:
-      "What Glasgow and west of Scotland patients should know about hair transplant clinics in Scotland, Healthcare Improvement Scotland registration, and travelling to London by rail, air or sleeper.",
+      `Hair transplant costs and clinic checks for Glasgow patients: Healthcare Improvement Scotland registration, beard and eyebrow options, and travel to London.`,
     lead: "For Glasgow and the west of Scotland, the realistic choice is usually a Scottish clinic or a trip to London, which is a much bigger commitment from here than from most of England. Regulation also works differently in Scotland. This page explains how to check a Scottish provider, and how to keep a London option manageable if you include one.",
     heroChips: ["Healthcare Improvement Scotland", "Train, flight or sleeper", "Video consultation first"],
     cards: [
@@ -148,6 +153,16 @@ export const scotlandNorthEastLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "What does a hair transplant cost if I travel from Glasgow?",
+        answer:
+          `Scottish clinics set their own prices, so ask each one for a written quote that states the graft range and the follow-up included. For comparison, our London packages are ${formatPrice(hairBase.fue)} for Sapphire FUE or ${formatPrice(hairBase.dhi)} for DHI up to ${formatGrafts(hairBase.maxGrafts)} grafts, and ${formatPrice(hairLarge.fue)} or ${formatPrice(hairLarge.dhi)} up to ${formatGrafts(hairLarge.maxGrafts)}. From Glasgow you also need to budget for the journey south and at least one night in London, which narrows the gap with a local quote.`,
+      },
+      {
+        question: "Can I get a beard or eyebrow transplant if I live in Glasgow?",
+        answer:
+          `Yes, both can be planned from Glasgow. Our London beard transplant package starts at ${formatPrice(beardBase.fue)} for up to ${formatGrafts(beardBase.maxGrafts)} grafts. Eyebrow work is quoted individually after a consultation, because the shape and direction of the brow have to be planned before a fair price can be given, so a video consultation is a sensible first step before any trip south.`,
+      },
       {
         question: "Who regulates hair transplant clinics in Glasgow?",
         answer:
@@ -244,6 +259,11 @@ export const scotlandNorthEastLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "What is recovery like if I travel home to Edinburgh afterwards?",
+        answer:
+          `The first days are mostly about swelling, redness, scabbing and following the washing and sleeping instructions you are given, all of which you can do at home. What needs planning from Edinburgh is the journey back: a long train or flight soon after the procedure, where you should avoid anything pressing on the treated area. Ask the clinic how photo check-ins and later reviews work once you are back in Scotland.`,
+      },
       {
         question: "How do I check a hair transplant clinic in Edinburgh is registered?",
         answer:

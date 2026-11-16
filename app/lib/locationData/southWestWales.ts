@@ -1,6 +1,10 @@
+import { formatGrafts, formatPrice, getPackage } from "@/app/lib/pricing";
 import type { LocationInput } from "./types";
 
 const updatedAt = "2026-11-16";
+
+/** Published London prices, read from pricing.ts so a price change lands here too. */
+const [hairBase, hairLarge] = getPackage("hair").tiers;
 
 export const southWestWalesLocations: LocationInput[] = [
   {
@@ -9,9 +13,9 @@ export const southWestWalesLocations: LocationInput[] = [
     publishedAt: "2026-09-26",
     updatedAt,
     title: "Hair Transplant Bristol: A South West Patient Guide",
-    seoTitle: "Hair Transplant Bristol: South West Patient Guide",
+    seoTitle: "Hair Transplant Bristol: Cost, Aftercare and Travel",
     description:
-      "How Bristol patients can compare South West hair transplant clinics with London, using Temple Meads or Bristol Parkway for Paddington, and what to ask either way.",
+      `Hair transplant costs and aftercare for Bristol patients: comparing South West clinics with London, and using Temple Meads or Parkway for Paddington.`,
     lead: "Bristol is the main city in the South West, so patients from Bath, Weston-super-Mare and beyond often look here first. London is under two hours by train, with a choice of two Bristol stations. This guide covers how to compare local and London options, and which station suits which part of the city.",
     heroChips: ["Temple Meads or Parkway", "Under two hours to Paddington", "South West's main market"],
     cards: [
@@ -60,6 +64,16 @@ export const southWestWalesLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "How much should a Bristol patient budget for a hair transplant?",
+        answer:
+          `Bristol clinics price in different ways, so compare written quotes on the graft range and the follow-up included rather than the headline figure. Our London package starts at ${formatPrice(hairBase.fue)} for Sapphire FUE up to ${formatGrafts(hairBase.maxGrafts)} grafts, or ${formatPrice(hairBase.dhi)} with DHI, and includes post-operative medication and an aftercare pack. Add your Temple Meads or Parkway fare to see the full London cost.`,
+      },
+      {
+        question: "What aftercare will I get once I am back in Bristol?",
+        answer:
+          `That depends on the clinic, so ask before you book. Most of the first fortnight happens at home: following the washing and sleeping instructions, protecting the treated area and not picking at scabs. A good provider gives you a named contact, a way to send photos and dates for later reviews. If you are treated in London, check which of those reviews can be done remotely from Bristol.`,
+      },
       {
         question: "Should I travel from Temple Meads or Bristol Parkway?",
         answer:
@@ -189,9 +203,9 @@ export const southWestWalesLocations: LocationInput[] = [
     publishedAt: "2026-09-26",
     updatedAt,
     title: "Hair Transplant Exeter: A Devon Patient Guide",
-    seoTitle: "Hair Transplant Exeter: Devon Patient Guide",
+    seoTitle: "Hair Transplant Exeter: Cost and Devon Travel Guide",
     description:
-      "From Exeter and Devon, London is around two hours by train. How Devon patients can compare local, Bristol and London options, and plan follow-up from a distance.",
+      `Hair transplant costs from Exeter, with London packages from ${formatPrice(hairBase.fue)}. How Devon patients compare local, Bristol and London options and plan follow-up.`,
     lead: "Devon is a long way from most of the UK's larger hair transplant markets, so patients in Exeter and the surrounding area often weigh up whether to look locally, travel to Bristol or go to London. The direct train from Exeter St Davids makes London possible in around two hours. This guide covers how to plan it.",
     heroChips: ["About two hours to Paddington", "Bristol as a middle option", "Remote follow-up planning"],
     cards: [
@@ -240,6 +254,11 @@ export const southWestWalesLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "How much does a hair transplant cost from Exeter?",
+        answer:
+          `Devon is a long way from the bigger hair transplant markets, so local quotes can be hard to benchmark. Our London price for up to ${formatGrafts(hairBase.maxGrafts)} grafts is ${formatPrice(hairBase.fue)} with Sapphire FUE or ${formatPrice(hairBase.dhi)} with DHI, and up to ${formatGrafts(hairLarge.maxGrafts)} grafts it is ${formatPrice(hairLarge.fue)} or ${formatPrice(hairLarge.dhi)}. From Exeter most patients also need a night in London and a return fare from St Davids, so include both before comparing.`,
+      },
       {
         question: "How long does it take to get from Exeter to London?",
         answer:
@@ -369,9 +388,9 @@ export const southWestWalesLocations: LocationInput[] = [
     publishedAt: "2026-09-26",
     updatedAt,
     title: "Hair Transplant Swansea: West Wales Patient Guide",
-    seoTitle: "Hair Transplant Swansea: West Wales Patient Guide",
+    seoTitle: "Hair Transplant Swansea: Cost and West Wales Guide",
     description:
-      "For Swansea, Neath, Port Talbot and Llanelli patients: checking Welsh clinics, comparing Cardiff and London, and the direct train to Paddington.",
+      `For Swansea, Neath and Llanelli patients: hair transplant costs, checking Welsh clinics, comparing Cardiff with London, and the direct train to Paddington.`,
     lead: "Swansea patients often look at clinics in Cardiff as well as locally, and London is a direct train away, though a longer one than from Cardiff. Regulation in Wales works differently from England, which matters when checking a clinic. This guide covers how to approach it from West Wales.",
     heroChips: ["Direct trains to Paddington", "Cardiff as an alternative", "Welsh registration checks"],
     cards: [
@@ -432,6 +451,11 @@ export const southWestWalesLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "What does a hair transplant cost for someone in Swansea?",
+        answer:
+          `Welsh clinics, including those in Cardiff, set their own prices, so ask for the graft range and the follow-up plan in writing. Our London packages start at ${formatPrice(hairBase.fue)} for Sapphire FUE up to ${formatGrafts(hairBase.maxGrafts)} grafts and include post-operative medication and one PRP session. The train from Swansea to Paddington is a long one, so build an overnight stay into the London figure.`,
+      },
       {
         question: "Is a Swansea clinic checked by the same body as a London one?",
         answer:

@@ -1,6 +1,10 @@
+import { formatGrafts, formatPrice, getPackage } from "@/app/lib/pricing";
 import type { LocationInput } from "./types";
 
 const updatedAt = "2026-11-16";
+
+/** Published London prices, read from pricing.ts so a price change lands here too. */
+const [hairBase, hairLarge] = getPackage("hair").tiers;
 
 export const northLocations: LocationInput[] = [
   {
@@ -9,9 +13,9 @@ export const northLocations: LocationInput[] = [
     publishedAt: "2026-09-24",
     updatedAt,
     title: "Hair Transplant Manchester: Local Clinics, Turkey or London?",
-    seoTitle: "Hair Transplant Manchester: Local, Turkey or London",
+    seoTitle: "Hair Transplant Manchester: Cost, Turkey or London",
     description:
-      "From Manchester, the real choice is often a local clinic, a flight to Istanbul or two hours on the train to Euston. How each route plays out for Greater Manchester patients.",
+      `Comparing hair transplant costs from Manchester: a local clinic, a flight to Istanbul or two hours on the train to Euston, and what each route involves.`,
     lead: "Greater Manchester has one of the busiest hair transplant markets outside London, and its airport puts Istanbul a single flight away. That makes Manchester unusual: London is often the third option people think of, not the first. Here is how the three routes compare from Piccadilly, Stockport or Salford, and what the London trip involves if you add it to your shortlist.",
     heroChips: ["Three routes from one city", "Avanti to Euston in about 2h 10m", "Metrolink-friendly planning"],
     cards: [
@@ -60,6 +64,11 @@ export const northLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "How much does a hair transplant cost from Manchester?",
+        answer:
+          `Manchester quotes vary widely and are often priced per graft, so ask every clinic for one written figure that covers the whole plan. Our London package for up to ${formatGrafts(hairBase.maxGrafts)} grafts is ${formatPrice(hairBase.fue)} with Sapphire FUE or ${formatPrice(hairBase.dhi)} with DHI, including post-operative medication, an aftercare pack and one PRP session, with the band confirmed at consultation. Add the return train from Piccadilly, and a hotel night if you want one, before setting it against a local or Istanbul quote.`,
+      },
       {
         question: "Is a Manchester clinic cheaper than going to London?",
         answer:
@@ -429,9 +438,9 @@ export const northLocations: LocationInput[] = [
     publishedAt: "2026-09-26",
     updatedAt,
     title: "Hair Transplant York: Comparing Local, Leeds and London Options",
-    seoTitle: "Hair Transplant York: Local, Leeds and London",
+    seoTitle: "Hair Transplant York: Cost, Leeds or London",
     description:
-      "York sits on the East Coast Main Line, so London can be quicker to reach than you might expect. How York and North Yorkshire patients can compare Leeds, local and London options.",
+      `What a hair transplant costs from York, and how North Yorkshire patients can compare Leeds, local and London options using the fast East Coast line.`,
     lead: "York does not have the size of Leeds, so many patients here look at clinics a short train ride away. What York does have is a fast, frequent line to London, which often makes King's Cross quicker to reach than people assume. This guide covers how to build a realistic shortlist from York and the surrounding area.",
     heroChips: ["On the East Coast Main Line", "London in under two hours", "Leeds around 25 minutes"],
     cards: [
@@ -480,6 +489,11 @@ export const northLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "What does a hair transplant cost for a York patient?",
+        answer:
+          `Clinics in York and Leeds often quote per graft, which makes their figures hard to line up. Our fixed London price starts at ${formatPrice(hairBase.fue)} for Sapphire FUE up to ${formatGrafts(hairBase.maxGrafts)} grafts and is ${formatPrice(hairLarge.fue)} up to ${formatGrafts(hairLarge.maxGrafts)}, and which band applies is only settled once your donor area has been assessed. LNER fares to King's Cross change a lot with the time of day, so price the journey before deciding which option works out cheaper.`,
+      },
       {
         question: "Is London really under two hours from York?",
         answer:

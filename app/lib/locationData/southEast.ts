@@ -1,6 +1,10 @@
+import { formatGrafts, formatPrice, getPackage } from "@/app/lib/pricing";
 import type { LocationInput } from "./types";
 
 const updatedAt = "2026-11-16";
+
+/** Published London prices, read from pricing.ts so a price change lands here too. */
+const [hairBase, hairLarge] = getPackage("hair").tiers;
 
 export const southEastLocations: LocationInput[] = [
   {
@@ -325,6 +329,11 @@ export const southEastLocations: LocationInput[] = [
     ],
     faq: [
       {
+        question: "Can a consultation cover hair loss treatment as well as transplants?",
+        answer:
+          `Yes. Not everyone looking for a hair loss clinic in Reading needs surgery, and a consultation should say honestly whether non-surgical support such as PRP ought to come first. Because Paddington is so close, it is easy to have that assessment now and decide on a transplant later, if at all.`,
+      },
+      {
         question: "How quick is the train from Reading to London?",
         answer:
           "The fastest direct trains to Paddington take around 25 minutes. The Elizabeth line takes longer but runs straight through central London without a change.",
@@ -504,6 +513,11 @@ export const southEastLocations: LocationInput[] = [
       },
     ],
     faq: [
+      {
+        question: "Is a transplant the only option for hair loss in Cambridge?",
+        answer:
+          `No. If your thinning is early or still active, a non-surgical treatment such as PRP may be the better first step, and a good consultation will tell you so. A London assessment is under an hour from Cambridge, so it can weigh up both routes before you commit to surgery.`,
+      },
       {
         question: "How long does it take to get from Cambridge to London?",
         answer:
