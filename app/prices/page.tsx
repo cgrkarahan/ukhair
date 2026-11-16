@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AssessmentSection from "@/app/components/AssessmentSection";
+import GraftEstimator from "@/app/components/GraftEstimator";
+import PageHero from "@/app/components/PageHero";
 import { IconBadge, type SiteIconName } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import {
@@ -230,50 +232,58 @@ export default function PricesPage() {
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="page-hero rounded-[40px] border border-[rgba(192,213,214,0.12)] p-6 sm:p-8 lg:p-10">
-          <p className="text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
-            Our prices
-          </p>
-          <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-6xl">
-            Hair transplant prices and packages
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
-            Fixed London prices, set by treatment, technique, and graft range rather than
-            a per-graft rate. {inclusionsSentence} Your band is confirmed in writing at a
-            free consultation.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2.5">
-            {[
-              `Sapphire FUE from ${formatPrice(hair.tiers[0].fue)}`,
-              `DHI from ${formatPrice(hair.tiers[0].dhi)}`,
-              `Up to ${formatGrafts(hair.tiers[1].maxGrafts)} grafts from ${formatPrice(hair.tiers[1].fue)}`,
-              `Turkiye from ${formatPrice(turkiyeFromPrice)}`,
-            ].map((chip) => (
-              <span
-                key={chip}
-                className="rounded-full border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] px-3.5 py-2 text-sm text-white/78"
-              >
-                {chip}
-              </span>
-            ))}
-          </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/assessment"
-              className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
-            >
-              Book free consultation
-            </Link>
-            <Link
-              href="/hair-transplant-cost-london"
-              className="inline-flex rounded-full border border-[rgba(192,213,214,0.28)] bg-[rgba(244,247,246,0.92)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-[color:var(--surface-paper)]"
-            >
-              How our prices compare
-            </Link>
-          </div>
-        </section>
+        <PageHero
+          breadcrumbs={[
+            { name: "Home", path: "/" },
+            { name: "Prices", path: "/prices" },
+          ]}
+          eyebrow="Our prices"
+          title="Hair transplant prices and packages"
+          lead={
+            <p>
+              Fixed London prices, set by treatment, technique and graft range rather
+              than a per-graft rate. {inclusionsSentence} Your band is confirmed in
+              writing at a free consultation.
+            </p>
+          }
+          secondaryCta={{ href: "#estimate", label: "Estimate my band" }}
+          priceLine={
+            <>
+              Considering Turkey? Our curated route starts from{" "}
+              {formatPrice(turkiyeFromPrice)}.{" "}
+              <Link href="/uk-vs-turkey-hair-transplant" className="font-semibold underline underline-offset-4">
+                UK vs Turkey compared
+              </Link>
+            </>
+          }
+          visual={
+            <div className="rounded-[26px] border border-[color:var(--line-soft)] bg-white/80 p-5 sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
+                Starting prices, London
+              </p>
+              <dl className="mt-4 divide-y divide-[color:var(--line-soft)]">
+                {londonPackages.map((pkg) => (
+                  <div key={pkg.id} className="flex items-baseline justify-between gap-4 py-3">
+                    <dt className="text-sm text-[color:var(--ink-800)]">
+                      {pkg.name}
+                      <span className="block text-xs text-[color:var(--ink-600)]">
+                        Up to {formatGrafts(pkg.tiers[0].maxGrafts)} grafts
+                      </span>
+                    </dt>
+                    <dd className="font-display text-3xl text-[color:var(--ink-950)]">
+                      {formatPrice(pkg.tiers[0].fue)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="mt-3 text-xs leading-5 text-[color:var(--ink-600)]">
+                Sapphire FUE shown. DHI from {formatPrice(hair.tiers[0].dhi)}.
+              </p>
+            </div>
+          }
+        />
 
         <section className="grid gap-5 lg:grid-cols-3">
           {londonPackages.map((pkg) => {
@@ -329,41 +339,21 @@ export default function PricesPage() {
         </section>
 
         <section
-          id="which-band"
-          className="rounded-[34px] border border-[rgba(8,58,79,0.08)] bg-[color:var(--surface-subtle)] p-6 text-[color:var(--ink-950)] sm:p-8"
+          id="estimate"
+          className="scroll-mt-28 rounded-[32px] surface-light p-6 text-[color:var(--ink-950)] sm:p-8"
         >
           <div className="max-w-3xl">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               How many grafts do I need?
             </p>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl">Which band will I need?</h2>
-            <p className="mt-4 text-sm leading-7">
-              A rough guide to where common concerns usually fall. Your actual graft
-              range, and so your band, is set by an assessment of your hair and donor
-              area, not by this table.
+            <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)]">
+              Answer three quick questions for a rough guide. Your actual graft range, and
+              so your band, is set by an assessment of your hair and donor area.
             </p>
           </div>
-          <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[520px] border-separate border-spacing-0 text-sm">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
-                    <th className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-medium">Your concern</th>
-                    <th className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-medium">Package</th>
-                    <th className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-medium">Usual band</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bandGuide.map((row) => (
-                    <tr key={row.concern}>
-                      <td className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 font-semibold">{row.concern}</td>
-                      <td className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 text-[color:var(--ink-700)]">{row.pkg}</td>
-                      <td className="border-b border-[rgba(8,58,79,0.1)] px-3 py-3 text-[color:var(--ink-700)]">{row.band}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+            <GraftEstimator sourceLabel="prices" />
             <div>
               <p className="font-display text-2xl">What decides your graft count</p>
               <ul className="mt-4 space-y-3 text-sm leading-7 text-[color:var(--ink-700)]">
@@ -374,33 +364,42 @@ export default function PricesPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/assessment"
-                className="mt-6 inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
-              >
-                Get your band confirmed free
-              </Link>
+              <details id="which-band" className="mt-6 rounded-[20px] border border-[color:var(--line-soft)] bg-white/70 p-4">
+                <summary className="cursor-pointer text-sm font-semibold">
+                  See every concern and its usual band
+                </summary>
+                <ul className="mt-3 divide-y divide-[color:var(--line-soft)] text-sm">
+                  {bandGuide.map((row) => (
+                    <li key={row.concern} className="py-2.5">
+                      <span className="font-semibold">{row.concern}</span>
+                      <span className="block text-[color:var(--ink-700)]">
+                        {row.pkg}: {row.band}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
           </div>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+          <section className="rounded-[34px] surface-light p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               Included in every package
             </p>
-            <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
               The price covers more than treatment day.
             </h2>
-            <ul className="mt-6 space-y-3 text-sm leading-7 text-white/72">
+            <ul className="mt-6 space-y-3 text-sm leading-7 text-[color:var(--ink-800)]">
               {packageInclusions.map((item) => (
                 <li key={item} className="flex gap-3">
-                  <IconBadge name="shield-check" tone="dark" size="sm" />
+                  <IconBadge name="shield-check" tone="light" size="sm" />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-sm leading-7 text-white/60">
+            <p className="mt-6 text-sm leading-7 text-[color:var(--ink-600)]">
               Your written quote lists exactly what is included before you book, so you can
               compare it line by line against any other quote you have.
             </p>
@@ -474,25 +473,25 @@ export default function PricesPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+          <section className="rounded-[34px] surface-light p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               How your price is confirmed
             </p>
             <div className="mt-6 grid gap-4">
               {confirmSteps.map((step, index) => (
                 <div key={step.title} className="flex items-start gap-4">
-                  <IconBadge name={step.icon} tone="dark" />
+                  <IconBadge name={step.icon} tone="light" />
                   <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-[color:var(--gold-300)]/70">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
                       Step {index + 1}
                     </p>
-                    <p className="mt-1 font-display text-2xl text-white">{step.title}</p>
-                    <p className="mt-1 text-sm leading-7 text-white/68">{step.text}</p>
+                    <p className="mt-1 font-display text-2xl text-[color:var(--ink-950)]">{step.title}</p>
+                    <p className="mt-1 text-sm leading-7 text-[color:var(--ink-700)]">{step.text}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="mt-6 text-sm leading-7 text-white/60">
+            <p className="mt-6 text-sm leading-7 text-[color:var(--ink-600)]">
               Prices apply to eligible cases confirmed at consultation. Cases beyond the
               largest band, or where the donor area cannot safely supply the grafts needed,
               are discussed individually.
@@ -523,23 +522,23 @@ export default function PricesPage() {
           </section>
         </section>
 
-        <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+        <section className="rounded-[34px] surface-light p-6 sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Turkiye route
           </p>
-          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
             Considering Turkey? Our curated route starts from {formatPrice(turkiyeFromPrice)}.
           </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-[color:var(--ink-700)]">
             The Turkiye route is priced separately from the London packages above. The
             lower headline price comes with different trade-offs around travel, what you can
             verify in person, and follow-up, which our comparison sets out properly.
           </p>
-          <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold">
-            <Link href="/uk-vs-turkey-hair-transplant" className="text-white underline-offset-4 hover:underline">
+          <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold text-[color:var(--ink-950)]">
+            <Link href="/uk-vs-turkey-hair-transplant" className="underline-offset-4 hover:underline">
               UK vs Turkey compared
             </Link>
-            <Link href="/why-turkiye" className="text-white underline-offset-4 hover:underline">
+            <Link href="/why-turkiye" className="underline-offset-4 hover:underline">
               Why Turkiye
             </Link>
           </div>
@@ -552,20 +551,20 @@ export default function PricesPage() {
           intro="Share your concern and a few photos. The team replies the same working day and confirms your graft range, technique, and price in writing after your free consultation."
         />
 
-        <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
-          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+        <section className="rounded-[34px] surface-light p-6 sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Frequently asked questions
           </p>
-          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
             Questions about our prices.
           </h2>
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
+          <div className="mt-8 grid gap-3 lg:grid-cols-2">
             {faq.map((item) => (
-              <details key={item.question} className="panel-dark rounded-[24px] border p-5">
-                <summary className="cursor-pointer text-base font-semibold text-white">
+              <details key={item.question} className="rounded-[20px] border border-[color:var(--line-soft)] bg-white/75 p-5">
+                <summary className="cursor-pointer text-base font-semibold text-[color:var(--ink-950)]">
                   {item.question}
                 </summary>
-                <p className="mt-3 text-sm leading-7 text-white/68">{item.answer}</p>
+                <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">{item.answer}</p>
               </details>
             ))}
           </div>

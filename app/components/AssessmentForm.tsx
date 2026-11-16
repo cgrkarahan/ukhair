@@ -20,7 +20,47 @@ import {
 } from "@/app/lib/tracking";
 
 const MAX_PHOTOS = 4;
-const MAX_PHOTO_SIZE_MB = 8;
+// Phone photos are usually 2-5MB. They are resized in the browser before
+// sending, so 4 photos fit well inside the server's request limit.
+const MAX_PHOTO_SIZE_MB = 20;
+const MAX_PHOTO_EDGE = 1600;
+const MAX_TOTAL_UPLOAD_BYTES = 3.5 * 1024 * 1024;
+
+async function shrinkPhoto(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.size < 400 * 1024) {
+    return file;
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      return file;
+    }
+
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.82),
+    );
+
+    if (!blob || blob.size >= file.size) {
+      return file;
+    }
+
+    const name = file.name.replace(/\.[^.]+$/, "") || "photo";
+    return new File([blob], `${name}.jpg`, { type: "image/jpeg" });
+  } catch {
+    // Formats the browser cannot decode (e.g. HEIC outside Safari) are sent as they are.
+    return file;
+  }
+}
 
 type AssessmentFormProps = {
   formId?: string;
@@ -53,6 +93,7 @@ export default function AssessmentForm({
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [photoNames, setPhotoNames] = useState<string[]>([]);
   const [photoError, setPhotoError] = useState("");
+  const [preparingPhotos, setPreparingPhotos] = useState(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const questions = useMemo(
     () => [
@@ -94,6 +135,18 @@ export default function AssessmentForm({
 
   useEffect(() => () => clearTimeout(advanceTimer.current), []);
 
+  // The graft estimator links here with ?concern=..., so the first question is
+  // already answered and the visitor starts on question two.
+  useEffect(() => {
+    const concern = new URLSearchParams(window.location.search).get("concern");
+
+    if (concern && questions[0].options.includes(concern)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAnswers((current) => ({ ...current, primaryConcern: concern }));
+      setScreen(1);
+    }
+  }, [questions]);
+
   function goToScreen(next: number) {
     clearTimeout(advanceTimer.current);
     markStarted();
@@ -117,12 +170,13 @@ export default function AssessmentForm({
     advanceTimer.current = setTimeout(() => goToScreen(index + 1), 250);
   }
 
-  function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []);
+  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+    const input = event.target;
+    const files = Array.from(input.files ?? []);
 
     if (files.length > MAX_PHOTOS) {
       setPhotoError(`Please choose up to ${MAX_PHOTOS} photos.`);
-      event.target.value = "";
+      input.value = "";
       setPhotoNames([]);
       return;
     }
@@ -133,13 +187,37 @@ export default function AssessmentForm({
 
     if (oversized) {
       setPhotoError(`${oversized.name} is over ${MAX_PHOTO_SIZE_MB}MB. Please choose a smaller photo.`);
-      event.target.value = "";
+      input.value = "";
       setPhotoNames([]);
       return;
     }
 
     setPhotoError("");
-    setPhotoNames(files.map((file) => file.name));
+    setPreparingPhotos(true);
+
+    const prepared = await Promise.all(files.map(shrinkPhoto));
+    const total = prepared.reduce((sum, file) => sum + file.size, 0);
+
+    if (total > MAX_TOTAL_UPLOAD_BYTES) {
+      setPreparingPhotos(false);
+      setPhotoError(
+        "These photos are too large to send together. Please choose fewer photos, or send them on WhatsApp instead.",
+      );
+      input.value = "";
+      setPhotoNames([]);
+      return;
+    }
+
+    try {
+      const transfer = new DataTransfer();
+      prepared.forEach((file) => transfer.items.add(file));
+      input.files = transfer.files;
+    } catch {
+      // Older browsers without DataTransfer keep the original files.
+    }
+
+    setPreparingPhotos(false);
+    setPhotoNames(prepared.map((file) => file.name));
   }
 
   useEffect(() => {
@@ -343,8 +421,11 @@ export default function AssessmentForm({
             />
           </label>
           <p className="mt-2 text-xs text-[color:var(--ink-600)]">
-            Up to {MAX_PHOTOS} photos, {MAX_PHOTO_SIZE_MB}MB each. JPG or PNG works best.
+            Up to {MAX_PHOTOS} photos. Large phone photos are resized automatically before sending.
           </p>
+          {preparingPhotos ? (
+            <p className="mt-2 text-xs text-[color:var(--ink-800)]">Preparing photos…</p>
+          ) : null}
           {photoNames.length > 0 ? (
             <p className="mt-2 text-xs text-[color:var(--ink-800)]">
               Attached: {photoNames.join(", ")}

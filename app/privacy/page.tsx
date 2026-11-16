@@ -16,14 +16,14 @@ export default function PrivacyPage() {
         id="main"
         className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-5 pb-28 pt-10 lg:px-8 lg:pt-14"
       >
-        <section className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+        <section className="surface-light rounded-[38px] p-6 text-[color:var(--ink-950)] sm:p-8 lg:p-10">
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Privacy Policy
           </p>
-          <h1 className="mt-3 font-display text-4xl text-white">
+          <h1 className="mt-3 font-display text-4xl text-[color:var(--ink-950)]">
             Privacy and assessment data
           </h1>
-          <div className="mt-6 space-y-6 text-sm leading-7 text-white/68 sm:text-base">
+          <div className="mt-6 space-y-6 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
             <p>
               When you submit an assessment request, we collect the information you enter
               in the form so the team can respond about your enquiry. This may include your

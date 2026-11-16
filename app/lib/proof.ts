@@ -30,6 +30,13 @@ export type ApprovedProofCase = {
 export type ApprovedReview = {
   name: string;
   quote: string;
+  /**
+   * True when `quote` is the reviewer's own words, copied exactly. Summaries
+   * (false or omitted) are shown as summaries, never inside quotation marks.
+   */
+  verbatim?: boolean;
+  /** Public link to the original review, when it can be shown. */
+  reviewUrl?: string;
   rating?: number;
   treatmentArea?: string;
   sourceLabel?: string;

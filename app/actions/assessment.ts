@@ -10,7 +10,7 @@ const HONEYPOT_FIELD = "__ukhair_contact_check";
 const MARKETING_CONSENT_WORDING =
   "I agree to receive hair restoration guidance, clinic updates, and occasional consultation offers or discounts from UK Hair Transplant Co. I can unsubscribe at any time.";
 const MAX_PHOTOS = 4;
-const MAX_PHOTO_SIZE_BYTES = 8 * 1024 * 1024;
+const MAX_PHOTO_SIZE_BYTES = 4 * 1024 * 1024;
 
 function getValue(formData: FormData, key: keyof AssessmentSubmission | typeof HONEYPOT_FIELD) {
   const value = formData.get(key);

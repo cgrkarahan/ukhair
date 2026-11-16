@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Breadcrumbs from "@/app/components/Breadcrumbs";
 import SiteShell from "@/app/components/SiteShell";
 import { locationPageList } from "@/app/lib/locations";
 import { buildBreadcrumbSchema } from "@/app/lib/schema";
@@ -64,17 +65,18 @@ export default function LocationsPage() {
       />
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-5 pb-28 pt-10 lg:gap-12 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-5 pb-28 pt-8 lg:gap-12 lg:px-8 lg:pt-12"
       >
-        <section className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
+        <section className="hero-light rounded-[32px] p-6 text-[color:var(--ink-950)] sm:p-8 lg:p-10">
+          <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Locations", path: "/locations" }]} className="mb-6" />
           <div className="max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               UK city guides
             </p>
-            <h1 className="mt-3 font-display text-4xl text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-3 font-display text-4xl text-[color:var(--ink-950)] sm:text-5xl lg:text-6xl">
               Find the hair transplant guide for your city.
             </h1>
-            <p className="mt-5 max-w-3xl text-sm leading-7 text-white/70 sm:text-base">
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
               Start with your nearest city to understand the realistic local market,
               travel to London, treatment-day planning, and the checks worth making
               before you compare providers.
@@ -124,16 +126,16 @@ export default function LocationsPage() {
           })}
         </section>
 
-        <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
+        <section className="surface-light rounded-[34px] p-6 text-[color:var(--ink-950)] sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-3xl">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
                 London treatment
               </p>
-              <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+              <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
                 Comparing your city with London?
               </h2>
-              <p className="mt-3 text-sm leading-7 text-white/68 sm:text-base">
+              <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
                 Use the main London guide for treatment planning, standards, costs,
                 and the questions to ask before arranging a consultation.
               </p>

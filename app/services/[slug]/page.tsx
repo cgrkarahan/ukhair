@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AssessmentSection from "@/app/components/AssessmentSection";
+import PageHero from "@/app/components/PageHero";
+import ProofCaseCard from "@/app/components/ProofCaseCard";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { iconForHref, iconForServiceSlug } from "@/app/lib/iconography";
@@ -21,10 +23,17 @@ import {
 import { buildMetadata } from "@/app/lib/seo";
 import { serviceCatalog, type ServiceDetail } from "@/app/services/serviceData";
 import {
+  getProofCasesContent,
   getServiceCatalogContent,
   getServicePageContent,
   getTopicPagesContent,
 } from "@/sanity/lib/content";
+
+/** Which published result case to show at the top of each treatment page. */
+const serviceProofCase: Record<string, string> = {
+  "male-hair-transplant": "placeholder-hairline-case",
+  "female-hair-transplant": "placeholder-female-case",
+};
 
 type ServicePageProps = {
   params: Promise<{ slug: string }>;
@@ -54,7 +63,6 @@ const serviceHeroPanels: Record<string, ServiceHeroPanel> = {
   "male-hair-transplant": {
     eyebrow: "Premium London Hair Transplant Price",
     value: formatPrice(getPackage("hair").tiers[0].fue),
-    compareValue: "£4500",
     body: `Fixed price for eligible cases: ${describePackage("hair")}`,
     note: inclusionsSentence,
   },
@@ -148,16 +156,25 @@ export default async function ServicePage({ params }: ServicePageProps) {
     notFound();
   }
 
-  const [services, allTopicPages] = await Promise.all([
+  const [services, allTopicPages, proofCases] = await Promise.all([
     getServiceCatalogContent(),
     getTopicPagesContent(),
+    getProofCasesContent(),
   ]);
+  const heroCase = proofCases.find(
+    (proofCase) => proofCase.slug === serviceProofCase[service.slug],
+  );
   const relatedServices = services.filter((entry) => entry.slug !== service.slug);
   const relatedGuides = service.relatedGuideSlugs
     .map((guideSlug) => allTopicPages.find((page) => page.slug === guideSlug))
     .filter((page): page is (typeof allTopicPages)[number] => Boolean(page));
   const serviceFaqs = buildServiceFaqs(service);
   const heroPanel = serviceHeroPanels[service.slug];
+  const breadcrumbs = [
+    { name: "Home", path: "/" },
+    { name: "Treatments", path: "/services" },
+    { name: service.title, path: `/services/${service.slug}` },
+  ];
 
   const structuredData = compactSchemaList([
     buildMedicalWebPageSchema({
@@ -166,11 +183,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
       description: service.seoDescription,
       images: [{ src: service.imageSrc, alt: service.imageAlt }],
     }),
-    buildBreadcrumbSchema([
-      { name: "Home", path: "/" },
-      { name: "Services", path: "/services" },
-      { name: service.title, path: `/services/${service.slug}` },
-    ]),
+    buildBreadcrumbSchema(breadcrumbs),
     buildFaqSchema(serviceFaqs),
   ]);
 
@@ -186,271 +199,152 @@ export default async function ServicePage({ params }: ServicePageProps) {
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="page-hero relative overflow-hidden rounded-[40px] border border-[rgba(192,213,214,0.12)] p-6 sm:p-8 lg:p-10">
-          <div className="absolute inset-0">
-            <Image
-              src={service.imageSrc}
-              alt={service.imageAlt}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,58,79,0.96)_0%,rgba(8,58,79,0.9)_34%,rgba(8,58,79,0.72)_58%,rgba(8,58,79,0.84)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_36%,rgba(64,126,140,0.34),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(192,213,214,0.1),transparent_22%)]" />
-          </div>
-
-          <div className="relative z-10 grid gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-end">
-            <div>
-              {heroPanel ? (
-                <div className="mb-8 w-full max-w-[37.5rem] rounded-[28px] border border-[rgba(165,141,102,0.28)] bg-[linear-gradient(145deg,rgba(165,141,102,0.22),rgba(165,141,102,0.08))] p-5 shadow-[0_24px_60px_rgba(8,58,79,0.24)] backdrop-blur-sm">
-                  <p className="text-[11px] uppercase tracking-[0.32em] text-[color:var(--gold-300)]/84">
-                    {heroPanel.eyebrow}
-                  </p>
-                  {"value" in heroPanel ? (
-                    <div className="mt-3 flex items-end gap-3">
-                      <p className="font-display text-5xl leading-none text-white sm:text-6xl">
-                        {heroPanel.value}
-                      </p>
-                      {heroPanel.compareValue ? (
-                        <p className="pb-1 text-sm text-white/56 line-through">
-                          {heroPanel.compareValue}
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : (
-                    <h2 className="mt-3 max-w-[24rem] font-display text-3xl leading-tight text-white sm:text-4xl">
-                      {heroPanel.headline}
-                    </h2>
-                  )}
-                  <p className="mt-3 text-sm leading-7 text-white/80">
-                    {heroPanel.body}
-                  </p>
-                  <p className="mt-3 text-xs leading-6 text-white/52">
-                    {heroPanel.note}
-                  </p>
-                  {"value" in heroPanel ? (
-                    <Link
-                      href="/prices"
-                      className="mt-3 inline-flex text-sm font-semibold text-[color:var(--gold-300)] underline-offset-4 hover:underline"
-                    >
-                      See all prices
-                    </Link>
-                  ) : null}
-                </div>
-              ) : null}
-              <Link
-                href="/#services"
-                className="inline-flex text-sm text-white/64 transition hover:text-white"
-              >
-                ← Back to treatments
-              </Link>
-              <p className="mt-5 text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
-                {service.badge}
-              </p>
-              <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-6xl">
-                {service.seoTitle}
-              </h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
-                {service.intro}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2.5">
-                {service.highlights.map((highlight) => (
-                  <span
-                    key={highlight.title}
-                    className="rounded-full border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] px-3.5 py-2 text-sm text-white/78"
-                  >
-                    {highlight.title}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/assessment"
-                  className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
-                >
-                  Book free consultation
-                </Link>
-                <Link
-                  href="/our-clinical-standards"
-                  className="inline-flex rounded-full border border-[rgba(192,213,214,0.28)] bg-[rgba(244,247,246,0.92)] px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] shadow-[0_18px_40px_rgba(6,47,64,0.18)] transition hover:border-[rgba(192,213,214,0.36)] hover:bg-[color:var(--surface-paper)]"
-                >
-                  Review clinical standards
-                </Link>
-              </div>
-            </div>
-
-            <div className="grid gap-4">
-              <div className="rounded-[30px] border border-[color:var(--line-soft)] bg-[linear-gradient(180deg,rgba(244,247,246,0.94),rgba(232,238,237,0.88))] p-5 shadow-[0_18px_42px_rgba(6,47,64,0.08)]">
-                <div className="flex items-start gap-4">
-                  <IconBadge name="compass" tone="light" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-500)]">
-                      Best for
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">{service.bestFor}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5">
-                <div className="flex items-start gap-4">
-                  <IconBadge name="sparkles" tone="dark" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                      Expected outcome
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-white/72">{service.outcome}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5">
-                <div className="flex items-start gap-4">
-                  <IconBadge name="map-pin" tone="dark" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                      London context
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-white/72">
-                      Patients usually want London convenience, clear aftercare, and
-                      realistic planning to feel part of the overall care rather than
-                      added later.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-5 lg:grid-cols-[1.02fr_0.98fr]">
-          <section className="section-dark overflow-hidden rounded-[38px] p-6 text-white sm:p-8">
-            <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-              <div>
-                <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-                  Treatment overview
-                </p>
-                <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-                  {service.guideHeading}
-                </h2>
-                <div className="mt-6 space-y-5 text-sm leading-7 text-white/70 sm:text-base">
-                  {service.guideSections[0]?.body.map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
-                  ))}
-                </div>
-              </div>
-              <div className="relative min-h-[280px] overflow-hidden rounded-[30px] border border-[color:var(--line-inverse-soft)] bg-[rgba(192,213,214,0.12)]">
+        <PageHero
+          breadcrumbs={breadcrumbs}
+          eyebrow={service.badge}
+          title={service.seoTitle}
+          lead={service.intro}
+          chips={service.highlights.map((highlight) => highlight.title)}
+          secondaryCta={{ href: "/results", label: "See results" }}
+          priceLine={
+            heroPanel ? (
+              "value" in heroPanel ? (
+                <>
+                  <strong className="text-[color:var(--ink-950)]">From {heroPanel.value}</strong>{" "}
+                  · {heroPanel.body}{" "}
+                  <Link href="/prices" className="font-semibold text-[color:var(--ink-950)] underline underline-offset-4">
+                    All prices
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <strong className="text-[color:var(--ink-950)]">{heroPanel.headline}.</strong>{" "}
+                  {heroPanel.body}
+                </>
+              )
+            ) : null
+          }
+          visual={
+            heroCase ? (
+              <ProofCaseCard proofCase={heroCase} compact />
+            ) : (
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] border border-[color:var(--line-soft)]">
                 <Image
                   src={service.imageSrc}
                   alt={service.imageAlt}
                   fill
-                  sizes="(min-width: 1024px) 36vw, 100vw"
-                  className="object-cover"
                   priority
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="object-cover"
                 />
               </div>
-            </div>
-          </section>
+            )
+          }
+        />
 
-          <section className="rounded-[38px] border border-[color:var(--line-soft)] bg-[color:var(--ink-950)] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/82">
-              What the consultation should cover
+        <section aria-label="At a glance" className="grid gap-x-8 gap-y-6 md:grid-cols-3">
+          {[
+            { icon: "compass" as const, title: "Best for", text: service.bestFor },
+            { icon: "sparkles" as const, title: "Expected outcome", text: service.outcome },
+            {
+              icon: "clipboard-check" as const,
+              title: "What to bring",
+              text: "Daylight photos of the front, temples, crown and donor area, your main concern, and whether you would consider Turkey later.",
+            },
+          ].map((item) => (
+            <div key={item.title} className="flex items-start gap-4">
+              <IconBadge name={item.icon} tone="light" size="sm" />
+              <div className="min-w-0">
+                <h2 className="font-display text-xl text-[color:var(--ink-950)]">{item.title}</h2>
+                <p className="mt-2 text-sm leading-7 text-[color:var(--ink-700)]">{item.text}</p>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
+              Treatment overview
             </p>
-            <ul className="mt-6 space-y-4 text-sm leading-7 text-white/70">
+            <h2 className="mt-3 text-balance font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
+              {service.guideHeading}
+            </h2>
+            <div className="mt-6 space-y-5 text-base leading-8 text-[color:var(--ink-700)]">
+              {service.guideSections[0]?.body.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+          <div className="surface-light rounded-[24px] p-6 sm:p-7">
+            <h2 className="font-display text-2xl text-[color:var(--ink-950)]">
+              What the consultation should cover
+            </h2>
+            <ul className="mt-5 space-y-4 text-sm leading-7 text-[color:var(--ink-700)]">
               {service.consultation.map((item, index) => (
                 <li key={item} className="flex gap-3">
                   <IconBadge
                     name={index === 0 ? "clipboard-check" : index === 1 ? "route" : "shield-check"}
-                    tone="dark"
+                    tone="light"
                     size="sm"
                   />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <div className="mt-8 rounded-[28px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5">
-              <div className="flex items-start gap-4">
-                <IconBadge name="message-dots" tone="dark" />
-                <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                    Free consultation
-                  </p>
-                  <p className="mt-3 text-sm leading-7 text-white/70">
-                    A strong first consultation request includes case photos, your main
-                    concern, whether you want London only or may consider Turkey later,
-                    and what matters most to you: subtlety, density, recovery time, or
-                    cost clarity.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
+          </div>
         </section>
 
-        <section className="grid gap-5 lg:grid-cols-3">
-          {service.londonContext.map((item, index) => (
-            <article
-              key={`${service.slug}-context-${index}`}
-              className="section-dark rounded-[30px] p-6 text-white"
-            >
-              <div className="flex items-start gap-4">
-                <IconBadge name="map-pin" tone="dark" />
-                <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                    Why patients consider London
-                  </p>
-                  <p className="mt-4 text-sm leading-7 text-white/68">{item}</p>
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="min-w-0 space-y-10">
+            {service.guideSections.slice(1).map((section) => (
+              <article key={`${service.slug}-${section.title}`}>
+                <h2 className="font-display text-3xl text-[color:var(--ink-950)]">{section.title}</h2>
+                <div className="mt-4 space-y-4 text-base leading-8 text-[color:var(--ink-700)]">
+                  {section.body.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
                 </div>
-              </div>
-            </article>
-          ))}
-        </section>
+              </article>
+            ))}
+            {service.londonContext.length ? (
+              <article>
+                <h2 className="font-display text-3xl text-[color:var(--ink-950)]">
+                  Why patients choose London for this
+                </h2>
+                <ul className="mt-4 space-y-3 text-base leading-8 text-[color:var(--ink-700)]">
+                  {service.londonContext.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span className="mt-3 h-2 w-2 shrink-0 rounded-full bg-[color:var(--gold-500)]" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ) : null}
+          </div>
 
-        <section className="grid gap-6 lg:grid-cols-[1.04fr_0.96fr]">
-          <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-              Planning and execution
-            </p>
-            <div className="mt-8 space-y-8">
-              {service.guideSections.slice(1).map((section) => (
-                <article key={`${service.slug}-${section.title}`}>
-                  <h2 className="font-display text-3xl text-white">
-                    {section.title}
-                  </h2>
-                  <div className="mt-4 space-y-4 text-sm leading-7 text-white/68 sm:text-base">
-                    {section.body.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <div className="grid gap-6">
-            <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
-              <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-                What to ask before booking
-              </p>
-              <ul className="mt-6 space-y-4 text-sm leading-7 text-white/68">
+          <div className="grid content-start gap-6">
+            <section className="surface-light rounded-[24px] p-6 sm:p-7">
+              <h2 className="font-display text-2xl text-[color:var(--ink-950)]">What to ask before booking</h2>
+              <ul className="mt-5 space-y-4 text-sm leading-7 text-[color:var(--ink-700)]">
                 {service.selectionCriteria.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <IconBadge name="shield-check" tone="dark" size="sm" />
+                    <IconBadge name="shield-check" tone="light" size="sm" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </section>
 
-            <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
-              <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-                Recovery considerations
-              </p>
-              <ul className="mt-6 space-y-4 text-sm leading-7 text-white/68">
+            <section className="surface-light rounded-[24px] p-6 sm:p-7">
+              <h2 className="font-display text-2xl text-[color:var(--ink-950)]">Recovery</h2>
+              <ul className="mt-5 space-y-4 text-sm leading-7 text-[color:var(--ink-700)]">
                 {service.recoveryNotes.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <IconBadge name="clock" tone="dark" size="sm" />
+                    <IconBadge name="clock" tone="light" size="sm" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -466,84 +360,61 @@ export default async function ServicePage({ params }: ServicePageProps) {
           intro="Send the details that matter most to your case: your concern, timing, any useful location context, and the kind of result you want to discuss."
         />
 
-        <section className="grid gap-6 lg:grid-cols-[0.98fr_1.02fr]">
-          <section className="rounded-[38px] border border-[color:var(--line-soft)] bg-[color:var(--ink-950)] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/82">
-              Read next
-            </p>
-            <h2 className="mt-4 font-display text-3xl sm:text-4xl">
-              Read what patients usually want to know next.
-            </h2>
-            <div className="mt-8 grid gap-4">
+        <section className="grid gap-8 lg:grid-cols-[0.98fr_1.02fr]">
+          <div>
+            <h2 className="font-display text-3xl text-[color:var(--ink-950)]">Read next</h2>
+            <div className="mt-6 grid gap-3">
               {relatedGuides.map((guide) => (
                 <Link
                   key={`${service.slug}-guide-${guide.slug}`}
                   href={`/${guide.slug}`}
-                  className="rounded-[26px] border border-[rgba(8,58,79,0.08)] bg-[color:var(--surface-subtle)] p-5 shadow-[0_18px_40px_rgba(6,47,64,0.08)] transition hover:-translate-y-0.5 hover:border-[rgba(8,58,79,0.14)] hover:bg-[color:var(--surface-paper)]"
+                  className="surface-light group flex items-start gap-4 rounded-[20px] p-5 transition hover:border-[color:var(--line-strong)] hover:bg-white"
                 >
-                  <div className="flex items-start gap-4">
-                    <IconBadge name={iconForHref(`/${guide.slug}`)} tone="light" />
-                    <div>
-                      <p className="font-display text-2xl text-[color:var(--ink-950)]">
-                        {guide.title}
-                      </p>
-                      <p className="mt-3 text-sm leading-7 text-[color:var(--ink-950)]">
-                        {guide.description}
-                      </p>
-                    </div>
+                  <IconBadge name={iconForHref(`/${guide.slug}`)} tone="light" size="sm" />
+                  <div className="min-w-0">
+                    <p className="font-display text-xl text-[color:var(--ink-950)] group-hover:underline group-hover:underline-offset-4">
+                      {guide.title}
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-[color:var(--ink-700)]">{guide.description}</p>
                   </div>
                 </Link>
               ))}
             </div>
-          </section>
+          </div>
 
-          <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-              Frequently asked questions
-            </p>
-            <h2 className="mt-4 font-display text-3xl text-white sm:text-4xl">
-              Questions patients ask before moving forward.
-            </h2>
-            <div className="mt-8 space-y-4">
+          <div>
+            <h2 className="font-display text-3xl text-[color:var(--ink-950)]">Questions about this treatment</h2>
+            <div className="mt-6 divide-y divide-[color:var(--line-soft)] border-y border-[color:var(--line-soft)]">
               {serviceFaqs.map((item) => (
-                <details
-                  key={item.question}
-                  className="rounded-[24px] border border-[rgba(8,58,79,0.08)] bg-[color:var(--surface-subtle)] p-5 shadow-[0_18px_40px_rgba(6,47,64,0.08)]"
-                >
-                  <summary className="cursor-pointer text-base font-semibold text-[color:var(--ink-950)]">
-                    {item.question}
+                <details key={item.question} className="group py-4">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-base font-semibold text-[color:var(--ink-950)] marker:content-none">
+                    <span>{item.question}</span>
+                    <span aria-hidden="true" className="mt-0.5 text-[color:var(--ink-600)] transition group-open:rotate-45">
+                      +
+                    </span>
                   </summary>
-                  <p className="mt-3 text-sm leading-7 text-[color:var(--ink-950)]">
-                    {item.answer}
-                  </p>
+                  <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">{item.answer}</p>
                 </details>
               ))}
             </div>
-          </section>
+          </div>
         </section>
 
-        <section className="section-dark rounded-[38px] p-6 text-white sm:p-8">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
-            Explore other treatments
-          </p>
-          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-            Other treatments patients often compare.
-          </h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <section>
+          <h2 className="font-display text-3xl text-[color:var(--ink-950)]">Other treatments</h2>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {relatedServices.map((entry) => (
               <Link
                 key={entry.slug}
                 href={`/services/${entry.slug}`}
-                className="panel-dark rounded-[26px] p-5 transition hover:-translate-y-0.5 hover:border-[color:var(--line-inverse-strong)] hover:bg-[rgba(192,213,214,0.12)]"
+                className="surface-light group flex items-start gap-4 rounded-[20px] p-5 transition hover:border-[color:var(--line-strong)] hover:bg-white"
               >
-                <div className="flex items-start gap-4">
-                  <IconBadge name={iconForServiceSlug(entry.slug)} tone="dark" />
-                  <div>
-                    <p className="font-display text-2xl text-white">{entry.title}</p>
-                    <p className="mt-3 text-sm leading-7 text-white/68">
-                      {entry.shortDescription}
-                    </p>
-                  </div>
+                <IconBadge name={iconForServiceSlug(entry.slug)} tone="light" size="sm" />
+                <div className="min-w-0">
+                  <p className="font-display text-xl text-[color:var(--ink-950)] group-hover:underline group-hover:underline-offset-4">
+                    {entry.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[color:var(--ink-700)]">{entry.shortDescription}</p>
                 </div>
               </Link>
             ))}

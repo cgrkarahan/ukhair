@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import AssessmentSection from "@/app/components/AssessmentSection";
 import { IconBadge } from "@/app/components/SiteIcon";
+import PageHero from "@/app/components/PageHero";
 import SiteShell from "@/app/components/SiteShell";
 import { absoluteUrl, buildMetadata, siteName } from "@/app/lib/seo";
 
@@ -101,50 +101,57 @@ export default function HowWeWorkPage() {
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="page-hero rounded-[40px] border border-[rgba(192,213,214,0.12)] p-6 sm:p-8 lg:p-10">
-          <div className="max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
-              How we work
+        <PageHero
+          breadcrumbs={[
+            { name: "Home", path: "/" },
+            { name: "How we work", path: "/how-we-work" },
+          ]}
+          eyebrow="How we work"
+          title="Guidance first, then a clearer route into selected clinic pathways."
+          titleSize="md"
+          lead={
+            <p>
+              UK Hair Transplant Co helps patients understand hair transplant options,
+              compare clinic standards, prepare better consultation questions, and move
+              into a selected pathway where the case appears suitable.
             </p>
-            <h1 className="mt-4 font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-6xl">
-              Guidance first, then a clearer route into selected clinic pathways.
-            </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
-              UK Hair Transplant Co helps patients understand hair transplant
-              options, compare clinic standards, prepare better consultation
-              questions, and move into a selected pathway where the case appears
-              suitable.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                href="/assessment"
-                className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
-              >
-                Request assessment
-              </Link>
-              <Link
-                href="/our-clinical-standards"
-                className="inline-flex rounded-full border border-[rgba(192,213,214,0.18)] px-5 py-3 text-sm font-semibold text-white/86 transition hover:border-[rgba(192,213,214,0.3)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
-              >
-                Review standards
-              </Link>
-            </div>
-          </div>
-        </section>
+          }
+          secondaryCta={{ href: "/our-clinical-standards", label: "Review standards" }}
+          visual={
+            <ol className="grid gap-3">
+              {processSteps.map((step, index) => (
+                <li
+                  key={step.title}
+                  className="flex items-center gap-4 rounded-[20px] border border-[color:var(--line-soft)] bg-white/80 px-4 py-3"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--ink-950)] text-sm font-semibold text-white">
+                    {index + 1}
+                  </span>
+                  <span className="font-display text-xl text-[color:var(--ink-950)]">{step.title}</span>
+                </li>
+              ))}
+            </ol>
+          }
+        />
 
         <section className="grid gap-5 lg:grid-cols-4">
-          {processSteps.map((step) => (
+          {processSteps.map((step, index) => (
             <article
               key={step.title}
-              className="section-dark rounded-[34px] p-6 text-white"
+              className="rounded-[28px] surface-light p-6"
             >
-              <IconBadge name={step.icon} tone="dark" />
-              <h2 className="mt-5 font-display text-2xl text-white">
+              <div className="flex items-center gap-3">
+                <IconBadge name={step.icon} tone="light" />
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
+                  Step {index + 1}
+                </span>
+              </div>
+              <h2 className="mt-5 font-display text-2xl text-[color:var(--ink-950)]">
                 {step.title}
               </h2>
-              <p className="mt-4 text-sm leading-7 text-white/68">{step.body}</p>
+              <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)]">{step.body}</p>
             </article>
           ))}
         </section>
@@ -167,14 +174,14 @@ export default function HowWeWorkPage() {
             </ul>
           </section>
 
-          <section className="section-dark rounded-[36px] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+          <section className="rounded-[36px] border border-[color:var(--line-soft)] bg-[color:var(--surface-subtle)] p-6 sm:p-8">
+            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-500)]">
               Pricing and mediation
             </p>
-            <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
               Partner pricing is useful only when the plan is clear.
             </h2>
-            <div className="mt-5 space-y-4 text-sm leading-7 text-white/68 sm:text-base">
+            <div className="mt-5 space-y-4 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
               <p>
                 We may help patients access partner clinic pricing where it is
                 available, but price should still be linked to suitability, graft
