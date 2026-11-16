@@ -56,15 +56,6 @@ export const procedureFactsByPath: Record<string, ProcedureFacts> = {
     preparation: graftPreparation,
     followup: graftFollowup,
   },
-  "/female-hair-transplant-london": {
-    name: "Female hair transplant",
-    procedureType: "SurgicalProcedure",
-    bodyLocation: ["Scalp"],
-    howPerformed:
-      "Grafts are placed to rebuild frontal framing, temple points, or part-line density, usually without shaving the whole head.",
-    preparation: graftPreparation,
-    followup: graftFollowup,
-  },
   "/hair-transplant-without-shaving": {
     name: "Unshaven hair transplant",
     procedureType: "SurgicalProcedure",
@@ -85,6 +76,8 @@ export const procedureFactsByPath: Record<string, ProcedureFacts> = {
     name: "Female hair transplant",
     procedureType: "SurgicalProcedure",
     bodyLocation: ["Scalp"],
+    howPerformed:
+      "Grafts are placed to rebuild frontal framing, temple points, or part-line density, usually without shaving the whole head.",
     preparation: graftPreparation,
     followup: graftFollowup,
   },

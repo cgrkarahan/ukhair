@@ -9,7 +9,6 @@ import {
 } from "@/app/lib/pricing";
 
 const hairPackage = getPackage("hair");
-const femalePackage = getPackage("female");
 
 export type LinkCard = {
   href: string;
@@ -341,7 +340,7 @@ export const homeGuideHighlights: LinkCard[] = applyProjectTokens([
       "Separate early healing from later regrowth so the recovery process is easier to understand and less stressful to judge.",
   },
   {
-    href: "/female-hair-transplant-london",
+    href: "/services/female-hair-transplant",
     label: "Female Hair Transplant London",
     description:
       "Female-specific guidance around pattern, donor area, discreet planning, density goals, and whether transplant may suit the case.",
@@ -406,9 +405,9 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
   "hair-transplant-london": {
     slug: "hair-transplant-london",
     title: "Hair Transplant in London",
-    seoTitle: "Hair Transplant London: Standards and Aftercare",
+    seoTitle: "Hair Transplant London: How to Choose a Clinic",
     description:
-      "Research hair transplant treatment in London with clear information on suitability, methods, pricing, aftercare, and the standards patients should check before moving forward.",
+      "How to choose a hair transplant clinic in London: the doctor and CQC checks that matter, what a fair quote includes, and the aftercare to expect before you book.",
     eyebrow: "Hair transplant London",
     lead:
       "If you are considering a hair transplant in London, the main questions are usually suitability, methods, pricing, recovery, and the standards behind the clinic environment. This page brings those points together before you request an assessment.",
@@ -560,9 +559,9 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
   "hair-transplant-cost-london": {
     slug: "hair-transplant-cost-london",
     title: "Hair Transplant Cost: The Complete UK Price Guide",
-    seoTitle: "Hair Transplant Cost UK: Price Guide",
+    seoTitle: `Hair Transplant Cost UK: Fixed Prices from ${formatPrice(hairPackage.tiers[0].fue)}`,
     description:
-      "Hair transplant cost in the UK explained, including hair implants, hair plugs, and per-graft pricing, what shapes the quote, and what to compare before choosing treatment.",
+      `UK hair transplants usually cost £9,000 to £15,000 at £3 to £5 a graft. Our fixed London price starts at ${formatPrice(hairPackage.tiers[0].fue)}. How to read a quote, plus hair implant and hair plug costs.`,
     eyebrow: "Hair transplant cost",
     lead:
       "If you are researching hair transplant cost, the quote will usually depend on graft range, method, doctor involvement, clinic setting, and aftercare. This page explains what commonly affects price, what should be included, and what to compare before moving ahead, including the per-graft maths and the older \"hair plugs\" technique patients still ask about.",
@@ -2080,118 +2079,6 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
       "fue-vs-dhi",
     ],
   },
-  "female-hair-transplant-london": {
-    slug: "female-hair-transplant-london",
-    title: "Female Hair Transplant London",
-    seoTitle: "Female Hair Transplant London",
-    description:
-      "Explore female hair transplant treatment in London with explanation around suitability, planning, hairline softness, density blending, and what women should ask before booking.",
-    eyebrow: "For women considering treatment",
-    lead:
-      "Explore a female-specific London approach with clearer explanation around suitability, density blending, subtle framing, and the details that matter before booking.",
-    keywords: [
-      "female hair transplant london",
-      "women hair transplant london",
-      "hair transplant for women london",
-      "female hair restoration london",
-    ],
-    heroChips: [
-      "Female-specific explanation",
-      "Held to the same high standard",
-      "Clearer support for women",
-    ],
-    cards: [
-      {
-        title: "Made for women considering treatment",
-        text: "Women should not feel like an afterthought in a service that often speaks mainly to men.",
-      },
-      {
-        title: "Careful on suitability",
-        text: "Women usually need clarity on suitability, density blending, and subtle design rather than generic transplant claims.",
-      },
-      {
-        title: "More complete support",
-        text: "Clear female explanation makes the overall experience feel more considered and less one-dimensional.",
-      },
-    ],
-    heroPanel: {
-      eyebrow: "Female Hair Transplant Price",
-      value: formatPrice(femalePackage.tiers[0].fue),
-      body: `Performed without shaving the head. ${describePackage("female")}`,
-      note: inclusionsSentence,
-    },
-    sections: [
-      {
-        title: "Why female cases are assessed differently",
-        body: [
-          "Female thinning is more often diffuse than male pattern loss, and the cause behind it can matter more to the treatment decision. For many women, density blending, part-line restoration, and subtle framing matter far more than hairline design.",
-          "Not every woman with thinning is a transplant candidate. A useful consultation asks whether transplant is the right tool for the concern at all, not only what could be added.",
-        ],
-      },
-      {
-        title: "What a consultation should check",
-        body: [
-          "The consultation should look closely at the pattern of loss, donor area quality, and whether the concern is frontal, along the parting, temporal, scar-related, or diffuse, and then at what kind of improvement is realistically achievable.",
-          "It is also the place to talk about discretion, recovery planning, and whether the goal is subtle softening, stronger framing, or selective density support.",
-        ],
-        bullets: [
-          "Pattern and likely cause of thinning",
-          "Donor availability and long-term planning",
-          "Framing, density, and subtlety goals",
-          "Whether non-surgical support should be discussed alongside a transplant",
-        ],
-      },
-      {
-        title: "Why realistic density planning matters",
-        body: [
-          "Women are often weighing refined visual goals rather than broad coverage, which makes density planning, softness, and blending especially important. A good plan explains how the result is meant to look in everyday life, not only in clinic photos.",
-          `Female procedures are carried out without shaving the head. That keeps healing discreet, but working between existing hair takes longer, which is why the female price bands cover fewer grafts: ${formatPrice(femalePackage.tiers[0].fue)} for up to ${formatGrafts(femalePackage.tiers[0].maxGrafts)} grafts with Sapphire FUE.`,
-        ],
-        bullets: [
-          "No head shave, so recovery is easier to keep private.",
-          "Smaller graft bands reflect slower, more precise work.",
-          "Local consultation and follow-up can make the process feel more controlled.",
-        ],
-      },
-    ],
-    faq: [
-      {
-        question: "Who is suitable for a female hair transplant?",
-        answer:
-          "Some women are, but suitability needs a more tailored assessment than a typical male-pattern case. The consultation should look at the pattern and cause of thinning, the donor area, and whether transplant is likely to improve the concern in a realistic way.",
-      },
-      {
-        question: "Are female hair transplant cases always more complex?",
-        answer:
-          "Not always, but they often need a more tailored assessment because diffuse thinning, the underlying cause, donor planning, and discretion can all play a bigger role.",
-      },
-      {
-        question: "Does a female hair transplant mean shaving my head?",
-        answer:
-          "No. Female procedures are performed without shaving the head. Grafts are taken and placed between existing hair, which takes longer but keeps the treated area far less noticeable while it heals.",
-      },
-      {
-        question: "How much does a female hair transplant cost?",
-        answer: `Our fixed London prices are ${formatPrice(femalePackage.tiers[0].fue)} with Sapphire FUE or ${formatPrice(femalePackage.tiers[0].dhi)} with DHI for up to ${formatGrafts(femalePackage.tiers[0].maxGrafts)} grafts, and ${formatPrice(femalePackage.tiers[1].fue)} or ${formatPrice(femalePackage.tiers[1].dhi)} for up to ${formatGrafts(femalePackage.tiers[1].maxGrafts)} grafts. ${inclusionsSentence}`,
-      },
-      {
-        question: "Do women need different trust standards?",
-        answer:
-          "The core standards stay the same: who performs the procedure, how the clinic is regulated, and what aftercare is included. What changes is that the consultation should speak clearly to diffuse thinning, density blending, and subtle framing goals.",
-      },
-      {
-        question: "Can I start with a free consultation?",
-        answer:
-          "Yes. A free consultation is still useful as long as it properly covers suitability, planning, realistic goals, and whether a transplant is likely to help at all.",
-      },
-    ],
-    relatedSlugs: [
-      "hair-transplant-without-shaving",
-      "hair-transplant-cost-london",
-      "our-clinical-standards",
-      "hair-transplant-recovery-timeline",
-    ],
-  },
   "hair-transplant-without-shaving": {
     slug: "hair-transplant-without-shaving",
     title: "Hair Transplant Without Shaving",
@@ -2261,7 +2148,6 @@ export const topicPages: Record<string, TopicPageContent> = applyProjectTokens({
     relatedSlugs: [
       "fue-vs-dhi",
       "how-hair-transplant-works",
-      "female-hair-transplant-london",
       "hair-transplant-recovery-timeline",
     ],
   },

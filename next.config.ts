@@ -14,14 +14,23 @@ const nextConfig: NextConfig = {
       ["hair-transplant-cost-london-what-changes-the-price", "/hair-transplant-cost-london"],
       ["uk-vs-turkey-hair-transplant-how-to-compare", "/uk-vs-turkey-hair-transplant"],
       ["hair-transplant-recovery-timeline-week-by-week", "/hair-transplant-recovery-timeline"],
-      ["female-hair-transplant-london-who-may-be-suitable", "/female-hair-transplant-london"],
+      ["female-hair-transplant-london-who-may-be-suitable", "/services/female-hair-transplant"],
       // Re-targeted from London to the UK.
       ["how-to-choose-a-hair-transplant-clinic-in-london", "/blog/how-to-choose-a-hair-transplant-clinic"],
-    ].map(([slug, destination]) => ({
-      source: `/blog/${slug}`,
-      destination,
-      permanent: true,
-    }));
+    ]
+      .map(([slug, destination]) => ({
+        source: `/blog/${slug}`,
+        destination,
+        permanent: true,
+      }))
+      .concat([
+        // Duplicate of the female service page, which had the same title.
+        {
+          source: "/female-hair-transplant-london",
+          destination: "/services/female-hair-transplant",
+          permanent: true,
+        },
+      ]);
   },
   images: {
     remotePatterns: [

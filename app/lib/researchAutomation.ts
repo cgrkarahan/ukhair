@@ -146,7 +146,7 @@ const clusters: ResearchCluster[] = [
     query: '("androgenetic alopecia" OR "pattern hair loss") AND (treatment OR diagnosis OR progression OR outcome)',
     guidance: [nhsHairLoss, badFemalePattern],
     relatedLinks: [
-      { href: "/female-hair-transplant-london", label: "Female hair transplant", description: "Read about suitability and planning for female-pattern concerns." },
+      { href: "/services/female-hair-transplant", label: "Female hair transplant", description: "Read about suitability and planning for female-pattern concerns." },
       { href: "/services/hair-loss-treatments", label: "Hair loss treatments", description: "Explore the questions a treatment discussion should cover." },
       { href: "/assessment", label: "Request an assessment", description: "Share your pattern of hair loss and goals with the team." },
     ],
