@@ -75,17 +75,17 @@ export default async function SiteShell({ children }: SiteShellProps) {
             <BrandLogo tone="dark" />
           </div>
 
-          <nav className="hidden items-center gap-8 text-base text-white/84 xl:flex">
+          <nav className="hidden items-center gap-5 whitespace-nowrap text-base text-white/84 xl:flex 2xl:gap-8">
             {primaryNavigation.map((item) => (
               <div key={item.href} className="group relative">
                 <Link
                   href={item.href}
-                  className="relative inline-flex items-center gap-3 font-medium transition hover:text-white"
+                  className="relative inline-flex items-center gap-2 font-medium 2xl:gap-3 transition hover:text-white"
                 >
                   <SiteIcon
                     name={iconForHref(item.href)}
                     size={20}
-                    className="text-[color:var(--gold-300)]/92"
+                    className="hidden text-[color:var(--gold-300)]/92 2xl:block"
                   />
                   {item.label}
                   {item.items ? (
@@ -120,7 +120,9 @@ export default async function SiteShell({ children }: SiteShellProps) {
                           <h3 className="mt-3 font-display text-3xl text-white">
                             {item.label === "Treatments"
                               ? "Choose the treatment route that fits your concern."
-                              : "Research the questions that matter before you enquire."}
+                              : item.label === "Hair loss"
+                                ? "Understand your hair loss before you think about surgery."
+                                : "Research the questions that matter before you enquire."}
                           </h3>
                           <p className="mt-4 text-sm leading-7 text-white/60">
                             {item.description}
@@ -235,7 +237,7 @@ export default async function SiteShell({ children }: SiteShellProps) {
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2">
             {footerLinkGroups.map((group) => (
               <section
                 key={group.title}

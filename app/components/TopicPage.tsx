@@ -22,6 +22,8 @@ import {
   buildMedicalWebPageSchema,
   compactSchemaList,
 } from "@/app/lib/schema";
+import { getProcedureFacts } from "@/app/lib/medicalProcedures";
+import { serviceCatalogBySlug } from "@/app/services/serviceData";
 import {
   topicPages,
   type TopicHeroPanel,
@@ -68,12 +70,36 @@ export default function TopicPage({
   const relatedPages =
     providedRelatedPages ??
     page.relatedSlugs.map((slug) => topicPages[slug]).filter(Boolean);
+  const relatedLinks = [
+    ...relatedPages.map((relatedPage) => ({
+      href: `/${relatedPage.slug}`,
+      title: relatedPage.title,
+      description: relatedPage.description,
+    })),
+    ...page.relatedSlugs
+      .filter((slug) => slug.startsWith("services/"))
+      .map((slug) => serviceCatalogBySlug[slug.replace("services/", "")])
+      .filter(Boolean)
+      .map((service) => ({
+        href: `/services/${service.slug}`,
+        title: service.title,
+        description: service.shortDescription,
+      })),
+  ];
+  const sources = page.sources ?? [];
 
   const structuredData = compactSchemaList([
     buildMedicalWebPageSchema({
       path: `/${page.slug}`,
       name: page.title,
       description: page.description,
+      ...(page.condition ? { condition: page.condition } : {}),
+      // Condition pages are dermatology content; pages that describe a
+      // procedure into scar tissue keep the default surgical specialty.
+      ...(page.condition && !getProcedureFacts(`/${page.slug}`)
+        ? { specialty: "https://schema.org/Dermatology" }
+        : {}),
+      citations: sources,
       ...(page.heroImageSrc
         ? {
             images: [
@@ -87,6 +113,7 @@ export default function TopicPage({
     }),
     buildBreadcrumbSchema([
       { name: "Home", path: "/" },
+      ...(page.breadcrumbParent ? [page.breadcrumbParent] : []),
       { name: page.title, path: `/${page.slug}` },
     ]),
     buildFaqSchema(page.faq),
@@ -505,6 +532,32 @@ export default function TopicPage({
           </section>
         ) : null}
 
+        {sources.length > 0 ? (
+          <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+              Sources
+            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60">
+              Independent NHS, dermatology and patient-support information this page draws on.
+              It is general information, not a diagnosis.
+            </p>
+            <ul className="mt-5 grid gap-3 text-sm leading-6 sm:grid-cols-2">
+              {sources.map((item) => (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white/80 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <AssessmentSection
           sourceLabel={page.slug}
           tone="dark"
@@ -521,10 +574,10 @@ export default function TopicPage({
               Read the next questions patients usually have.
             </h2>
             <div className="mt-8 grid gap-4">
-              {relatedPages.map((relatedPage) => (
+              {relatedLinks.map((relatedPage) => (
                 <Link
-                  key={`${page.slug}-related-${relatedPage.slug}`}
-                  href={`/${relatedPage.slug}`}
+                  key={`${page.slug}-related-${relatedPage.href}`}
+                  href={relatedPage.href}
                   className={`rounded-[24px] border p-5 transition hover:-translate-y-0.5 ${
                     useClinicalIvoryTopicPanels
                       ? "border-[rgba(8,58,79,0.08)] bg-[color:var(--surface-subtle)] shadow-[0_18px_40px_rgba(6,47,64,0.08)] hover:border-[rgba(8,58,79,0.14)] hover:bg-[color:var(--surface-paper)]"
@@ -533,7 +586,7 @@ export default function TopicPage({
                 >
                   <div className="flex items-start gap-4">
                     <IconBadge
-                      name={iconForHref(`/${relatedPage.slug}`)}
+                      name={iconForHref(relatedPage.href)}
                       tone={useClinicalIvoryTopicPanels ? "light" : "dark"}
                     />
                     <div>

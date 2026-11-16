@@ -33,7 +33,7 @@ function primaryLinks(pathname: string) {
   }));
 }
 
-function groupedLinks(pathname: string, label: "Treatments" | "Guides") {
+function groupedLinks(pathname: string, label: "Treatments" | "Hair loss" | "Guides") {
   const group = primaryNavigation.find((item) => item.label === label);
 
   if (!group?.items) {
@@ -110,6 +110,7 @@ export default function MobileHeaderNav() {
 
   const directItems = primaryLinks(pathname);
   const treatmentItems = groupedLinks(pathname, "Treatments");
+  const hairLossItems = groupedLinks(pathname, "Hair loss");
   const guideItems = groupedLinks(pathname, "Guides");
 
   function openMenu() {
@@ -237,6 +238,11 @@ export default function MobileHeaderNav() {
                 <MobileSection
                   title="Treatments"
                   items={treatmentItems}
+                  onNavigate={closeMenu}
+                />
+                <MobileSection
+                  title="Hair loss"
+                  items={hairLossItems}
                   onNavigate={closeMenu}
                 />
                 <MobileSection
