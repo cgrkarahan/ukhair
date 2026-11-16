@@ -21,6 +21,7 @@ import {
   restartAutomationJobReview,
   saveAutomatedBlogPost,
 } from "@/app/lib/blogDatabase";
+import { decideQualityReview } from "@/app/lib/researchQualityPolicy";
 import {
   findFreeResearchImage,
   type ResearchImageSelection,
@@ -121,7 +122,7 @@ const MAX_REVIEW_ATTEMPTS = 2;
 const nhsHairLoss: GuidanceSource = {
   label: "NHS: Hair loss",
   href: "https://www.nhs.uk/symptoms/hair-loss/",
-  note: "UK patient guidance on common causes of hair loss, when to see a GP, and the limits of treatment claims.",
+  note: "The NHS says to see a GP if you are worried about hair loss. It says a GP may be able to identify the cause by looking at the hair, advises seeing a GP before considering a commercial hair clinic, and notes that a GP may be able to help if hair loss is causing distress. It also states that no treatment is 100% effective.",
 };
 
 const nhsHairTransplant: GuidanceSource = {
@@ -531,14 +532,14 @@ function articleRequest(
   const targetLength =
     mode === "fallback" ? "900-1,025 words" : "950-1,150 words";
   return {
-    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The complete reader-visible article must contain ${targetLength}. Write exactly seven required sections in the supplied order, with exactly two substantial paragraphs of roughly 55-75 words in each section. Write 3-4 FAQ answers of roughly 40-65 words each. Before returning, check that every required section has enough evidence-based explanation; expand limitations or practical interpretation when needed, never with filler or repetition. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
+    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Treat each supplied guidance note as the complete usable evidence from that source: a link or a broad note is not permission to infer additional page content. Never invent or infer red-flag symptoms, diagnostic criteria, tests, investigations, referral criteria, specialist pathways, or treatment recommendations that are not explicitly stated in the supplied study abstract or guidance notes. If the evidence does not give specific criteria for seeking care, use neutral signposting such as advising a concerned reader to consult the linked NHS guidance or speak to a GP; do not create a symptom list. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and appropriate evidence-based signposting. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not claim that only a health professional can decide an approach or that investigation or specialist referral is required unless the supplied evidence explicitly says so. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The complete reader-visible article must contain ${targetLength}. Write exactly seven required sections in the supplied order, with exactly two substantial paragraphs of roughly 55-75 words in each section. Write 3-4 FAQ answers of roughly 40-65 words each. Before returning, check that every required section has enough evidence-based explanation; expand limitations or practical interpretation when needed, never with filler or repetition. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
     input: JSON.stringify({
       assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
       primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
       allowedSources,
       existingArticlesToAvoidDuplicating: existingContext,
-      requiredSections: ["Direct answer", "What the study examined", "What the researchers found", "Important limitations", "How this fits with independent UK guidance", "What this may mean for patients", "When to seek professional advice"],
+      requiredSections: ["Direct answer", "What the study examined", "What the researchers found", "Important limitations", "How this fits with independent UK guidance", "What this may mean for patients", "Where to find further support"],
       lengthPlan: {
         sectionCount: 7,
         paragraphsPerSection: 2,
@@ -682,7 +683,7 @@ function repairRequest(
 ) {
   return {
     instructions:
-      `Repair only the fields identified by the quality review. Return only the requested JSON repair object. Use null for every unchanged scalar or array field and omit unchanged sections and FAQs from their repair arrays. Preserve all compliant wording. Replace corrupted, truncated, unsupported, or malformed text with complete British English supported strictly by the supplied evidence. Do not add new medical claims, statistics, sources, HTML, Markdown, drafting notes, or commentary. Keep repaired values within the original field limits.`,
+      `Repair only the fields identified by the quality review. Return only the requested JSON repair object. Use null for every unchanged scalar or array field and omit unchanged sections and FAQs from their repair arrays. Preserve all compliant wording. Replace corrupted, truncated, unsupported, or malformed text with complete British English supported strictly by the supplied evidence. Treat each supplied guidance note as the complete usable evidence from that source. When the review identifies unsupported medical advice or clinical detail, remove it rather than paraphrasing it into a similar unsupported claim. Do not preserve or introduce symptom lists, red flags, diagnostic criteria, tests, investigations, referral criteria, specialist pathways, or treatment recommendations unless those exact details are explicitly supported by the supplied study abstract or guidance notes. Replace unsupported care-seeking details with neutral signposting: a concerned reader can consult the linked NHS guidance or speak to a GP. Never claim that only a health professional can decide an approach or that investigation or specialist referral is needed unless the supplied evidence explicitly says so. Address every qualityReviewIssues item in the returned repair. Do not add new medical claims, statistics, sources, HTML, Markdown, drafting notes, or commentary. Keep repaired values within the original field limits.`,
     input: JSON.stringify({
       qualityReviewIssues: review.issues,
       editorialPreflight: editorialPreflight(article),
@@ -1285,9 +1286,14 @@ export async function processCompletedResearchResponse(responseId: string) {
         review.originalityScore,
         review.seoUsefulnessScore,
       );
-      if (!review.approved || minimumScore < 82) {
+      const reviewDecision = decideQualityReview({
+        approved: review.approved,
+        scores: [minimumScore],
+        repairAttempts: job.repairAttempts,
+      });
+      if (reviewDecision !== "approve") {
         const rejectionReason = `Automated review rejected: ${review.issues.join("; ")}`;
-        if (job.repairAttempts < 1) {
+        if (reviewDecision === "repair") {
           const request = repairRequest(
             job.draft as GeneratedArticle,
             review,
@@ -1301,6 +1307,9 @@ export async function processCompletedResearchResponse(responseId: string) {
             request.input,
             "low",
             REPAIR_MAX_OUTPUT_TOKENS,
+            {
+              model: process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1",
+            },
           );
           const repairing = await markAutomationJobRepairing({
             publicationDate: job.publicationDate,

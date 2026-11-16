@@ -1,6 +1,7 @@
 import "server-only";
 
 import { neon } from "@neondatabase/serverless";
+import { MAX_REPAIR_ATTEMPTS } from "@/app/lib/researchQualityPolicy";
 import type { BlogPost } from "@/app/lib/blogContent";
 
 export type AutomatedBlogFingerprint = {
@@ -452,7 +453,7 @@ export async function markAutomationJobRepairing(input: {
       AND slot = ${input.slot}
       AND state = 'reviewing'
       AND review_response_id = ${input.expectedReviewResponseId}
-      AND repair_attempts < 1
+      AND repair_attempts < ${MAX_REPAIR_ATTEMPTS}
     RETURNING generation_response_id
   `) as Array<{ generation_response_id: string }>;
   return rows.length > 0;
