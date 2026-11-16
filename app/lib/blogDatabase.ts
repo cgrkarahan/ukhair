@@ -321,6 +321,33 @@ export async function getAutomationJobForSlot(
   return rows[0] ? mapAutomationJob(rows[0]) : null;
 }
 
+export async function getStaleAutomationJobs(
+  staleAfterMinutes = 20,
+  limit = 4,
+): Promise<AutomationJob[]> {
+  const safeMinutes = Math.max(5, Math.min(180, Math.trunc(staleAfterMinutes)));
+  const safeLimit = Math.max(1, Math.min(10, Math.trunc(limit)));
+  const rows = (await database()`
+    SELECT
+      TO_CHAR(publication_date, 'YYYY-MM-DD') AS publication_date,
+      slot,
+      state,
+      candidate,
+      cluster_id,
+      draft,
+      generation_response_id,
+      review_response_id,
+      similarity_score,
+      attempted_pmids
+    FROM automated_content_jobs
+    WHERE state IN ('generating', 'reviewing')
+      AND updated_at < NOW() - (${safeMinutes} * INTERVAL '1 minute')
+    ORDER BY updated_at ASC
+    LIMIT ${safeLimit}
+  `) as StoredAutomationJobRow[];
+  return rows.map(mapAutomationJob);
+}
+
 export async function restartAutomationJobGeneration(input: {
   publicationDate: string;
   slot: PublicationSlot;

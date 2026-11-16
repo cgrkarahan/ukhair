@@ -4,6 +4,7 @@ import {
   isResearchSlot,
   processCompletedResearchResponse,
   publishResearchArticle,
+  recoverStaleResearchJobs,
   startResearchPublication,
 } from "@/app/lib/researchAutomation";
 
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const dryRun = request.nextUrl.searchParams.get("dryRun") === "1";
+    const recovered = dryRun ? [] : await recoverStaleResearchJobs();
     const result = dryRun
       ? await publishResearchArticle(slot, { dryRun: true })
       : await startResearchPublication(slot, {
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
       revalidatePath(`/blog/${result.slug}`);
       revalidatePath("/sitemap.xml");
     }
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, recovered });
   } catch (error) {
     console.error("Automated research publishing failed", error);
     return NextResponse.json(

@@ -12,6 +12,7 @@ import {
   getAutomationJobForSlot,
   getAutomatedBlogFingerprints,
   getPublishedPostForSlot,
+  getStaleAutomationJobs,
   getUsedOpenverseImageIds,
   markAutomationJobPublished,
   markAutomationJobReviewing,
@@ -67,6 +68,9 @@ type ExistingFingerprint = {
 };
 
 class FatalAutomationError extends Error {}
+
+const ARTICLE_MAX_OUTPUT_TOKENS = 7000;
+const REVIEW_MAX_OUTPUT_TOKENS = 2500;
 
 const nhsHairLoss: GuidanceSource = {
   label: "NHS: Hair loss",
@@ -299,6 +303,7 @@ async function structuredResponse<T>(
   instructions: string,
   input: string,
   reasoningEffort: "low" | "medium" = "medium",
+  maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
 ): Promise<T> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
@@ -312,7 +317,7 @@ async function structuredResponse<T>(
       instructions,
       input,
       store: false,
-      max_output_tokens: 20000,
+      max_output_tokens: maxOutputTokens,
       text: { format: { type: "json_schema", name, strict: true, schema } },
     }),
     cache: "no-store",
@@ -336,6 +341,7 @@ async function startBackgroundStructuredResponse(
   instructions: string,
   input: string,
   reasoningEffort: "low" | "medium" = "medium",
+  maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
 ) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
@@ -353,7 +359,7 @@ async function startBackgroundStructuredResponse(
       input,
       background: true,
       store: true,
-      max_output_tokens: 20000,
+      max_output_tokens: maxOutputTokens,
       text: { format: { type: "json_schema", name, strict: true, schema } },
     }),
     cache: "no-store",
@@ -399,12 +405,12 @@ const articleSchema = {
     description: { type: "string", minLength: 90, maxLength: 170 },
     excerpt: { type: "string", minLength: 80, maxLength: 260 },
     eyebrow: { type: "string", minLength: 3, maxLength: 40 },
-    answerSummary: { type: "string", minLength: 140, maxLength: 650 },
+    answerSummary: { type: "string", minLength: 140, maxLength: 450 },
     readTime: { type: "string", pattern: "^[0-9]+ min read$" },
     keywords: { type: "array", minItems: 4, maxItems: 8, items: { type: "string" } },
-    keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 180 } },
-    sections: { type: "array", minItems: 7, maxItems: 9, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 100 }, paragraphs: { type: "array", minItems: 2, maxItems: 4, items: { type: "string", minLength: 80, maxLength: 1200 } }, bullets: { type: "array", maxItems: 6, items: { type: "string", minLength: 15, maxLength: 180 } } } } },
-    faq: { type: "array", minItems: 3, maxItems: 5, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 120 }, answer: { type: "string", minLength: 100, maxLength: 600 } } } },
+    keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 160 } },
+    sections: { type: "array", minItems: 7, maxItems: 8, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 3, items: { type: "string", minLength: 80, maxLength: 700 } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160 } } } } },
+    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110 }, answer: { type: "string", minLength: 100, maxLength: 400 } } } },
     studyDesign: { type: "string", minLength: 3, maxLength: 100 },
   },
 } as const;
@@ -421,7 +427,7 @@ function articleRequest(
   ];
   const existingContext = existing.slice(0, 120).map((item) => ({ title: item.title, slug: item.slug, topic: item.researchTopic }));
   return {
-    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return plain text only inside every JSON string: never include HTML, Markdown, XML, or encoded tags. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain roughly 1,200-1,700 words. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
+    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain roughly 1,200-1,500 words. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
     input: JSON.stringify({
       assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
       primaryStudy: { pmid: candidate.pmid, doi: candidate.doi, title: candidate.title, authors: candidate.authorString, journal: candidate.journalTitle, publicationDate: candidate.firstPublicationDate, publicationTypes: candidate.pubTypeList?.pubType, abstract: plainText(candidate.abstractText) },
@@ -476,6 +482,7 @@ async function reviewArticle(article: GeneratedArticle, candidate: EuropePmcResu
     request.instructions,
     request.input,
     "low",
+    REVIEW_MAX_OUTPUT_TOKENS,
   );
 }
 
@@ -706,6 +713,18 @@ export async function startResearchPublication(
     };
   }
 
+  const activeJob = await getAutomationJobForSlot(date, slot);
+  if (activeJob?.state === "generating" || activeJob?.state === "reviewing") {
+    return {
+      status: "already-running" as const,
+      id: documentId,
+      responseId:
+        activeJob.state === "reviewing"
+          ? activeJob.reviewResponseId
+          : activeJob.generationResponseId,
+    };
+  }
+
   const claimed = await claimPublicationSlot(date, slot);
   if (!claimed) {
     const job = await getAutomationJobForSlot(date, slot);
@@ -764,7 +783,7 @@ async function retryWithNextCandidate(
   cluster: ResearchCluster,
   reason: string,
 ) {
-  if (job.attemptedPmids.length >= 8) {
+  if (job.attemptedPmids.length >= 4) {
     await failAutomationJob(job.publicationDate, job.slot, reason);
     return { status: "failed" as const, error: reason };
   }
@@ -837,6 +856,7 @@ export async function processCompletedResearchResponse(responseId: string) {
         request.instructions,
         request.input,
         "low",
+        REVIEW_MAX_OUTPUT_TOKENS,
       );
       const advanced = await markAutomationJobReviewing({
         publicationDate: job.publicationDate,
@@ -907,6 +927,58 @@ export async function processCompletedResearchResponse(responseId: string) {
       error instanceof Error ? error.message : "Unknown asynchronous failure",
     );
   }
+}
+
+async function recoverAutomationJob(job: AutomationJob) {
+  const responseId =
+    job.state === "reviewing" && job.reviewResponseId
+      ? job.reviewResponseId
+      : job.generationResponseId;
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
+
+  const response = await fetch(
+    `https://api.openai.com/v1/responses/${encodeURIComponent(responseId)}`,
+    {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      cache: "no-store",
+    },
+  );
+  const payload = (await response.json()) as { status?: string };
+  if (!response.ok) {
+    throw new Error(
+      `OpenAI recovery lookup failed (${response.status}): ${JSON.stringify(payload).slice(0, 500)}`,
+    );
+  }
+  if (payload.status === "queued" || payload.status === "in_progress") {
+    return { status: "still-running" as const, responseId };
+  }
+  return processCompletedResearchResponse(responseId);
+}
+
+export async function recoverStaleResearchJobs() {
+  await ensureAutomatedBlogSchema();
+  const jobs = await getStaleAutomationJobs();
+  const results = [];
+  for (const job of jobs) {
+    try {
+      results.push({
+        publicationDate: job.publicationDate,
+        slot: job.slot,
+        result: await recoverAutomationJob(job),
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown recovery failure";
+      await failAutomationJob(job.publicationDate, job.slot, message);
+      results.push({
+        publicationDate: job.publicationDate,
+        slot: job.slot,
+        result: { status: "failed" as const, error: message },
+      });
+    }
+  }
+  return results;
 }
 
 export async function publishResearchArticle(slot: Slot, options: { dryRun?: boolean } = {}) {
