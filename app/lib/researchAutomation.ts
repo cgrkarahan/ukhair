@@ -28,7 +28,10 @@ type ResearchCluster = {
   query: string;
   guidance: GuidanceSource[];
   relatedLinks: BlogPost["relatedLinks"];
-  imageSrc: string;
+};
+
+type ResearchImage = Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition"> & {
+  topic: "ashwagandha" | "female-pattern-hair-loss" | "general-hair-research";
 };
 
 type EuropePmcResult = {
@@ -105,7 +108,6 @@ const clusters: ResearchCluster[] = [
       { href: "/hair-transplant-recovery-timeline", label: "Recovery timeline", description: "See what recovery can involve and what varies between patients." },
       { href: "/our-clinical-standards", label: "Clinical standards", description: "Questions to ask about clinical responsibility and provider standards." },
     ],
-    imageSrc: "/images/home-hero-consultation.png",
   },
   {
     id: "androgenetic-alopecia",
@@ -117,7 +119,6 @@ const clusters: ResearchCluster[] = [
       { href: "/services/hair-loss-treatments", label: "Hair loss treatments", description: "Explore the questions a treatment discussion should cover." },
       { href: "/assessment", label: "Request an assessment", description: "Share your pattern of hair loss and goals with the team." },
     ],
-    imageSrc: "/images/male_hair_transplant.jpg",
   },
   {
     id: "alopecia-areata",
@@ -129,7 +130,6 @@ const clusters: ResearchCluster[] = [
       { href: "/blog/hair-transplant-second-opinion", label: "When to seek a second opinion", description: "Questions to ask when the diagnosis or proposed route is unclear." },
       { href: "/assessment", label: "Request an assessment", description: "Start with a general assessment rather than assuming transplant is suitable." },
     ],
-    imageSrc: "/images/home-hero-consultation.png",
   },
   {
     id: "recovery-safety",
@@ -141,7 +141,6 @@ const clusters: ResearchCluster[] = [
       { href: "/hair-transplant-side-effects", label: "Side effects", description: "Understand common effects, warning signs, and when to seek help." },
       { href: "/blog/hair-transplant-gone-wrong", label: "If a transplant goes wrong", description: "Practical next steps when healing or results cause concern." },
     ],
-    imageSrc: "/images/blog/hair-transplant-gone-wrong.webp",
   },
 ];
 
@@ -556,12 +555,64 @@ async function unusedCandidates(
   );
 }
 
+function selectResearchImage(
+  article: GeneratedArticle,
+  candidate: EuropePmcResult,
+): ResearchImage {
+  const context = [
+    article.title,
+    article.seoTitle,
+    article.description,
+    article.excerpt,
+    article.keywords.join(" "),
+    candidate.title,
+    candidate.abstractText,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (/\bashwagandha\b|\bwithania somnifera\b/.test(context)) {
+    return {
+      topic: "ashwagandha",
+      imageSrc: "/images/blog/ashwagandha-hair-loss-trial-2026.jpg",
+      imageAlt:
+        "Ashwagandha roots and leaves beside a research notebook, magnifying glass and natural hair strands",
+      imagePosition: "center",
+    };
+  }
+
+  if (
+    /\bfemale pattern hair loss\b|\bfemale androgenetic alopecia\b|\bwomen with (?:pattern )?hair loss\b/.test(
+      context,
+    )
+  ) {
+    return {
+      topic: "female-pattern-hair-loss",
+      imageSrc:
+        "/images/blog/prp-iprf-cgf-female-pattern-hair-loss.jpg",
+      imageAlt:
+        "Adult woman examining a widened central hair part in a calm research setting",
+      imagePosition: "center",
+    };
+  }
+
+  return {
+    topic: "general-hair-research",
+    imageSrc: "/images/blog/hair-research-editorial.jpg",
+    imageAlt:
+      "Natural hair strands examined with a magnifying glass beside a research notebook and microscope",
+    imagePosition: "center",
+  };
+}
+
 function buildPost(
   article: GeneratedArticle,
   candidate: EuropePmcResult,
   cluster: ResearchCluster,
 ): BlogPost {
   const now = new Date().toISOString();
+  const image = selectResearchImage(article, candidate);
   return {
     ...article,
     publishedAt: now,
@@ -577,9 +628,9 @@ function buildPost(
       })),
     ],
     relatedLinks: cluster.relatedLinks,
-    imageSrc: cluster.imageSrc,
-    imageAlt: `Editorial illustration for ${article.title}`,
-    imagePosition: "center",
+    imageSrc: image.imageSrc,
+    imageAlt: image.imageAlt,
+    imagePosition: image.imagePosition,
     isResearchDigest: true,
     primaryPmid: candidate.pmid,
     studyDesign: article.studyDesign,
@@ -805,8 +856,9 @@ export async function processCompletedResearchResponse(responseId: string) {
         sourceMetadata: sourceMetadata(candidate, cluster),
         imageMetadata: {
           provider: "first-party",
-          source: cluster.imageSrc,
+          source: post.imageSrc,
           licence: "Site-owned asset",
+          selection: "Article subject matched before publication",
         },
       });
       await markAutomationJobPublished(job.publicationDate, job.slot);
@@ -889,8 +941,9 @@ export async function publishResearchArticle(slot: Slot, options: { dryRun?: boo
             sourceMetadata: sourceMetadata(candidate, cluster),
             imageMetadata: {
               provider: "first-party",
-              source: cluster.imageSrc,
+              source: post.imageSrc,
               licence: "Site-owned asset",
+              selection: "Article subject matched before publication",
             },
           });
         }

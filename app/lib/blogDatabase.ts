@@ -81,6 +81,24 @@ export type AutomatedPostRecord = {
 
 let databaseClient: ReturnType<typeof neon> | null = null;
 
+const automatedImageCorrections: Record<
+  string,
+  Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition">
+> = {
+  "prp-iprf-cgf-female-pattern-hair-loss-trial": {
+    imageSrc: "/images/blog/prp-iprf-cgf-female-pattern-hair-loss.jpg",
+    imageAlt:
+      "Adult woman examining a widened central hair part in a calm research setting",
+    imagePosition: "center",
+  },
+  "ashwagandha-hair-loss-trial-2026": {
+    imageSrc: "/images/blog/ashwagandha-hair-loss-trial-2026.jpg",
+    imageAlt:
+      "Ashwagandha roots and leaves beside a research notebook, magnifying glass and natural hair strands",
+    imagePosition: "center",
+  },
+};
+
 function connectionString() {
   return process.env.DATABASE_URL?.trim() || null;
 }
@@ -96,7 +114,9 @@ function database() {
 }
 
 function parseContent(value: BlogPost | string): BlogPost {
-  return typeof value === "string" ? (JSON.parse(value) as BlogPost) : value;
+  const post = typeof value === "string" ? (JSON.parse(value) as BlogPost) : value;
+  const correction = automatedImageCorrections[post.slug];
+  return correction ? { ...post, ...correction } : post;
 }
 
 function parseJsonValue<T>(value: T | string): T {

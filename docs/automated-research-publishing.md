@@ -71,4 +71,6 @@ Dry-run mode performs research, generation, similarity checks, and automated rev
 
 ## Images
 
-The first version uses existing first-party site assets and records their provenance as `Site-owned asset`. A stock-image provider should be added only with explicit licence metadata, photographer attribution where required, and a durable stored copy rather than an untracked remote URL.
+Research articles use dedicated first-party editorial assets. Image selection is made from the article title, SEO fields, keywords, study title, and abstract—not from the broad content cluster alone. Known subjects such as ashwagandha and female-pattern hair loss receive subject-specific artwork; every unrecognised subject receives the neutral hair-research editorial asset rather than an unrelated lifestyle or clinic photograph. The selected path and the selection method are stored in image metadata.
+
+A stock-image provider should be added only with explicit licence metadata, photographer attribution where required, and a durable stored copy rather than an untracked remote URL.
