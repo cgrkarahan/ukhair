@@ -75,12 +75,12 @@ export default async function SiteShell({ children }: SiteShellProps) {
             <BrandLogo tone="dark" />
           </div>
 
-          <nav className="hidden items-center gap-5 whitespace-nowrap text-base text-white/84 xl:flex 2xl:gap-8">
+          <nav className="hidden items-center gap-5 text-base text-white/84 xl:flex 2xl:gap-8">
             {primaryNavigation.map((item) => (
               <div key={item.href} className="group relative">
                 <Link
                   href={item.href}
-                  className="relative inline-flex items-center gap-2 font-medium 2xl:gap-3 transition hover:text-white"
+                  className="relative inline-flex items-center gap-2 whitespace-nowrap font-medium 2xl:gap-3 transition hover:text-white"
                 >
                   <SiteIcon
                     name={iconForHref(item.href)}
