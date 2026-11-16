@@ -46,6 +46,10 @@ type StoredFingerprintRow = {
   research_topic: string;
 };
 
+type StoredImageMetadataRow = {
+  openverse_id: string | null;
+};
+
 type StoredSlotRow = {
   status: "running" | "failed" | "published";
   post_id: string | null;
@@ -464,6 +468,25 @@ export async function getAutomatedBlogFingerprints(): Promise<
   } catch (error) {
     console.warn("Automated blog fingerprint lookup failed", error);
     return [];
+  }
+}
+
+export async function getUsedOpenverseImageIds(): Promise<Set<string>> {
+  if (!hasBlogDatabase()) return new Set();
+
+  try {
+    if (!(await automatedBlogTableExists())) return new Set();
+    const rows = (await database()`
+      SELECT image_metadata ->> 'openverseId' AS openverse_id
+      FROM automated_blog_posts
+      WHERE image_metadata ->> 'provider' = 'openverse'
+    `) as StoredImageMetadataRow[];
+    return new Set(
+      rows.map((row) => row.openverse_id).filter((id): id is string => Boolean(id)),
+    );
+  } catch (error) {
+    console.warn("Openverse image history lookup failed", error);
+    return new Set();
   }
 }
 

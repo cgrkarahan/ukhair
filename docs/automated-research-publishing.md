@@ -71,6 +71,10 @@ Dry-run mode performs research, generation, similarity checks, and automated rev
 
 ## Images
 
-Research articles use dedicated first-party editorial assets. Image selection is made from the article title, SEO fields, keywords, study title, and abstract—not from the broad content cluster alone. Known subjects such as ashwagandha and female-pattern hair loss receive subject-specific artwork; every unrecognised subject receives the neutral hair-research editorial asset rather than an unrelated lifestyle or clinic photograph. The selected path and the selection method are stored in image metadata.
+Research articles search Openverse using the article title, keywords, and research topic. Only CC0 and Public Domain Mark results are eligible. Deterministic checks reject mature, undersized, portrait, non-HTTPS, or unreachable originals before any image can be selected.
 
-A stock-image provider should be added only with explicit licence metadata, photographer attribution where required, and a durable stored copy rather than an untracked remote URL.
+The content model then reviews low-resolution candidate thumbnails and can choose an image only when it is clearly relevant, editorial, medically neutral, and safe for healthcare publishing. It must reject unrelated lifestyle scenes, recognisable people presented as having a condition, before-and-after images, logos, treatment promises, and text-heavy or disturbing imagery. If no candidate is genuinely suitable, the article uses a neutral site-owned fallback rather than accepting a weak match.
+
+The published post keeps the original remote image URL, so scheduled articles do not require a new code deployment. Neon stores the Openverse ID, creator, source page, original URL, licence, licence URL, dimensions, selection reason, and timestamp. The article displays the source and licence below the image. Previously used Openverse IDs are excluded from future searches.
+
+This flow does not generate images with OpenAI. OpenAI is used only for the low-cost relevance check; Openverse search itself is free.

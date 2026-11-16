@@ -34,6 +34,12 @@ export type BlogPost = {
   imageSrc: string;
   imageAlt: string;
   imagePosition?: string;
+  imageCredit?: {
+    label: string;
+    href: string;
+    licenceLabel: string;
+    licenceHref?: string;
+  };
   publishedAt?: string;
   isResearchDigest?: boolean;
   primaryPmid?: string;
@@ -42,7 +48,7 @@ export type BlogPost = {
 
 type BaseBlogPost = Omit<
   BlogPost,
-  "imageSrc" | "imageAlt" | "imagePosition" | "sources"
+  "imageSrc" | "imageAlt" | "imagePosition" | "imageCredit" | "sources"
 >;
 
 // Every URL here was checked to resolve before it was added. Re-check them when

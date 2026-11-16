@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AssessmentSection from "@/app/components/AssessmentSection";
+import BlogImage from "@/app/components/BlogImage";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { iconForHref } from "@/app/lib/iconography";
@@ -155,18 +155,43 @@ export default async function BlogArticlePage({
           </div>
 
           <div className="mt-8 relative aspect-[16/8.8] overflow-hidden rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)]">
-            <Image
+            <BlogImage
               src={post.imageSrc}
               alt={post.imageAlt}
-              fill
               sizes="(min-width: 1024px) 72rem, 100vw"
-              className="object-cover"
+              loading="eager"
+              className="absolute inset-0 h-full w-full object-cover"
               style={{
                 objectPosition: post.imagePosition ?? "center",
               }}
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,58,79,0.04)_0%,rgba(8,58,79,0.16)_100%)]" />
           </div>
+          {post.imageCredit ? (
+            <p className="mt-3 text-xs leading-5 text-white/58">
+              <a
+                href={post.imageCredit.href}
+                target="_blank"
+                rel="noreferrer"
+                className="underline-offset-4 transition hover:text-white hover:underline"
+              >
+                {post.imageCredit.label}
+              </a>{" "}
+              ·{" "}
+              {post.imageCredit.licenceHref ? (
+                <a
+                  href={post.imageCredit.licenceHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline-offset-4 transition hover:text-white hover:underline"
+                >
+                  {post.imageCredit.licenceLabel}
+                </a>
+              ) : (
+                post.imageCredit.licenceLabel
+              )}
+            </p>
+          ) : null}
 
           <div className="mt-8 rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">

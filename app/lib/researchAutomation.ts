@@ -12,11 +12,16 @@ import {
   getAutomationJobForSlot,
   getAutomatedBlogFingerprints,
   getPublishedPostForSlot,
+  getUsedOpenverseImageIds,
   markAutomationJobPublished,
   markAutomationJobReviewing,
   restartAutomationJobGeneration,
   saveAutomatedBlogPost,
 } from "@/app/lib/blogDatabase";
+import {
+  findFreeResearchImage,
+  type ResearchImageSelection,
+} from "@/app/lib/openverseImages";
 
 type Slot = "morning" | "afternoon";
 
@@ -28,10 +33,6 @@ type ResearchCluster = {
   query: string;
   guidance: GuidanceSource[];
   relatedLinks: BlogPost["relatedLinks"];
-};
-
-type ResearchImage = Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition"> & {
-  topic: "ashwagandha" | "female-pattern-hair-loss" | "general-hair-research";
 };
 
 type EuropePmcResult = {
@@ -51,7 +52,7 @@ type EuropePmcResult = {
 
 type GeneratedArticle = Omit<
   BlogPost,
-  "sources" | "relatedLinks" | "imageSrc" | "imageAlt" | "imagePosition" | "publishedAt" | "updatedAt" | "isResearchDigest" | "primaryPmid" | "studyDesign"
+  "sources" | "relatedLinks" | "imageSrc" | "imageAlt" | "imagePosition" | "imageCredit" | "publishedAt" | "updatedAt" | "isResearchDigest" | "primaryPmid" | "studyDesign"
 > & { studyDesign: string };
 
 type ExistingFingerprint = {
@@ -555,10 +556,10 @@ async function unusedCandidates(
   );
 }
 
-function selectResearchImage(
+function selectFallbackResearchImage(
   article: GeneratedArticle,
   candidate: EuropePmcResult,
-): ResearchImage {
+): ResearchImageSelection {
   const context = [
     article.title,
     article.seoTitle,
@@ -574,11 +575,16 @@ function selectResearchImage(
 
   if (/\bashwagandha\b|\bwithania somnifera\b/.test(context)) {
     return {
-      topic: "ashwagandha",
       imageSrc: "/images/blog/ashwagandha-hair-loss-trial-2026.jpg",
       imageAlt:
         "Ashwagandha roots and leaves beside a research notebook, magnifying glass and natural hair strands",
       imagePosition: "center",
+      metadata: {
+        provider: "first-party",
+        source: "/images/blog/ashwagandha-hair-loss-trial-2026.jpg",
+        licence: "Site-owned asset",
+        selection: "Subject-specific fallback",
+      },
     };
   }
 
@@ -588,31 +594,58 @@ function selectResearchImage(
     )
   ) {
     return {
-      topic: "female-pattern-hair-loss",
       imageSrc:
         "/images/blog/prp-iprf-cgf-female-pattern-hair-loss.jpg",
       imageAlt:
         "Adult woman examining a widened central hair part in a calm research setting",
       imagePosition: "center",
+      metadata: {
+        provider: "first-party",
+        source: "/images/blog/prp-iprf-cgf-female-pattern-hair-loss.jpg",
+        licence: "Site-owned asset",
+        selection: "Subject-specific fallback",
+      },
     };
   }
 
   return {
-    topic: "general-hair-research",
     imageSrc: "/images/blog/hair-research-editorial.jpg",
     imageAlt:
       "Natural hair strands examined with a magnifying glass beside a research notebook and microscope",
     imagePosition: "center",
+    metadata: {
+      provider: "first-party",
+      source: "/images/blog/hair-research-editorial.jpg",
+      licence: "Site-owned asset",
+      selection: "Neutral research fallback",
+    },
   };
+}
+
+async function selectResearchImage(
+  article: GeneratedArticle,
+  candidate: EuropePmcResult,
+  researchTopic: string,
+) {
+  try {
+    const usedOpenverseIds = await getUsedOpenverseImageIds();
+    return (
+      (await findFreeResearchImage(article, researchTopic, usedOpenverseIds)) ??
+      selectFallbackResearchImage(article, candidate)
+    );
+  } catch (error) {
+    console.warn("Free research image selection failed; using fallback", error);
+    return selectFallbackResearchImage(article, candidate);
+  }
 }
 
 function buildPost(
   article: GeneratedArticle,
   candidate: EuropePmcResult,
   cluster: ResearchCluster,
+  image: ResearchImageSelection,
 ): BlogPost {
   const now = new Date().toISOString();
-  const image = selectResearchImage(article, candidate);
   return {
     ...article,
     publishedAt: now,
@@ -631,6 +664,7 @@ function buildPost(
     imageSrc: image.imageSrc,
     imageAlt: image.imageAlt,
     imagePosition: image.imagePosition,
+    imageCredit: image.credit,
     isResearchDigest: true,
     primaryPmid: candidate.pmid,
     studyDesign: article.studyDesign,
@@ -840,7 +874,8 @@ export async function processCompletedResearchResponse(responseId: string) {
       }
 
       const article = job.draft as GeneratedArticle;
-      const post = buildPost(article, candidate, cluster);
+      const image = await selectResearchImage(article, candidate, cluster.id);
+      const post = buildPost(article, candidate, cluster, image);
       const documentId = `automated-blog-post.${job.publicationDate}.${job.slot}`;
       await saveAutomatedBlogPost({
         id: documentId,
@@ -854,12 +889,7 @@ export async function processCompletedResearchResponse(responseId: string) {
         qualityScore: minimumScore,
         similarityScore: Number((job.similarityScore ?? 0).toFixed(3)),
         sourceMetadata: sourceMetadata(candidate, cluster),
-        imageMetadata: {
-          provider: "first-party",
-          source: post.imageSrc,
-          licence: "Site-owned asset",
-          selection: "Article subject matched before publication",
-        },
+        imageMetadata: image.metadata,
       });
       await markAutomationJobPublished(job.publicationDate, job.slot);
       return {
@@ -924,7 +954,8 @@ export async function publishResearchArticle(slot: Slot, options: { dryRun?: boo
           );
         }
 
-        const post = buildPost(article, candidate, cluster);
+        const image = await selectResearchImage(article, candidate, cluster.id);
+        const post = buildPost(article, candidate, cluster, image);
 
         if (!isDryRun) {
           await saveAutomatedBlogPost({
@@ -939,12 +970,7 @@ export async function publishResearchArticle(slot: Slot, options: { dryRun?: boo
             qualityScore: minimumScore,
             similarityScore: Number(similarity.toFixed(3)),
             sourceMetadata: sourceMetadata(candidate, cluster),
-            imageMetadata: {
-              provider: "first-party",
-              source: post.imageSrc,
-              licence: "Site-owned asset",
-              selection: "Article subject matched before publication",
-            },
+            imageMetadata: image.metadata,
           });
         }
 

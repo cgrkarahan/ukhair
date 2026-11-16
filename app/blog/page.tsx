@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import BlogImage from "@/app/components/BlogImage";
 import { IconBadge } from "@/app/components/SiteIcon";
 import SiteShell from "@/app/components/SiteShell";
 import { iconForHref } from "@/app/lib/iconography";
@@ -77,12 +77,11 @@ export default async function BlogIndexPage() {
               className="panel-dark flex h-full flex-col overflow-hidden rounded-[30px] text-white"
             >
               <div className="relative aspect-[16/10] border-b border-[color:var(--line-inverse-soft)] bg-[rgba(192,213,214,0.12)]">
-                <Image
+                <BlogImage
                   src={post.imageSrc}
                   alt={post.imageAlt}
-                  fill
                   sizes="(min-width: 1280px) 30vw, (min-width: 768px) 50vw, 100vw"
-                  className="object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                   style={{
                     objectPosition: post.imagePosition ?? "center",
                   }}
