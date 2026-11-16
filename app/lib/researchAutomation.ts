@@ -104,7 +104,7 @@ class IncompleteOpenAIResponseError extends Error {
   }
 }
 
-const ARTICLE_MAX_OUTPUT_TOKENS = 8000;
+const ARTICLE_MAX_OUTPUT_TOKENS = 10000;
 const REVIEW_MAX_OUTPUT_TOKENS = 1800;
 const REPAIR_MAX_OUTPUT_TOKENS = 3500;
 const MIN_ARTICLE_WORDS = 750;
