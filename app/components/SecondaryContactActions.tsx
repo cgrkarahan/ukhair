@@ -23,7 +23,7 @@ export default function SecondaryContactActions({
       ? "border border-[#1b8f52] bg-[linear-gradient(180deg,#28d466,#22c55e)] text-black shadow-[0_14px_34px_rgba(37,211,102,0.22)] visited:text-black hover:border-[#177c47] hover:bg-[#22c55e] hover:text-black"
       : "border border-[#1b8f52] bg-[#25d366] text-black shadow-[0_10px_24px_rgba(37,211,102,0.18)] visited:text-black hover:bg-[#22c55e] hover:text-black";
 
-  if (!phoneHref && !whatsappHref) {
+  if (!phoneHref && !whatsappHref && !siteContact.email) {
     return null;
   }
 
@@ -47,6 +47,14 @@ export default function SecondaryContactActions({
           className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold leading-none transition ${phoneButtonClasses}`}
         >
           Call {siteContact.phoneDisplay}
+        </a>
+      ) : null}
+      {siteContact.email ? (
+        <a
+          href={`mailto:${siteContact.email}`}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold leading-none transition ${phoneButtonClasses}`}
+        >
+          Email {siteContact.email}
         </a>
       ) : null}
     </div>

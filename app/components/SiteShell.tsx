@@ -326,7 +326,9 @@ export default async function SiteShell({ children }: SiteShellProps) {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p>www.ukhairtransplant.co</p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <p>{settings.email}</p>
+              <a href={`mailto:${settings.email}`} className="transition hover:text-white">
+                {settings.email}
+              </a>
               <a
                 href={siteSocialLinks[1].href}
                 target="_blank"

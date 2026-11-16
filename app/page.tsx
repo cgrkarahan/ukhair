@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import AssessmentSection from "@/app/components/AssessmentSection";
+import AssessmentForm from "@/app/components/AssessmentForm";
 import GraftEstimator from "@/app/components/GraftEstimator";
 import ProofCaseCard from "@/app/components/ProofCaseCard";
 import { proofDisclaimer } from "@/app/lib/proof";
@@ -155,7 +155,7 @@ export default async function Home() {
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,58,79,0.96)_0%,rgba(8,58,79,0.88)_42%,rgba(8,58,79,0.72)_70%,rgba(8,58,79,0.82)_100%)]" />
           </div>
 
-          <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-end">
+          <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] lg:items-center xl:gap-12">
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-300)]">
                 {home.hero.eyebrow}
@@ -163,16 +163,10 @@ export default async function Home() {
               <h1 className="mt-4 max-w-4xl text-balance font-display text-[2.15rem] leading-[1.06] text-white sm:text-5xl lg:text-[3.6rem]">
                 {home.hero.headline}
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-white/76 sm:text-lg">
+              <p className="mt-5 hidden max-w-2xl text-base leading-8 text-white/76 sm:block sm:text-lg">
                 {home.hero.lead}
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <Link
-                  href="/assessment"
-                  className="inline-flex whitespace-nowrap rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
-                >
-                  Book free consultation
-                </Link>
                 <Link
                   href="#estimate"
                   className="inline-flex whitespace-nowrap rounded-full border border-[rgba(192,213,214,0.4)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[rgba(192,213,214,0.12)]"
@@ -190,28 +184,27 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="hidden rounded-[24px] border border-[rgba(192,213,214,0.18)] bg-[rgba(6,47,64,0.72)] p-5 backdrop-blur-sm lg:block">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--gold-300)]">
-                Fixed London prices
+            <div
+              id="assessment-form"
+              className="scroll-mt-28 rounded-[28px] border border-[rgba(223,209,186,0.55)] bg-[color:var(--surface-paper)] p-5 shadow-[0_30px_80px_rgba(2,24,33,0.45)] ring-4 ring-[rgba(223,209,186,0.18)] sm:p-6"
+            >
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
+                    Free consultation
+                  </p>
+                  <p className="mt-1 font-display text-2xl leading-tight text-[color:var(--ink-950)]">
+                    Find out what is possible for your hair
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-[color:var(--ink-950)] px-3 py-1 text-xs font-semibold text-white">
+                  60 sec
+                </span>
+              </div>
+              <AssessmentForm sourceLabel="homepage-hero" />
+              <p className="mt-4 border-t border-[color:var(--line-soft)] pt-3 text-xs leading-5 text-[color:var(--ink-600)]">
+                No obligation. The team replies the same working day.
               </p>
-              <table className="mt-3 w-full text-left text-sm text-white/80">
-                <thead>
-                  <tr className="text-xs text-white/55">
-                    <th className="py-2 font-medium">Grafts</th>
-                    <th className="py-2 font-medium">Sapphire FUE</th>
-                    <th className="py-2 font-medium">DHI</th>
-                  </tr>
-                </thead>
-                <tbody className="tabular-nums">
-                  {hair.tiers.map((tier) => (
-                    <tr key={tier.maxGrafts} className="border-t border-[rgba(192,213,214,0.14)]">
-                      <td className="py-2.5">Up to {formatGrafts(tier.maxGrafts)}</td>
-                      <td className="py-2.5 font-display text-xl text-white">{formatPrice(tier.fue)}</td>
-                      <td className="py-2.5 font-display text-xl text-white">{formatPrice(tier.dhi)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </section>
@@ -385,12 +378,6 @@ export default async function Home() {
 
         {reviews.length > 0 ? <ReviewSlider reviews={reviews} /> : null}
 
-        <AssessmentSection
-          sourceLabel="homepage"
-          tone="dark"
-          title="Book your free consultation."
-          intro="Share your concern, timing, any useful location context, and any helpful photos so the team can guide you toward the most useful next step."
-        />
 
         <section className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="min-w-0">

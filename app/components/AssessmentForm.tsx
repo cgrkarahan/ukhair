@@ -262,27 +262,31 @@ export default function AssessmentForm({
       className="grid gap-4"
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-1.5 flex-1 overflow-hidden rounded-full bg-[color:var(--line-soft)]">
-          <div
-            className="h-full rounded-full bg-[color:var(--sage-700)] transition-all duration-300"
-            style={{ width: `${((screen + 1) / (questions.length + 1)) * 100}%` }}
-          />
-        </div>
-        <span className="whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--ink-600)]">
+        <ol className="flex flex-1 gap-1.5" aria-hidden="true">
+          {Array.from({ length: questions.length + 1 }, (_, index) => (
+            <li
+              key={index}
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                index <= screen ? "bg-[color:var(--gold-500)]" : "bg-[color:var(--line-soft)]"
+              }`}
+            />
+          ))}
+        </ol>
+        <span className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--ink-600)]">
           {onDetails ? "Last step" : `Question ${screen + 1} of ${questions.length}`}
         </span>
       </div>
 
       {questions.map((question, index) => (
         <fieldset key={question.name} hidden={screen !== index} className="grid gap-3">
+          <legend className="font-display text-[1.6rem] leading-tight text-[color:var(--ink-950)]">
+            {question.label}
+          </legend>
           {index === 0 ? (
-            <p className="text-sm leading-7 text-[color:var(--ink-700)]">
+            <p className="-mt-1 text-sm leading-6 text-[color:var(--ink-700)]">
               Three quick questions, then your details. Most people finish in under 60 seconds.
             </p>
           ) : null}
-          <legend className="font-display text-2xl text-[color:var(--ink-950)]">
-            {question.label}
-          </legend>
           <div className="grid gap-2 sm:grid-cols-2">
             {question.options.map((option) => {
               const selected = answers[question.name] === option;
@@ -291,10 +295,10 @@ export default function AssessmentForm({
                 <label
                   key={option}
                   onPointerUp={() => chooseAndAdvance(question.name, option, index)}
-                  className={`flex cursor-pointer items-center gap-3 rounded-[18px] border px-4 py-3 text-sm transition focus-within:ring-2 focus-within:ring-[color:var(--sage-500)] ${
+                  className={`flex min-h-[52px] cursor-pointer items-center gap-3 rounded-[16px] border-2 px-4 py-3 text-[15px] transition focus-within:ring-2 focus-within:ring-[color:var(--sage-500)] focus-within:ring-offset-2 ${
                     selected
-                      ? "border-[color:var(--sage-700)] bg-[rgba(192,213,214,0.35)] font-semibold text-[color:var(--ink-950)]"
-                      : "border-[color:var(--line-soft)] bg-[color:var(--surface-paper)] text-[color:var(--ink-800)] hover:border-[color:var(--sage-500)]"
+                      ? "border-[color:var(--ink-950)] bg-white font-semibold text-[color:var(--ink-950)] shadow-[0_10px_24px_rgba(6,47,64,0.12)]"
+                      : "border-[color:var(--line-soft)] bg-white/90 text-[color:var(--ink-800)] hover:-translate-y-px hover:border-[color:var(--gold-500)] hover:shadow-[0_8px_18px_rgba(6,47,64,0.08)]"
                   }`}
                 >
                   <input
@@ -303,8 +307,22 @@ export default function AssessmentForm({
                     value={option}
                     checked={selected}
                     onChange={() => choose(question.name, option)}
-                    className="h-4 w-4 accent-[color:var(--sage-700)]"
+                    className="sr-only"
                   />
+                  <span
+                    aria-hidden="true"
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                      selected
+                        ? "border-[color:var(--ink-950)] bg-[color:var(--ink-950)] text-white"
+                        : "border-[color:var(--line-strong)] bg-white"
+                    }`}
+                  >
+                    {selected ? (
+                      <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3.5 8.5l3 3 6-7" />
+                      </svg>
+                    ) : null}
+                  </span>
                   {option}
                 </label>
               );
@@ -326,7 +344,7 @@ export default function AssessmentForm({
               type="button"
               disabled={!answers[question.name]}
               onClick={() => goToScreen(index + 1)}
-              className="inline-flex justify-center rounded-full bg-[color:var(--gold-300)] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[color:var(--gold-400)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex justify-center rounded-full bg-[color:var(--ink-950)] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[color:var(--sage-600)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {index === questions.length - 1 ? "Continue to your details" : "Next"}
             </button>

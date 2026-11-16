@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getPhoneHref, getWhatsappHref } from "@/app/lib/contact";
 import { TRACKING_EVENTS, pushTrackingEvent } from "@/app/lib/tracking";
 const KEYBOARD_HEIGHT_THRESHOLD = 140;
+const DISMISS_KEY = "ukhair_mobile_bar_dismissed";
 
 function isEditableElement(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) {
@@ -23,6 +24,54 @@ function isEditableElement(target: EventTarget | null) {
 
 export default function MobileStickyAssessmentCta() {
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [isScrollingDown, setIsScrollingDown] = useState(false);
+
+  // Closed for the rest of the visit once the visitor taps the close button.
+  useEffect(() => {
+    try {
+      if (window.sessionStorage.getItem(DISMISS_KEY) === "1") {
+        // Read after mount so the server and first client render match.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setIsDismissed(true);
+      }
+    } catch {
+      // Storage can be blocked; the bar then simply stays available.
+    }
+  }, []);
+
+  // Slide the bar away while reading down the page, and bring it back on any
+  // scroll up or near the top, so it never sits over the text being read.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let frame = 0;
+
+    function handleScroll() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - lastY;
+        if (Math.abs(delta) < 8) return;
+        setIsScrollingDown(delta > 0 && y > 240);
+        lastY = y;
+      });
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  function dismiss() {
+    setIsDismissed(true);
+    try {
+      window.sessionStorage.setItem(DISMISS_KEY, "1");
+    } catch {
+      // Ignore: the bar is still hidden for this page view.
+    }
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -84,16 +133,22 @@ export default function MobileStickyAssessmentCta() {
     "I would like to request a free hair transplant consultation.",
   );
 
+  if (isDismissed) {
+    return null;
+  }
+
+  const hidden = isKeyboardOpen || isScrollingDown;
+
   // Shown straight away, whether or not the cookie banner has been answered:
   // the bar sets no cookies, and it is the quickest way to get in touch on a phone.
   return (
     <div
       className={`pointer-events-none fixed inset-x-0 bottom-0 z-30 block px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] transition duration-200 md:hidden ${
-        isKeyboardOpen
-          ? "translate-y-6 opacity-0"
+        hidden
+          ? "translate-y-full opacity-0"
           : "translate-y-0 opacity-100"
       }`}
-      aria-hidden={isKeyboardOpen}
+      aria-hidden={hidden}
     >
       <nav
         aria-label="Contact"
@@ -103,7 +158,7 @@ export default function MobileStickyAssessmentCta() {
           <a
             href={phoneHref}
             onClick={() => pushTrackingEvent(TRACKING_EVENTS.phoneClick)}
-            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full px-3 text-sm font-semibold text-white"
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full px-2 text-sm font-semibold text-white"
           >
             Call
           </a>
@@ -125,6 +180,16 @@ export default function MobileStickyAssessmentCta() {
         >
           Free consultation
         </Link>
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label="Close contact bar"
+          className="inline-flex min-h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
+        >
+          <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M5 5l10 10M15 5L5 15" />
+          </svg>
+        </button>
       </nav>
     </div>
   );
