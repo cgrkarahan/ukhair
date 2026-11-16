@@ -104,7 +104,7 @@ class IncompleteOpenAIResponseError extends Error {
   }
 }
 
-const ARTICLE_MAX_OUTPUT_TOKENS = 6500;
+const ARTICLE_MAX_OUTPUT_TOKENS = 8000;
 const REVIEW_MAX_OUTPUT_TOKENS = 1800;
 const REPAIR_MAX_OUTPUT_TOKENS = 3500;
 const MIN_ARTICLE_WORDS = 750;
@@ -466,9 +466,9 @@ const articleSchema = {
     answerSummary: { type: "string", minLength: 140, maxLength: 450, pattern: completeSentencePattern },
     readTime: { type: "string", pattern: "^[0-9]+ min read$" },
     keywords: { type: "array", minItems: 4, maxItems: 8, items: { type: "string" } },
-    keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 160, pattern: completeSentencePattern } },
-    sections: { type: "array", minItems: 7, maxItems: 8, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 3, items: { type: "string", minLength: 80, maxLength: 700, pattern: completeSentencePattern } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160, pattern: completeSentencePattern } } } } },
-    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110, pattern: "[?][\\\"'’”)]*$" }, answer: { type: "string", minLength: 100, maxLength: 400, pattern: completeSentencePattern } } } },
+    keyTakeaways: { type: "array", minItems: 4, maxItems: 4, items: { type: "string", minLength: 25, maxLength: 140, pattern: completeSentencePattern } },
+    sections: { type: "array", minItems: 7, maxItems: 7, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 2, items: { type: "string", minLength: 80, maxLength: 500, pattern: completeSentencePattern } }, bullets: { type: "array", maxItems: 2, items: { type: "string", minLength: 15, maxLength: 140, pattern: completeSentencePattern } } } } },
+    faq: { type: "array", minItems: 3, maxItems: 3, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110, pattern: "[?][\\\"'’”)]*$" }, answer: { type: "string", minLength: 100, maxLength: 300, pattern: completeSentencePattern } } } },
     studyDesign: { type: "string", minLength: 3, maxLength: 100 },
   },
 } as const;
@@ -498,7 +498,7 @@ function articleRequest(
     topic: item.researchTopic,
   }));
   return {
-    instructions: `Summarise the supplied PubMed-indexed study for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write clear, original British English and return only the requested JSON object. The task is to explain the study accurately, not to create new medical conclusions. Use the study metadata and abstract as the authority for the population, methods, comparisons, outcomes and limitations. Use an independent-guidance statement only when its supplied note explicitly supports the statement. A link alone is not evidence for additional details. Preserve methodological meaning: sessions are not injections, sensitivity analyses are not eligibility rules, associations are not effects, and a possible adjunct is not an established alternative treatment. Do not add diagnoses, symptom lists, tests, referral criteria, treatment recommendations, NHS availability, prescribing, regulation, interactions or special-group advice unless the supplied evidence states the exact point. Neutral signposting to the linked NHS guidance or a GP is sufficient when relevant. Do not diagnose, prescribe, promise results, imply clinician review or invent facts. Clearly distinguish what the study found from what it did not prove. Produce a complete ${MIN_ARTICLE_WORDS}-${MAX_ARTICLE_WORDS} word reader-visible article, aiming for 850-950 words. Write exactly seven supplied sections with two concise paragraphs per section and 3-4 concise FAQs. Give each section a distinct purpose, avoid repeating the same conclusion and finish every field and sentence. Return plain text in JSON strings without HTML, Markdown, XML, drafting notes or commentary.`,
+    instructions: `Summarise the supplied PubMed-indexed study for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write clear, original British English and return only the requested JSON object. The task is to explain the study accurately, not to create new medical conclusions. Use the study metadata and abstract as the authority for the population, methods, comparisons, outcomes and limitations. Use an independent-guidance statement only when its supplied note explicitly supports the statement. A link alone is not evidence for additional details. Preserve methodological meaning: sessions are not injections, sensitivity analyses are not eligibility rules, associations are not effects, and a possible adjunct is not an established alternative treatment. Do not add diagnoses, symptom lists, tests, referral criteria, treatment recommendations, NHS availability, prescribing, regulation, interactions or special-group advice unless the supplied evidence states the exact point. Neutral signposting to the linked NHS guidance or a GP is sufficient when relevant. Do not diagnose, prescribe, promise results, imply clinician review or invent facts. Clearly distinguish what the study found from what it did not prove. Produce a complete ${MIN_ARTICLE_WORDS}-${MAX_ARTICLE_WORDS} word reader-visible article, aiming for 850-950 words. Write exactly seven supplied sections with exactly two concise paragraphs per section, four concise takeaways and exactly three concise FAQs. Use no more than two bullets in a section and prefer an empty bullets array unless bullets materially improve clarity. Give each section a distinct purpose, avoid repeating the same conclusion and finish every field and sentence. Return plain text in JSON strings without HTML, Markdown, XML, drafting notes or commentary.`,
     input: JSON.stringify({
       assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
       primaryStudy: primaryStudyContext(candidate),
@@ -509,7 +509,7 @@ function articleRequest(
         sectionCount: 7,
         paragraphsPerSection: 2,
         wordsPerParagraph: "40-60",
-        faqCount: "3-4",
+        faqCount: 3,
         wordsPerFaqAnswer: "30-50",
         totalReaderVisibleWords: `${MIN_ARTICLE_WORDS}-${MAX_ARTICLE_WORDS}`,
       },
