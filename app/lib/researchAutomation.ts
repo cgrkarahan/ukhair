@@ -420,6 +420,8 @@ async function retrieveStructuredResponse<T>(responseId: string): Promise<T> {
   return JSON.parse(text) as T;
 }
 
+const completeSentencePattern = "[.!?][\\\"'’”)]*$";
+
 const articleSchema = {
   type: "object",
   additionalProperties: false,
@@ -428,18 +430,31 @@ const articleSchema = {
     slug: { type: "string", pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
     title: { type: "string", minLength: 30, maxLength: 90 },
     seoTitle: { type: "string", minLength: 30, maxLength: 70 },
-    description: { type: "string", minLength: 90, maxLength: 170 },
-    excerpt: { type: "string", minLength: 80, maxLength: 260 },
+    description: { type: "string", minLength: 90, maxLength: 170, pattern: completeSentencePattern },
+    excerpt: { type: "string", minLength: 80, maxLength: 260, pattern: completeSentencePattern },
     eyebrow: { type: "string", minLength: 3, maxLength: 40 },
-    answerSummary: { type: "string", minLength: 140, maxLength: 450 },
+    answerSummary: { type: "string", minLength: 140, maxLength: 450, pattern: completeSentencePattern },
     readTime: { type: "string", pattern: "^[0-9]+ min read$" },
     keywords: { type: "array", minItems: 4, maxItems: 8, items: { type: "string" } },
-    keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 160 } },
-    sections: { type: "array", minItems: 7, maxItems: 8, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 3, items: { type: "string", minLength: 80, maxLength: 700 } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160 } } } } },
-    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110 }, answer: { type: "string", minLength: 100, maxLength: 400 } } } },
+    keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 160, pattern: completeSentencePattern } },
+    sections: { type: "array", minItems: 7, maxItems: 8, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 3, items: { type: "string", minLength: 80, maxLength: 700, pattern: completeSentencePattern } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160, pattern: completeSentencePattern } } } } },
+    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110, pattern: "[?][\\\"'’”)]*$" }, answer: { type: "string", minLength: 100, maxLength: 400, pattern: completeSentencePattern } } } },
     studyDesign: { type: "string", minLength: 3, maxLength: 100 },
   },
 } as const;
+
+function primaryStudyContext(candidate: EuropePmcResult) {
+  return {
+    pmid: candidate.pmid,
+    doi: candidate.doi,
+    title: candidate.title,
+    authors: candidate.authorString,
+    journal: candidate.journalTitle,
+    publicationDate: candidate.firstPublicationDate,
+    publicationTypes: candidate.pubTypeList?.pubType,
+    abstract: plainText(candidate.abstractText),
+  };
+}
 
 function articleRequest(
   candidate: EuropePmcResult,
@@ -456,7 +471,7 @@ function articleRequest(
     instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain roughly 1,000-1,400 words. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
     input: JSON.stringify({
       assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
-      primaryStudy: { pmid: candidate.pmid, doi: candidate.doi, title: candidate.title, authors: candidate.authorString, journal: candidate.journalTitle, publicationDate: candidate.firstPublicationDate, publicationTypes: candidate.pubTypeList?.pubType, abstract: plainText(candidate.abstractText) },
+      primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
       allowedSources,
       existingArticlesToAvoidDuplicating: existingContext,
@@ -503,6 +518,12 @@ const nullableShortString = {
   maxLength: 700,
 } as const;
 
+const nullableCompleteSentence = {
+  type: ["string", "null"],
+  maxLength: 700,
+  pattern: completeSentencePattern,
+} as const;
+
 const repairSchema = {
   type: "object",
   additionalProperties: false,
@@ -523,10 +544,10 @@ const repairSchema = {
   properties: {
     title: nullableShortString,
     seoTitle: nullableShortString,
-    description: nullableShortString,
-    excerpt: nullableShortString,
+    description: nullableCompleteSentence,
+    excerpt: nullableCompleteSentence,
     eyebrow: nullableShortString,
-    answerSummary: nullableShortString,
+    answerSummary: nullableCompleteSentence,
     readTime: nullableShortString,
     keywords: {
       type: ["array", "null"],
@@ -536,7 +557,7 @@ const repairSchema = {
     keyTakeaways: {
       type: ["array", "null"],
       maxItems: 5,
-      items: { type: "string", maxLength: 180 },
+      items: { type: "string", maxLength: 180, pattern: completeSentencePattern },
     },
     studyDesign: nullableShortString,
     sections: {
@@ -552,12 +573,12 @@ const repairSchema = {
           paragraphs: {
             type: ["array", "null"],
             maxItems: 3,
-            items: { type: "string", maxLength: 700 },
+            items: { type: "string", maxLength: 700, pattern: completeSentencePattern },
           },
           bullets: {
             type: ["array", "null"],
             maxItems: 4,
-            items: { type: "string", maxLength: 180 },
+            items: { type: "string", maxLength: 180, pattern: completeSentencePattern },
           },
         },
       },
@@ -572,7 +593,7 @@ const repairSchema = {
         properties: {
           index: { type: "integer", minimum: 0, maximum: 3 },
           question: nullableShortString,
-          answer: nullableShortString,
+          answer: nullableCompleteSentence,
         },
       },
     },
@@ -593,15 +614,7 @@ function repairRequest(
     input: JSON.stringify({
       qualityReviewIssues: review.issues,
       article,
-      primaryStudy: {
-        title: candidate.title,
-        authors: candidate.authorString,
-        journal: candidate.journalTitle,
-        publicationDate: candidate.firstPublicationDate,
-        doi: candidate.doi,
-        abstract: plainText(candidate.abstractText),
-        publicationTypes: candidate.pubTypeList?.pubType,
-      },
+      primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
     }),
   };
@@ -672,15 +685,7 @@ function reviewRequest(
     input: JSON.stringify({
       publisherContext: "UK Hair Transplant is a UK referral and patient-information service, not a clinic.",
       article,
-      primaryStudy: {
-        title: candidate.title,
-        authors: candidate.authorString,
-        journal: candidate.journalTitle,
-        publicationDate: candidate.firstPublicationDate,
-        doi: candidate.doi,
-        abstract: plainText(candidate.abstractText),
-        publicationTypes: candidate.pubTypeList?.pubType,
-      },
+      primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
     }),
   };
@@ -690,9 +695,28 @@ function wordCount(article: GeneratedArticle) {
   return article.sections.flatMap((section) => section.paragraphs).join(" ").split(/\s+/).filter(Boolean).length;
 }
 
+function incompleteProseFields(article: GeneratedArticle) {
+  const fields: Array<[string, string]> = [
+    ["description", article.description],
+    ["excerpt", article.excerpt],
+    ["answerSummary", article.answerSummary],
+    ...article.keyTakeaways.map((value, index) => [`keyTakeaways[${index}]`, value] as [string, string]),
+    ...article.sections.flatMap((section, sectionIndex) => [
+      ...section.paragraphs.map((value, index) => [`sections[${sectionIndex}].paragraphs[${index}]`, value] as [string, string]),
+      ...(section.bullets ?? []).map((value, index) => [`sections[${sectionIndex}].bullets[${index}]`, value] as [string, string]),
+    ]),
+    ...article.faq.map((item, index) => [`faq[${index}].answer`, item.answer] as [string, string]),
+  ];
+
+  return fields
+    .filter(([, value]) => !/[.!?][\"'’”)]*$/.test(value.trim()))
+    .map(([label]) => label);
+}
+
 function deterministicValidation(article: GeneratedArticle, existing: ExistingFingerprint[]) {
   const count = wordCount(article);
   const similarity = similarityToExisting(article, existing);
+  const incompleteFields = incompleteProseFields(article);
   // Match promotional claims, while allowing safety language such as
   // "results are not guaranteed" or "no treatment is risk-free".
   const forbidden =
@@ -702,6 +726,9 @@ function deterministicValidation(article: GeneratedArticle, existing: ExistingFi
   if (similarity > 0.62) throw new Error(`Article too similar to existing content (${similarity.toFixed(2)})`);
   if (forbidden.test(allText)) throw new Error("Article contains a prohibited claim");
   if (/<\/?[a-z][^>]*>/i.test(allText)) throw new Error("Article contains HTML markup");
+  if (incompleteFields.length > 0) {
+    throw new Error(`Article contains incomplete prose: ${incompleteFields.slice(0, 6).join(", ")}`);
+  }
   if (existing.some((item) => item.slug === article.slug)) throw new Error("Article slug already exists");
   return similarity;
 }
@@ -916,7 +943,15 @@ export async function startResearchPublication(
   try {
     const cluster = selectCluster(date, slot);
     const existing = await existingFingerprints();
-    const candidate = (await unusedCandidates(cluster, existing))[0];
+    const candidates = await unusedCandidates(cluster, existing);
+    const failedCandidate =
+      activeJob?.state === "failed"
+        ? (activeJob.candidate as EuropePmcResult)
+        : undefined;
+    const candidate =
+      candidates.find(
+        (item) => failedCandidate?.pmid && item.pmid === failedCandidate.pmid,
+      ) ?? candidates[0];
     if (!candidate) {
       throw new Error("No unused PubMed candidate passed the source filters");
     }
