@@ -18,6 +18,7 @@ import {
   markAutomationJobRepairing,
   markAutomationJobReviewing,
   restartAutomationJobGeneration,
+  restartAutomationJobReview,
   saveAutomatedBlogPost,
 } from "@/app/lib/blogDatabase";
 import {
@@ -93,10 +94,29 @@ type ArticleRepair = {
 };
 
 class FatalAutomationError extends Error {}
+class IncompleteOpenAIResponseError extends Error {
+  constructor(readonly reason: string) {
+    super(`OpenAI response was incomplete: ${reason}`);
+  }
+}
 
-const ARTICLE_MAX_OUTPUT_TOKENS = 5000;
-const REVIEW_MAX_OUTPUT_TOKENS = 1400;
-const REPAIR_MAX_OUTPUT_TOKENS = 1800;
+function isRecoverableOpenAICompletionError(error: unknown) {
+  return (
+    error instanceof IncompleteOpenAIResponseError ||
+    (error instanceof Error &&
+      /OpenAI returned no structured output|OpenAI response retrieval failed \(5\d\d\)/.test(
+        error.message,
+      ))
+  );
+}
+
+const ARTICLE_MAX_OUTPUT_TOKENS = 7000;
+const ARTICLE_RETRY_MAX_OUTPUT_TOKENS = 10000;
+const REVIEW_MAX_OUTPUT_TOKENS = 1800;
+const REVIEW_RETRY_MAX_OUTPUT_TOKENS = 2600;
+const REPAIR_MAX_OUTPUT_TOKENS = 2600;
+const MAX_GENERATION_ATTEMPTS = 2;
+const MAX_REVIEW_ATTEMPTS = 2;
 
 const nhsHairLoss: GuidanceSource = {
   label: "NHS: Hair loss",
@@ -312,8 +332,8 @@ function responseText(payload: unknown) {
     }>;
   };
   if (response.status === "incomplete") {
-    throw new Error(
-      `OpenAI response was incomplete${response.incomplete_details?.reason ? `: ${response.incomplete_details.reason}` : ""}`,
+    throw new IncompleteOpenAIResponseError(
+      response.incomplete_details?.reason ?? "unknown reason",
     );
   }
   const refusal = response.output
@@ -328,7 +348,7 @@ async function structuredResponse<T>(
   schema: Record<string, unknown>,
   instructions: string,
   input: string,
-  reasoningEffort: "low" | "medium" = "medium",
+  reasoningEffort: "minimal" | "low" | "medium" = "low",
   maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
 ): Promise<T> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -366,7 +386,7 @@ async function startBackgroundStructuredResponse(
   schema: Record<string, unknown>,
   instructions: string,
   input: string,
-  reasoningEffort: "low" | "medium" = "medium",
+  reasoningEffort: "minimal" | "low" | "medium" = "low",
   maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
 ) {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -460,15 +480,23 @@ function articleRequest(
   candidate: EuropePmcResult,
   cluster: ResearchCluster,
   existing: ExistingFingerprint[],
+  options: { compact?: boolean } = {},
 ) {
   const types = resultStudyDesign(candidate);
   const allowedSources = [
     { label: `PubMed: ${candidate.title}`, href: `https://pubmed.ncbi.nlm.nih.gov/${candidate.pmid}/`, note: plainText(candidate.abstractText) },
     ...cluster.guidance,
   ];
-  const existingContext = existing.slice(0, 120).map((item) => ({ title: item.title, slug: item.slug, topic: item.researchTopic }));
+  const existingContext = existing.slice(0, 40).map((item) => ({
+    title: item.title,
+    slug: item.slug,
+    topic: item.researchTopic,
+  }));
+  const targetLength = options.compact
+    ? "900-1,050 words"
+    : "950-1,150 words";
   return {
-    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain roughly 1,000-1,400 words. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
+    instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain ${targetLength}. Use concise paragraphs. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
     input: JSON.stringify({
       assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
       primaryStudy: primaryStudyContext(candidate),
@@ -491,6 +519,8 @@ async function generateArticle(
     articleSchema,
     request.instructions,
     request.input,
+    "minimal",
+    ARTICLE_MAX_OUTPUT_TOKENS,
   );
 }
 
@@ -962,7 +992,8 @@ export async function startResearchPublication(
       articleSchema,
       request.instructions,
       request.input,
-      "low",
+      "minimal",
+      ARTICLE_MAX_OUTPUT_TOKENS,
     );
     await createAutomationJob({
       publicationDate: date,
@@ -993,7 +1024,7 @@ async function retryWithNextCandidate(
   cluster: ResearchCluster,
   reason: string,
 ) {
-  if (job.attemptedPmids.length >= 2) {
+  if (new Set(job.attemptedPmids).size >= 2) {
     await failAutomationJob(job.publicationDate, job.slot, reason);
     return { status: "failed" as const, error: reason };
   }
@@ -1018,7 +1049,8 @@ async function retryWithNextCandidate(
     articleSchema,
     request.instructions,
     request.input,
-    "low",
+    "minimal",
+    ARTICLE_MAX_OUTPUT_TOKENS,
   );
   const restarted = await restartAutomationJobGeneration({
     publicationDate: job.publicationDate,
@@ -1026,11 +1058,91 @@ async function retryWithNextCandidate(
     candidate,
     generationResponseId: response.id,
     reason,
+    resetAttempts: true,
   });
   return {
     status: restarted ? ("generation-retried" as const) : ("ignored" as const),
     responseId: response.id,
     pmid: candidate.pmid,
+  };
+}
+
+async function retrySameCandidateGeneration(
+  job: AutomationJob,
+  cluster: ResearchCluster,
+  reason: string,
+) {
+  if (job.generationAttempts >= MAX_GENERATION_ATTEMPTS) {
+    const message = `Article generation failed after ${MAX_GENERATION_ATTEMPTS} attempts: ${reason}`;
+    await failAutomationJob(job.publicationDate, job.slot, message);
+    return { status: "failed" as const, error: message };
+  }
+
+  const candidate = job.candidate as EuropePmcResult;
+  const existing = await existingFingerprints();
+  const request = articleRequest(candidate, cluster, existing, { compact: true });
+  const response = await startBackgroundStructuredResponse(
+    "research_article_retry",
+    articleSchema,
+    request.instructions,
+    request.input,
+    "minimal",
+    ARTICLE_RETRY_MAX_OUTPUT_TOKENS,
+  );
+  const restarted = await restartAutomationJobGeneration({
+    publicationDate: job.publicationDate,
+    slot: job.slot,
+    candidate,
+    generationResponseId: response.id,
+    reason,
+    resetAttempts: false,
+  });
+  return {
+    status: restarted ? ("generation-retried" as const) : ("ignored" as const),
+    responseId: response.id,
+    pmid: candidate.pmid,
+  };
+}
+
+async function retrySameArticleReview(
+  job: AutomationJob,
+  candidate: EuropePmcResult,
+  cluster: ResearchCluster,
+  reason: string,
+) {
+  if (
+    !job.draft ||
+    !job.reviewResponseId ||
+    job.reviewAttempts >= MAX_REVIEW_ATTEMPTS
+  ) {
+    const message = `Quality review failed after ${MAX_REVIEW_ATTEMPTS} attempts: ${reason}`;
+    await failAutomationJob(job.publicationDate, job.slot, message);
+    return { status: "failed" as const, error: message };
+  }
+
+  const request = reviewRequest(
+    job.draft as GeneratedArticle,
+    candidate,
+    cluster,
+  );
+  const response = await startBackgroundStructuredResponse(
+    "article_quality_review_retry",
+    reviewSchema,
+    request.instructions,
+    request.input,
+    "minimal",
+    REVIEW_RETRY_MAX_OUTPUT_TOKENS,
+  );
+  const restarted = await restartAutomationJobReview({
+    publicationDate: job.publicationDate,
+    slot: job.slot,
+    reviewResponseId: response.id,
+    expectedReviewResponseId: job.reviewResponseId,
+    reason,
+  });
+  return {
+    status: restarted ? ("review-retried" as const) : ("ignored" as const),
+    responseId: response.id,
   };
 }
 
@@ -1163,10 +1275,17 @@ export async function processCompletedResearchResponse(responseId: string) {
 
     return { status: "ignored" as const };
   } catch (error) {
+    const reason =
+      error instanceof Error ? error.message : "Unknown asynchronous failure";
+    if (isRecoverableOpenAICompletionError(error)) {
+      return job.state === "reviewing"
+        ? retrySameArticleReview(job, candidate, cluster, reason)
+        : retrySameCandidateGeneration(job, cluster, reason);
+    }
     return retryWithNextCandidate(
       job,
       cluster,
-      error instanceof Error ? error.message : "Unknown asynchronous failure",
+      reason,
     );
   }
 }

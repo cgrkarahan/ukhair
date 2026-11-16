@@ -33,6 +33,8 @@ export type AutomationJob = {
   reviewResponseId: string | null;
   similarityScore: number | null;
   attemptedPmids: string[];
+  generationAttempts: number;
+  reviewAttempts: number;
   repairAttempts: number;
 };
 
@@ -67,6 +69,8 @@ type StoredAutomationJobRow = {
   review_response_id: string | null;
   similarity_score: number | null;
   attempted_pmids: string[];
+  generation_attempts: number;
+  review_attempts: number;
   repair_attempts: number;
 };
 
@@ -141,6 +145,8 @@ function mapAutomationJob(row: StoredAutomationJobRow): AutomationJob {
     reviewResponseId: row.review_response_id,
     similarityScore: row.similarity_score,
     attemptedPmids: row.attempted_pmids ?? [],
+    generationAttempts: row.generation_attempts ?? 1,
+    reviewAttempts: row.review_attempts ?? 0,
     repairAttempts: row.repair_attempts ?? 0,
   };
 }
@@ -211,6 +217,8 @@ export async function ensureAutomatedBlogSchema() {
       review_response_id TEXT UNIQUE,
       similarity_score DOUBLE PRECISION,
       attempted_pmids TEXT[] NOT NULL DEFAULT '{}',
+      generation_attempts INTEGER NOT NULL DEFAULT 1,
+      review_attempts INTEGER NOT NULL DEFAULT 0,
       repair_attempts INTEGER NOT NULL DEFAULT 0,
       last_error TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -227,6 +235,16 @@ export async function ensureAutomatedBlogSchema() {
   await sql`
     ALTER TABLE automated_content_jobs
     ADD COLUMN IF NOT EXISTS repair_attempts INTEGER NOT NULL DEFAULT 0
+  `;
+
+  await sql`
+    ALTER TABLE automated_content_jobs
+    ADD COLUMN IF NOT EXISTS generation_attempts INTEGER NOT NULL DEFAULT 1
+  `;
+
+  await sql`
+    ALTER TABLE automated_content_jobs
+    ADD COLUMN IF NOT EXISTS review_attempts INTEGER NOT NULL DEFAULT 0
   `;
 }
 
@@ -249,6 +267,8 @@ export async function createAutomationJob(input: {
       review_response_id,
       similarity_score,
       attempted_pmids,
+      generation_attempts,
+      review_attempts,
       repair_attempts,
       last_error,
       created_at,
@@ -265,6 +285,8 @@ export async function createAutomationJob(input: {
       NULL,
       NULL,
       ARRAY[${(input.candidate as { pmid?: string }).pmid ?? "unknown"}]::text[],
+      1,
+      0,
       0,
       NULL,
       NOW(),
@@ -279,6 +301,8 @@ export async function createAutomationJob(input: {
       review_response_id = NULL,
       similarity_score = NULL,
       attempted_pmids = EXCLUDED.attempted_pmids,
+      generation_attempts = 1,
+      review_attempts = 0,
       repair_attempts = 0,
       last_error = NULL,
       updated_at = NOW()
@@ -301,6 +325,8 @@ export async function getAutomationJobByResponseId(
       review_response_id,
       similarity_score,
       attempted_pmids,
+      generation_attempts,
+      review_attempts,
       repair_attempts
     FROM automated_content_jobs
     WHERE generation_response_id = ${responseId}
@@ -326,6 +352,8 @@ export async function getAutomationJobForSlot(
       review_response_id,
       similarity_score,
       attempted_pmids,
+      generation_attempts,
+      review_attempts,
       repair_attempts
     FROM automated_content_jobs
     WHERE publication_date = ${publicationDate}::date
@@ -353,6 +381,8 @@ export async function getStaleAutomationJobs(
       review_response_id,
       similarity_score,
       attempted_pmids,
+      generation_attempts,
+      review_attempts,
       repair_attempts
     FROM automated_content_jobs
     WHERE state IN ('generating', 'reviewing')
@@ -369,6 +399,7 @@ export async function restartAutomationJobGeneration(input: {
   candidate: unknown;
   generationResponseId: string;
   reason: string;
+  resetAttempts: boolean;
 }) {
   const pmid = (input.candidate as { pmid?: string }).pmid ?? "unknown";
   const rows = (await database()`
@@ -381,12 +412,18 @@ export async function restartAutomationJobGeneration(input: {
       review_response_id = NULL,
       similarity_score = NULL,
       attempted_pmids = ARRAY_APPEND(attempted_pmids, ${pmid}),
+      generation_attempts = CASE
+        WHEN ${input.resetAttempts} THEN 1
+        ELSE generation_attempts + 1
+      END,
+      review_attempts = 0,
       repair_attempts = 0,
       last_error = ${input.reason.slice(0, 4000)},
       updated_at = NOW()
     WHERE publication_date = ${input.publicationDate}::date
       AND slot = ${input.slot}
       AND state IN ('generating', 'reviewing')
+      AND (${input.resetAttempts} OR generation_attempts < 2)
     RETURNING generation_response_id
   `) as Array<{ generation_response_id: string }>;
   return rows.length > 0;
@@ -405,6 +442,7 @@ export async function markAutomationJobRepairing(input: {
       state = 'generating',
       generation_response_id = ${input.repairResponseId},
       review_response_id = NULL,
+      review_attempts = 0,
       repair_attempts = repair_attempts + 1,
       last_error = ${input.reason.slice(0, 4000)},
       updated_at = NOW()
@@ -432,6 +470,7 @@ export async function markAutomationJobReviewing(input: {
       draft = ${JSON.stringify(input.draft)}::jsonb,
       similarity_score = ${input.similarityScore},
       review_response_id = ${input.reviewResponseId},
+      review_attempts = 1,
       last_error = NULL,
       updated_at = NOW()
     WHERE publication_date = ${input.publicationDate}::date
@@ -439,6 +478,30 @@ export async function markAutomationJobReviewing(input: {
       AND state = 'generating'
     RETURNING generation_response_id
   `) as Array<{ generation_response_id: string }>;
+  return rows.length > 0;
+}
+
+export async function restartAutomationJobReview(input: {
+  publicationDate: string;
+  slot: PublicationSlot;
+  reviewResponseId: string;
+  expectedReviewResponseId: string;
+  reason: string;
+}) {
+  const rows = (await database()`
+    UPDATE automated_content_jobs
+    SET
+      review_response_id = ${input.reviewResponseId},
+      review_attempts = review_attempts + 1,
+      last_error = ${input.reason.slice(0, 4000)},
+      updated_at = NOW()
+    WHERE publication_date = ${input.publicationDate}::date
+      AND slot = ${input.slot}
+      AND state = 'reviewing'
+      AND review_response_id = ${input.expectedReviewResponseId}
+      AND review_attempts < 2
+    RETURNING review_response_id
+  `) as Array<{ review_response_id: string }>;
   return rows.length > 0;
 }
 
