@@ -348,7 +348,7 @@ async function structuredResponse<T>(
   schema: Record<string, unknown>,
   instructions: string,
   input: string,
-  reasoningEffort: "minimal" | "low" | "medium" = "low",
+  reasoningEffort: "none" | "low" | "medium" = "low",
   maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
 ): Promise<T> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -386,7 +386,7 @@ async function startBackgroundStructuredResponse(
   schema: Record<string, unknown>,
   instructions: string,
   input: string,
-  reasoningEffort: "minimal" | "low" | "medium" = "low",
+  reasoningEffort: "none" | "low" | "medium" = "low",
   maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
 ) {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -519,7 +519,7 @@ async function generateArticle(
     articleSchema,
     request.instructions,
     request.input,
-    "minimal",
+    "none",
     ARTICLE_MAX_OUTPUT_TOKENS,
   );
 }
@@ -992,7 +992,7 @@ export async function startResearchPublication(
       articleSchema,
       request.instructions,
       request.input,
-      "minimal",
+      "none",
       ARTICLE_MAX_OUTPUT_TOKENS,
     );
     await createAutomationJob({
@@ -1049,7 +1049,7 @@ async function retryWithNextCandidate(
     articleSchema,
     request.instructions,
     request.input,
-    "minimal",
+    "none",
     ARTICLE_MAX_OUTPUT_TOKENS,
   );
   const restarted = await restartAutomationJobGeneration({
@@ -1086,7 +1086,7 @@ async function retrySameCandidateGeneration(
     articleSchema,
     request.instructions,
     request.input,
-    "minimal",
+    "none",
     ARTICLE_RETRY_MAX_OUTPUT_TOKENS,
   );
   const restarted = await restartAutomationJobGeneration({
@@ -1130,7 +1130,7 @@ async function retrySameArticleReview(
     reviewSchema,
     request.instructions,
     request.input,
-    "minimal",
+    "none",
     REVIEW_RETRY_MAX_OUTPUT_TOKENS,
   );
   const restarted = await restartAutomationJobReview({
