@@ -9,7 +9,8 @@
     "lint": "eslint",
     "indexnow": "node scripts/submit-indexnow.mjs",
     "starter:apply": "node scripts/apply-project-config.mjs",
-    "domains": "node scripts/domain-shortlist.mjs"
+    "domains": "node scripts/domain-shortlist.mjs",
+    "check:locations": "npx --yes tsx scripts/check-location-similarity.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.1",
