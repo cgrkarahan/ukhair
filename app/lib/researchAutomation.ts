@@ -685,6 +685,7 @@ function repairRequest(
       `Repair only the fields identified by the quality review. Return only the requested JSON repair object. Use null for every unchanged scalar or array field and omit unchanged sections and FAQs from their repair arrays. Preserve all compliant wording. Replace corrupted, truncated, unsupported, or malformed text with complete British English supported strictly by the supplied evidence. Do not add new medical claims, statistics, sources, HTML, Markdown, drafting notes, or commentary. Keep repaired values within the original field limits.`,
     input: JSON.stringify({
       qualityReviewIssues: review.issues,
+      editorialPreflight: editorialPreflight(article),
       article,
       primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
@@ -753,10 +754,11 @@ function reviewRequest(
 ) {
   return {
     instructions:
-      `Act as a strict UK medical-content fact checker and SEO quality editor. Today's date is ${londonDate()}. Approve only when all medical claims are traceable to the supplied study metadata, abstract, or guidance notes, uncertainty and limitations are prominent, no diagnosis/prescription/guarantee is made, the piece is genuinely useful and non-duplicative, and there is no invented statistic, source, quote, registration, or clinical-review claim. Judge whether the required questions are answered with enough substance; do not reject an otherwise complete, useful article solely because of an arbitrary word-count target. Treat the supplied current date as authoritative when checking publication dates. Any unsupported medical claim means approved=false. Scores below 82 in any category mean approved=false.`,
+      `Act as a strict UK medical-content fact checker and SEO quality editor. Today's date is ${londonDate()}. Approve only when all medical claims are traceable to the supplied study metadata, abstract, or guidance notes, uncertainty and limitations are prominent, no diagnosis/prescription/guarantee is made, the piece is genuinely useful and non-duplicative, and there is no invented statistic, source, quote, registration, or clinical-review claim. Judge whether the required questions are answered with enough substance; do not reject an otherwise complete, useful article solely because of an arbitrary word-count target. Treat editorialPreflight.incompleteProseFields as defects that require approved=false and list each affected field in issues. Evaluate editorialPreflight.potentialPromotionalClaim in context: reject a genuine promotional promise, but do not reject a negated warning, a reader question, or wording that explicitly cautions against such a claim. Treat the supplied current date as authoritative when checking publication dates. Any unsupported medical claim means approved=false. Scores below 82 in any category mean approved=false.`,
     input: JSON.stringify({
       publisherContext: "UK Hair Transplant is a UK referral and patient-information service, not a clinic.",
       articleWordCount: wordCount(article),
+      editorialPreflight: editorialPreflight(article),
       article,
       primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
@@ -797,20 +799,22 @@ function incompleteProseFields(article: GeneratedArticle) {
     .map(([label]) => label);
 }
 
+function editorialPreflight(article: GeneratedArticle) {
+  const allText = JSON.stringify(article);
+  const promotionalClaim = allText.match(
+    /\b(?:guaranteed results?|results? (?:are|is) guaranteed|risk[- ]free treatment|100% (?:safe|effective|success)|clinically proven to|the best treatment|completely safe)\b/i,
+  );
+  return {
+    incompleteProseFields: incompleteProseFields(article),
+    potentialPromotionalClaim: promotionalClaim?.[0] ?? null,
+  };
+}
+
 function deterministicValidation(article: GeneratedArticle, existing: ExistingFingerprint[]) {
   const similarity = similarityToExisting(article, existing);
-  const incompleteFields = incompleteProseFields(article);
-  // Match promotional claims, while allowing safety language such as
-  // "results are not guaranteed" or "no treatment is risk-free".
-  const forbidden =
-    /\b(?:guaranteed results?|results? (?:are|is) guaranteed|risk[- ]free treatment|100% (?:safe|effective|success)|clinically proven to|the best treatment|completely safe)\b/i;
   const allText = JSON.stringify(article);
   if (similarity > 0.62) throw new Error(`Article too similar to existing content (${similarity.toFixed(2)})`);
-  if (forbidden.test(allText)) throw new Error("Article contains a prohibited claim");
   if (/<\/?[a-z][^>]*>/i.test(allText)) throw new Error("Article contains HTML markup");
-  if (incompleteFields.length > 0) {
-    throw new Error(`Article contains incomplete prose: ${incompleteFields.slice(0, 6).join(", ")}`);
-  }
   if (existing.some((item) => item.slug === article.slug)) throw new Error("Article slug already exists");
   return similarity;
 }
