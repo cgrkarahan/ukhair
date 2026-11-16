@@ -28,7 +28,6 @@ const contentUpdatedAt: Record<string, string> = {
   "/results": "2026-09-28",
   "/editorial-policy": "2026-11-15",
   "/hair-transplant-cost-london": "2026-09-28",
-  "/female-hair-transplant-london": "2026-09-28",
   "/hair-transplant-london": "2026-09-28",
   "/our-clinical-standards": "2026-09-28",
   "/uk-vs-turkey-hair-transplant": "2026-09-28",

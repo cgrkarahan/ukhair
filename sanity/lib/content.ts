@@ -5,6 +5,7 @@ import {
   getAutomatedBlogPosts,
 } from "@/app/lib/blogDatabase";
 import { replaceBrandDeep } from "@/app/lib/brand";
+import { formatPrice, getPackage } from "@/app/lib/pricing";
 import { siteContact } from "@/app/lib/contact";
 import {
   homeFaq,
@@ -196,9 +197,8 @@ const fallbackExpectationItems: HomeTextItem[] = [
 ];
 
 const fallbackHomePage: HomePageContent = {
-  seoTitle: "Hair Transplant London | UK Hair Transplant",
-  description:
-    "Explore hair transplant treatment in London with clear guidance on suitability, cost, clinic standards, recovery, and what to prepare before requesting an assessment.",
+  seoTitle: `UK Hair Transplant | Fixed-Price London Hair Transplants`,
+  description: `Hair transplants in London at fixed prices from ${formatPrice(getPackage("hair").tiers[0].fue)}, with GMC-registered doctors, CQC-registered clinics and aftercare included. Free consultation.`,
   keywords: [
     "hair transplant london",
     "hair transplant cost london",
