@@ -108,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       entry(`/${page.slug}`, {
         priority: 0.75,
         changeFrequency: "monthly",
-        lastModified: new Date(page.publishedAt),
+        lastModified: new Date(page.updatedAt),
       }),
     ),
     ...serviceCatalog.map((service) =>
