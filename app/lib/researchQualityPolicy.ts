@@ -1,5 +1,5 @@
-export const MINIMUM_REVIEW_SCORE = 82;
-export const MAX_REPAIR_ATTEMPTS = 2;
+export const MINIMUM_REVIEW_SCORE = 80;
+export const MAX_REPAIR_ATTEMPTS = 1;
 
 export type QualityReviewDecision = "approve" | "repair" | "reject";
 

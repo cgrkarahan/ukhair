@@ -15,6 +15,11 @@ export type AutomatedBlogFingerprint = {
   sections?: Array<{ paragraphs?: string[] }>;
 };
 
+export type AttemptedResearchIds = {
+  pmids: Set<string>;
+  dois: Set<string>;
+};
+
 type PublicationSlot = "morning" | "afternoon";
 
 export type AutomationJobState =
@@ -295,21 +300,7 @@ export async function createAutomationJob(input: {
       NOW(),
       NOW()
     )
-    ON CONFLICT (publication_date, slot) DO UPDATE SET
-      state = 'generating',
-      candidate = EXCLUDED.candidate,
-      cluster_id = EXCLUDED.cluster_id,
-      draft = NULL,
-      generation_response_id = EXCLUDED.generation_response_id,
-      review_response_id = NULL,
-      similarity_score = NULL,
-      attempted_pmids = EXCLUDED.attempted_pmids,
-      generation_attempts = ${generationAttempts},
-      review_attempts = 0,
-      repair_attempts = 0,
-      last_error = NULL,
-      updated_at = NOW()
-    WHERE automated_content_jobs.state = 'failed'
+    ON CONFLICT (publication_date, slot) DO NOTHING
   `;
 }
 
@@ -396,42 +387,6 @@ export async function getStaleAutomationJobs(
   return rows.map(mapAutomationJob);
 }
 
-export async function restartAutomationJobGeneration(input: {
-  publicationDate: string;
-  slot: PublicationSlot;
-  candidate: unknown;
-  generationResponseId: string;
-  reason: string;
-  resetAttempts: boolean;
-}) {
-  const pmid = (input.candidate as { pmid?: string }).pmid ?? "unknown";
-  const rows = (await database()`
-    UPDATE automated_content_jobs
-    SET
-      state = 'generating',
-      candidate = ${JSON.stringify(input.candidate)}::jsonb,
-      draft = NULL,
-      generation_response_id = ${input.generationResponseId},
-      review_response_id = NULL,
-      similarity_score = NULL,
-      attempted_pmids = ARRAY_APPEND(attempted_pmids, ${pmid}),
-      generation_attempts = CASE
-        WHEN ${input.resetAttempts} THEN 1
-        ELSE generation_attempts + 1
-      END,
-      review_attempts = 0,
-      repair_attempts = 0,
-      last_error = ${input.reason.slice(0, 4000)},
-      updated_at = NOW()
-    WHERE publication_date = ${input.publicationDate}::date
-      AND slot = ${input.slot}
-      AND state IN ('generating', 'reviewing')
-      AND (${input.resetAttempts} OR generation_attempts < 2)
-    RETURNING generation_response_id
-  `) as Array<{ generation_response_id: string }>;
-  return rows.length > 0;
-}
-
 export async function markAutomationJobRepairing(input: {
   publicationDate: string;
   slot: PublicationSlot;
@@ -481,30 +436,6 @@ export async function markAutomationJobReviewing(input: {
       AND state = 'generating'
     RETURNING generation_response_id
   `) as Array<{ generation_response_id: string }>;
-  return rows.length > 0;
-}
-
-export async function restartAutomationJobReview(input: {
-  publicationDate: string;
-  slot: PublicationSlot;
-  reviewResponseId: string;
-  expectedReviewResponseId: string;
-  reason: string;
-}) {
-  const rows = (await database()`
-    UPDATE automated_content_jobs
-    SET
-      review_response_id = ${input.reviewResponseId},
-      review_attempts = review_attempts + 1,
-      last_error = ${input.reason.slice(0, 4000)},
-      updated_at = NOW()
-    WHERE publication_date = ${input.publicationDate}::date
-      AND slot = ${input.slot}
-      AND state = 'reviewing'
-      AND review_response_id = ${input.expectedReviewResponseId}
-      AND review_attempts < 2
-    RETURNING review_response_id
-  `) as Array<{ review_response_id: string }>;
   return rows.length > 0;
 }
 
@@ -603,6 +534,39 @@ export async function getAutomatedBlogFingerprints(): Promise<
   } catch (error) {
     console.warn("Automated blog fingerprint lookup failed", error);
     return [];
+  }
+}
+
+export async function getAttemptedResearchIds(): Promise<AttemptedResearchIds> {
+  const empty = { pmids: new Set<string>(), dois: new Set<string>() };
+  if (!hasBlogDatabase()) return empty;
+
+  try {
+    const rows = (await database()`
+      SELECT
+        candidate ->> 'pmid' AS pmid,
+        candidate ->> 'doi' AS doi,
+        attempted_pmids
+      FROM automated_content_jobs
+    `) as Array<{
+      pmid: string | null;
+      doi: string | null;
+      attempted_pmids: string[] | null;
+    }>;
+
+    const pmids = new Set<string>();
+    const dois = new Set<string>();
+    for (const row of rows) {
+      if (row.pmid) pmids.add(row.pmid);
+      if (row.doi) dois.add(row.doi.toLowerCase());
+      for (const pmid of row.attempted_pmids ?? []) {
+        if (pmid && pmid !== "unknown") pmids.add(pmid);
+      }
+    }
+    return { pmids, dois };
+  } catch (error) {
+    console.warn("Automated research attempt history lookup failed", error);
+    return empty;
   }
 }
 
