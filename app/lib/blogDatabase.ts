@@ -254,7 +254,9 @@ export async function createAutomationJob(input: {
   candidate: unknown;
   clusterId: string;
   generationResponseId: string;
+  generationAttempts?: number;
 }) {
+  const generationAttempts = input.generationAttempts ?? 1;
   await database()`
     INSERT INTO automated_content_jobs (
       publication_date,
@@ -285,7 +287,7 @@ export async function createAutomationJob(input: {
       NULL,
       NULL,
       ARRAY[${(input.candidate as { pmid?: string }).pmid ?? "unknown"}]::text[],
-      1,
+      ${generationAttempts},
       0,
       0,
       NULL,
@@ -301,7 +303,7 @@ export async function createAutomationJob(input: {
       review_response_id = NULL,
       similarity_score = NULL,
       attempted_pmids = EXCLUDED.attempted_pmids,
-      generation_attempts = 1,
+      generation_attempts = ${generationAttempts},
       review_attempts = 0,
       repair_attempts = 0,
       last_error = NULL,

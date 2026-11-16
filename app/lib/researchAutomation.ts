@@ -111,7 +111,7 @@ function isRecoverableOpenAICompletionError(error: unknown) {
 }
 
 const ARTICLE_MAX_OUTPUT_TOKENS = 7000;
-const ARTICLE_RETRY_MAX_OUTPUT_TOKENS = 10000;
+const ARTICLE_FALLBACK_MAX_OUTPUT_TOKENS = 6500;
 const REVIEW_MAX_OUTPUT_TOKENS = 1800;
 const REVIEW_RETRY_MAX_OUTPUT_TOKENS = 2600;
 const REPAIR_MAX_OUTPUT_TOKENS = 2600;
@@ -388,26 +388,37 @@ async function startBackgroundStructuredResponse(
   input: string,
   reasoningEffort: "none" | "low" | "medium" = "low",
   maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
+  options: { model?: string; strict?: boolean } = {},
 ) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
-  const model = process.env.OPENAI_CONTENT_MODEL || "gpt-6-luna";
+  const model = options.model || process.env.OPENAI_CONTENT_MODEL || "gpt-6-luna";
+  const body: Record<string, unknown> = {
+    model,
+    instructions,
+    input,
+    background: true,
+    store: true,
+    max_output_tokens: maxOutputTokens,
+    text: {
+      format: {
+        type: "json_schema",
+        name,
+        strict: options.strict ?? true,
+        schema,
+      },
+    },
+  };
+  if (!model.startsWith("gpt-4")) {
+    body.reasoning = { effort: reasoningEffort };
+  }
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      model,
-      reasoning: { effort: reasoningEffort },
-      instructions,
-      input,
-      background: true,
-      store: true,
-      max_output_tokens: maxOutputTokens,
-      text: { format: { type: "json_schema", name, strict: true, schema } },
-    }),
+    body: JSON.stringify(body),
     cache: "no-store",
   });
   const payload = (await response.json()) as { id?: string; status?: string };
@@ -463,6 +474,30 @@ const articleSchema = {
   },
 } as const;
 
+// The fallback keeps the same article shape and useful length boundaries, but
+// removes sentence-ending regex constraints from constrained decoding. Those
+// checks still run deterministically after generation.
+const fallbackArticleSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["slug", "title", "seoTitle", "description", "excerpt", "eyebrow", "answerSummary", "readTime", "keywords", "keyTakeaways", "sections", "faq", "studyDesign"],
+  properties: {
+    slug: { type: "string", pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    title: { type: "string", minLength: 30, maxLength: 90 },
+    seoTitle: { type: "string", minLength: 30, maxLength: 70 },
+    description: { type: "string", minLength: 90, maxLength: 170 },
+    excerpt: { type: "string", minLength: 80, maxLength: 260 },
+    eyebrow: { type: "string", minLength: 3, maxLength: 40 },
+    answerSummary: { type: "string", minLength: 140, maxLength: 450 },
+    readTime: { type: "string", pattern: "^[0-9]+ min read$" },
+    keywords: { type: "array", minItems: 4, maxItems: 8, items: { type: "string" } },
+    keyTakeaways: { type: "array", minItems: 3, maxItems: 5, items: { type: "string", minLength: 25, maxLength: 160 } },
+    sections: { type: "array", minItems: 7, maxItems: 8, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 3, items: { type: "string", minLength: 80, maxLength: 700 } }, bullets: { type: "array", maxItems: 4, items: { type: "string", minLength: 15, maxLength: 160 } } } } },
+    faq: { type: "array", minItems: 3, maxItems: 4, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110 }, answer: { type: "string", minLength: 100, maxLength: 400 } } } },
+    studyDesign: { type: "string", minLength: 3, maxLength: 100 },
+  },
+} as const;
+
 function primaryStudyContext(candidate: EuropePmcResult) {
   return {
     pmid: candidate.pmid,
@@ -480,7 +515,7 @@ function articleRequest(
   candidate: EuropePmcResult,
   cluster: ResearchCluster,
   existing: ExistingFingerprint[],
-  options: { compact?: boolean } = {},
+  options: { mode?: "standard" | "fallback" } = {},
 ) {
   const types = resultStudyDesign(candidate);
   const allowedSources = [
@@ -492,9 +527,9 @@ function articleRequest(
     slug: item.slug,
     topic: item.researchTopic,
   }));
-  const targetLength = options.compact
-    ? "900-1,050 words"
-    : "950-1,150 words";
+  const mode = options.mode ?? "standard";
+  const targetLength =
+    mode === "fallback" ? "900-1,025 words" : "950-1,150 words";
   return {
     instructions: `You are the evidence-led editorial writer for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write in clear British English. Return only the requested JSON object. Return plain text inside every JSON string: never include HTML, Markdown, XML, encoded tags, drafting notes, commentary, or text outside the JSON object. Synthesize; never copy, translate, or closely paraphrase an abstract. Every factual medical claim must be supported by the supplied evidence. Clearly distinguish association from causation, relative from absolute effects, and study results from established guidance. Include the study population, design, main finding, limitations, practical meaning, UK context, and when a reader should seek qualified medical advice. Do not diagnose, prescribe, promise results, call a treatment safe, superior, guaranteed, risk-free, or suitable for everyone. Do not imply clinician review. Do not invent statistics, institutions, quotations, sources, or conclusions. Do not add general medical advice beyond the supplied study and guidance notes. Mention uncertainty prominently. The article must be useful on its own, answer a real search question, avoid sensationalism, and contain ${targetLength}. Use concise paragraphs. Finish every field, bullet, and sentence completely. Use only the evidence supplied.`,
     input: JSON.stringify({
@@ -986,14 +1021,25 @@ export async function startResearchPublication(
       throw new Error("No unused PubMed candidate passed the source filters");
     }
 
-    const request = articleRequest(candidate, cluster, existing);
+    const useFallback = activeJob?.state === "failed";
+    const request = articleRequest(candidate, cluster, existing, {
+      mode: useFallback ? "fallback" : "standard",
+    });
     const response = await startBackgroundStructuredResponse(
-      "research_article",
-      articleSchema,
+      useFallback ? "research_article_fallback" : "research_article",
+      useFallback ? fallbackArticleSchema : articleSchema,
       request.instructions,
       request.input,
       "none",
-      ARTICLE_MAX_OUTPUT_TOKENS,
+      useFallback
+        ? ARTICLE_FALLBACK_MAX_OUTPUT_TOKENS
+        : ARTICLE_MAX_OUTPUT_TOKENS,
+      useFallback
+        ? {
+            model:
+              process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1",
+          }
+        : {},
     );
     await createAutomationJob({
       publicationDate: date,
@@ -1001,6 +1047,7 @@ export async function startResearchPublication(
       candidate,
       clusterId: cluster.id,
       generationResponseId: response.id,
+      generationAttempts: useFallback ? MAX_GENERATION_ATTEMPTS : 1,
     });
 
     return {
@@ -1008,6 +1055,7 @@ export async function startResearchPublication(
       id: documentId,
       responseId: response.id,
       pmid: candidate.pmid,
+      strategy: useFallback ? ("fallback" as const) : ("primary" as const),
     };
   } catch (error) {
     await failPublicationSlot(
@@ -1080,14 +1128,16 @@ async function retrySameCandidateGeneration(
 
   const candidate = job.candidate as EuropePmcResult;
   const existing = await existingFingerprints();
-  const request = articleRequest(candidate, cluster, existing, { compact: true });
+  const request = articleRequest(candidate, cluster, existing, { mode: "fallback" });
+  const model = process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1";
   const response = await startBackgroundStructuredResponse(
-    "research_article_retry",
-    articleSchema,
+    "research_article_fallback",
+    fallbackArticleSchema,
     request.instructions,
     request.input,
     "none",
-    ARTICLE_RETRY_MAX_OUTPUT_TOKENS,
+    ARTICLE_FALLBACK_MAX_OUTPUT_TOKENS,
+    { model },
   );
   const restarted = await restartAutomationJobGeneration({
     publicationDate: job.publicationDate,
@@ -1132,6 +1182,9 @@ async function retrySameArticleReview(
     request.input,
     "none",
     REVIEW_RETRY_MAX_OUTPUT_TOKENS,
+    {
+      model: process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1",
+    },
   );
   const restarted = await restartAutomationJobReview({
     publicationDate: job.publicationDate,
@@ -1259,7 +1312,10 @@ export async function processCompletedResearchResponse(responseId: string) {
         primaryPmid: candidate.pmid!,
         primaryDoi: candidate.doi,
         researchTopic: cluster.id,
-        generationModel: process.env.OPENAI_CONTENT_MODEL || "gpt-6-luna",
+        generationModel:
+          job.generationAttempts > 1
+            ? process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1"
+            : process.env.OPENAI_CONTENT_MODEL || "gpt-6-luna",
         qualityScore: minimumScore,
         similarityScore: Number((job.similarityScore ?? 0).toFixed(3)),
         sourceMetadata: sourceMetadata(candidate, cluster),

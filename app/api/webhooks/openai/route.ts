@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await processCompletedResearchResponse(event.data.id);
+    if (result.status === "failed") {
+      console.error("Automated research publishing reached a terminal failure", result);
+    }
     if (result.status === "published") {
       revalidatePath("/blog");
       revalidatePath(`/blog/${result.slug}`);
