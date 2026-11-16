@@ -252,6 +252,17 @@ export async function ensureAutomatedBlogSchema() {
     ALTER TABLE automated_content_jobs
     ADD COLUMN IF NOT EXISTS review_attempts INTEGER NOT NULL DEFAULT 0
   `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS automated_research_attempts (
+      pmid TEXT PRIMARY KEY,
+      doi TEXT,
+      publication_date DATE NOT NULL,
+      slot TEXT NOT NULL CHECK (slot IN ('morning', 'afternoon')),
+      outcome TEXT NOT NULL,
+      attempted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
 }
 
 export async function createAutomationJob(input: {
@@ -302,6 +313,74 @@ export async function createAutomationJob(input: {
     )
     ON CONFLICT (publication_date, slot) DO NOTHING
   `;
+}
+
+export async function archiveFailedAutomationJob(
+  publicationDate: string,
+  slot: PublicationSlot,
+) {
+  const rows = (await database()`
+    WITH failed_job AS (
+      SELECT publication_date, slot, candidate, attempted_pmids, updated_at
+      FROM automated_content_jobs
+      WHERE publication_date = ${publicationDate}::date
+        AND slot = ${slot}
+        AND state = 'failed'
+    ),
+    attempt_ids AS (
+      SELECT DISTINCT
+        attempted_pmid AS pmid,
+        CASE
+          WHEN attempted_pmid = failed_job.candidate ->> 'pmid'
+            THEN NULLIF(failed_job.candidate ->> 'doi', '')
+          ELSE NULL
+        END AS doi,
+        failed_job.publication_date,
+        failed_job.slot,
+        failed_job.updated_at
+      FROM failed_job
+      CROSS JOIN LATERAL UNNEST(
+        ARRAY_CAT(
+          COALESCE(failed_job.attempted_pmids, ARRAY[]::text[]),
+          ARRAY[failed_job.candidate ->> 'pmid']
+        )
+      ) AS attempted_ids(attempted_pmid)
+      WHERE attempted_pmid IS NOT NULL
+        AND attempted_pmid <> ''
+        AND attempted_pmid <> 'unknown'
+    ),
+    archived AS (
+      INSERT INTO automated_research_attempts (
+        pmid,
+        doi,
+        publication_date,
+        slot,
+        outcome,
+        attempted_at
+      )
+      SELECT pmid, doi, publication_date, slot, 'failed', updated_at
+      FROM attempt_ids
+      ON CONFLICT (pmid) DO UPDATE SET
+        doi = COALESCE(EXCLUDED.doi, automated_research_attempts.doi),
+        outcome = 'failed',
+        attempted_at = GREATEST(
+          automated_research_attempts.attempted_at,
+          EXCLUDED.attempted_at
+        )
+      RETURNING pmid
+    ),
+    deleted AS (
+      DELETE FROM automated_content_jobs
+      WHERE publication_date = ${publicationDate}::date
+        AND slot = ${slot}
+        AND state = 'failed'
+        AND EXISTS (SELECT 1 FROM archived)
+      RETURNING publication_date
+    )
+    SELECT EXISTS (SELECT 1 FROM deleted) AS archived
+  `) as Array<{ archived: boolean }>;
+
+  return rows[0]?.archived ?? false;
 }
 
 export async function getAutomationJobByResponseId(
@@ -554,6 +633,11 @@ export async function getAttemptedResearchIds(): Promise<AttemptedResearchIds> {
       attempted_pmids: string[] | null;
     }>;
 
+    const archivedRows = (await database()`
+      SELECT pmid, doi
+      FROM automated_research_attempts
+    `) as Array<{ pmid: string; doi: string | null }>;
+
     const pmids = new Set<string>();
     const dois = new Set<string>();
     for (const row of rows) {
@@ -562,6 +646,10 @@ export async function getAttemptedResearchIds(): Promise<AttemptedResearchIds> {
       for (const pmid of row.attempted_pmids ?? []) {
         if (pmid && pmid !== "unknown") pmids.add(pmid);
       }
+    }
+    for (const row of archivedRows) {
+      if (row.pmid) pmids.add(row.pmid);
+      if (row.doi) dois.add(row.doi.toLowerCase());
     }
     return { pmids, dois };
   } catch (error) {

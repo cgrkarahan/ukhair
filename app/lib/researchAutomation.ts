@@ -2,6 +2,7 @@ import "server-only";
 
 import { blogPosts, type BlogPost, type BlogSource } from "@/app/lib/blogContent";
 import {
+  archiveFailedAutomationJob,
   type AutomationJob,
   claimPublicationSlot,
   createAutomationJob,
@@ -1045,11 +1046,7 @@ export async function startResearchPublication(
     };
   }
   if (activeJob?.state === "failed") {
-    return {
-      status: "failed-existing" as const,
-      id: documentId,
-      pmid: (activeJob.candidate as EuropePmcResult).pmid,
-    };
+    await archiveFailedAutomationJob(date, slot);
   }
 
   const claimed = await claimPublicationSlot(date, slot);
@@ -1330,7 +1327,6 @@ export async function publishResearchArticle(slot: Slot, options: { dryRun?: boo
         slug: existingDocument.slug,
       };
     }
-
     const claimed = await claimPublicationSlot(date, slot);
     if (!claimed) {
       return { status: "already-running" as const, id: documentId };
