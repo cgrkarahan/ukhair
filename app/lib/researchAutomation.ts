@@ -15,6 +15,7 @@ import {
   getStaleAutomationJobs,
   getUsedOpenverseImageIds,
   markAutomationJobPublished,
+  markAutomationJobRepairing,
   markAutomationJobReviewing,
   restartAutomationJobGeneration,
   saveAutomatedBlogPost,
@@ -67,10 +68,35 @@ type ExistingFingerprint = {
   sections?: Array<{ paragraphs?: string[] }>;
 };
 
+type ArticleRepair = {
+  title: string | null;
+  seoTitle: string | null;
+  description: string | null;
+  excerpt: string | null;
+  eyebrow: string | null;
+  answerSummary: string | null;
+  readTime: string | null;
+  keywords: string[] | null;
+  keyTakeaways: string[] | null;
+  studyDesign: string | null;
+  sections: Array<{
+    index: number;
+    heading: string | null;
+    paragraphs: string[] | null;
+    bullets: string[] | null;
+  }>;
+  faq: Array<{
+    index: number;
+    question: string | null;
+    answer: string | null;
+  }>;
+};
+
 class FatalAutomationError extends Error {}
 
-const ARTICLE_MAX_OUTPUT_TOKENS = 7000;
-const REVIEW_MAX_OUTPUT_TOKENS = 2500;
+const ARTICLE_MAX_OUTPUT_TOKENS = 5000;
+const REVIEW_MAX_OUTPUT_TOKENS = 1400;
+const REPAIR_MAX_OUTPUT_TOKENS = 1800;
 
 const nhsHairLoss: GuidanceSource = {
   label: "NHS: Hair loss",
@@ -472,7 +498,156 @@ const reviewSchema = {
   },
 } as const;
 
+const nullableShortString = {
+  type: ["string", "null"],
+  maxLength: 700,
+} as const;
+
+const repairSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "title",
+    "seoTitle",
+    "description",
+    "excerpt",
+    "eyebrow",
+    "answerSummary",
+    "readTime",
+    "keywords",
+    "keyTakeaways",
+    "studyDesign",
+    "sections",
+    "faq",
+  ],
+  properties: {
+    title: nullableShortString,
+    seoTitle: nullableShortString,
+    description: nullableShortString,
+    excerpt: nullableShortString,
+    eyebrow: nullableShortString,
+    answerSummary: nullableShortString,
+    readTime: nullableShortString,
+    keywords: {
+      type: ["array", "null"],
+      maxItems: 8,
+      items: { type: "string", maxLength: 100 },
+    },
+    keyTakeaways: {
+      type: ["array", "null"],
+      maxItems: 5,
+      items: { type: "string", maxLength: 180 },
+    },
+    studyDesign: nullableShortString,
+    sections: {
+      type: "array",
+      maxItems: 4,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["index", "heading", "paragraphs", "bullets"],
+        properties: {
+          index: { type: "integer", minimum: 0, maximum: 7 },
+          heading: nullableShortString,
+          paragraphs: {
+            type: ["array", "null"],
+            maxItems: 3,
+            items: { type: "string", maxLength: 700 },
+          },
+          bullets: {
+            type: ["array", "null"],
+            maxItems: 4,
+            items: { type: "string", maxLength: 180 },
+          },
+        },
+      },
+    },
+    faq: {
+      type: "array",
+      maxItems: 4,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["index", "question", "answer"],
+        properties: {
+          index: { type: "integer", minimum: 0, maximum: 3 },
+          question: nullableShortString,
+          answer: nullableShortString,
+        },
+      },
+    },
+  },
+} as const;
+
 type AutomatedReview = { approved: boolean; evidenceScore: number; medicalSafetyScore: number; originalityScore: number; seoUsefulnessScore: number; issues: string[] };
+
+function repairRequest(
+  article: GeneratedArticle,
+  review: AutomatedReview,
+  candidate: EuropePmcResult,
+  cluster: ResearchCluster,
+) {
+  return {
+    instructions:
+      `Repair only the fields identified by the quality review. Return only the requested JSON repair object. Use null for every unchanged scalar or array field and omit unchanged sections and FAQs from their repair arrays. Preserve all compliant wording. Replace corrupted, truncated, unsupported, or malformed text with complete British English supported strictly by the supplied evidence. Do not add new medical claims, statistics, sources, HTML, Markdown, drafting notes, or commentary. Keep repaired values within the original field limits.`,
+    input: JSON.stringify({
+      qualityReviewIssues: review.issues,
+      article,
+      primaryStudy: {
+        title: candidate.title,
+        authors: candidate.authorString,
+        journal: candidate.journalTitle,
+        publicationDate: candidate.firstPublicationDate,
+        doi: candidate.doi,
+        abstract: plainText(candidate.abstractText),
+        publicationTypes: candidate.pubTypeList?.pubType,
+      },
+      independentGuidance: cluster.guidance,
+    }),
+  };
+}
+
+function applyArticleRepair(
+  article: GeneratedArticle,
+  repair: ArticleRepair,
+): GeneratedArticle {
+  const sectionRepairs = new Map(repair.sections.map((item) => [item.index, item]));
+  const faqRepairs = new Map(repair.faq.map((item) => [item.index, item]));
+  return {
+    ...article,
+    title: repair.title ?? article.title,
+    seoTitle: repair.seoTitle ?? article.seoTitle,
+    description: repair.description ?? article.description,
+    excerpt: repair.excerpt ?? article.excerpt,
+    eyebrow: repair.eyebrow ?? article.eyebrow,
+    answerSummary: repair.answerSummary ?? article.answerSummary,
+    readTime: repair.readTime ?? article.readTime,
+    keywords: repair.keywords ?? article.keywords,
+    keyTakeaways: repair.keyTakeaways ?? article.keyTakeaways,
+    studyDesign: repair.studyDesign ?? article.studyDesign,
+    sections: article.sections.map((section, index) => {
+      const item = sectionRepairs.get(index);
+      return item
+        ? {
+            ...section,
+            heading: item.heading ?? section.heading,
+            paragraphs: item.paragraphs ?? section.paragraphs,
+            bullets: item.bullets ?? section.bullets,
+          }
+        : section;
+    }),
+    faq: article.faq.map((item, index) => {
+      const replacement = faqRepairs.get(index);
+      return replacement
+        ? {
+            ...item,
+            question: replacement.question ?? item.question,
+            answer: replacement.answer ?? item.answer,
+          }
+        : item;
+    }),
+  };
+}
 
 async function reviewArticle(article: GeneratedArticle, candidate: EuropePmcResult, cluster: ResearchCluster) {
   const request = reviewRequest(article, candidate, cluster);
@@ -783,7 +958,7 @@ async function retryWithNextCandidate(
   cluster: ResearchCluster,
   reason: string,
 ) {
-  if (job.attemptedPmids.length >= 4) {
+  if (job.attemptedPmids.length >= 2) {
     await failAutomationJob(job.publicationDate, job.slot, reason);
     return { status: "failed" as const, error: reason };
   }
@@ -844,9 +1019,13 @@ export async function processCompletedResearchResponse(responseId: string) {
       job.state === "generating" &&
       job.generationResponseId === responseId
     ) {
-      const article = await retrieveStructuredResponse<GeneratedArticle>(
-        responseId,
-      );
+      const article =
+        job.repairAttempts > 0 && job.draft
+          ? applyArticleRepair(
+              job.draft as GeneratedArticle,
+              await retrieveStructuredResponse<ArticleRepair>(responseId),
+            )
+          : await retrieveStructuredResponse<GeneratedArticle>(responseId);
       const existing = await existingFingerprints();
       const similarity = deterministicValidation(article, existing);
       const request = reviewRequest(article, candidate, cluster);
@@ -886,10 +1065,38 @@ export async function processCompletedResearchResponse(responseId: string) {
         review.seoUsefulnessScore,
       );
       if (!review.approved || minimumScore < 82) {
+        const rejectionReason = `Automated review rejected: ${review.issues.join("; ")}`;
+        if (job.repairAttempts < 1) {
+          const request = repairRequest(
+            job.draft as GeneratedArticle,
+            review,
+            candidate,
+            cluster,
+          );
+          const repairResponse = await startBackgroundStructuredResponse(
+            "article_repair",
+            repairSchema,
+            request.instructions,
+            request.input,
+            "low",
+            REPAIR_MAX_OUTPUT_TOKENS,
+          );
+          const repairing = await markAutomationJobRepairing({
+            publicationDate: job.publicationDate,
+            slot: job.slot,
+            repairResponseId: repairResponse.id,
+            expectedReviewResponseId: responseId,
+            reason: rejectionReason,
+          });
+          return {
+            status: repairing ? ("repair-started" as const) : ("ignored" as const),
+            responseId: repairResponse.id,
+          };
+        }
         return retryWithNextCandidate(
           job,
           cluster,
-          `Automated review rejected: ${review.issues.join("; ")}`,
+          rejectionReason,
         );
       }
 
