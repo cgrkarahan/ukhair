@@ -787,7 +787,10 @@ function deterministicValidation(article: GeneratedArticle, existing: ExistingFi
   const forbidden =
     /\b(?:guaranteed results?|results? (?:are|is) guaranteed|risk[- ]free treatment|100% (?:safe|effective|success)|clinically proven to|the best treatment|completely safe)\b/i;
   const allText = JSON.stringify(article);
-  if (count < 900) throw new Error(`Article too short (${count} words)`);
+  // Evidence digests can be complete and useful below an arbitrary 900-word
+  // threshold. Let the medical/SEO review judge quality once the article has
+  // enough substance to cover the required sections.
+  if (count < 750) throw new Error(`Article too short (${count} words)`);
   if (similarity > 0.62) throw new Error(`Article too similar to existing content (${similarity.toFixed(2)})`);
   if (forbidden.test(allText)) throw new Error("Article contains a prohibited claim");
   if (/<\/?[a-z][^>]*>/i.test(allText)) throw new Error("Article contains HTML markup");
