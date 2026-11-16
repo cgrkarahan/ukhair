@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AssessmentSection from "@/app/components/AssessmentSection";
 import { IconBadge } from "@/app/components/SiteIcon";
+import Breadcrumbs from "@/app/components/Breadcrumbs";
 import SiteShell from "@/app/components/SiteShell";
 import { organizationRef } from "@/app/lib/schema";
 import { absoluteUrl, buildMetadata } from "@/app/lib/seo";
@@ -120,17 +121,18 @@ export default function AboutPage() {
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="page-hero rounded-[40px] border border-[rgba(192,213,214,0.12)] p-6 sm:p-8 lg:p-10">
+        <section className="hero-light rounded-[32px] p-6 sm:p-8 lg:p-10">
+          <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "About", path: "/about" }]} className="mb-6" />
           <div className="max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
+            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               About UK Hair Transplant
             </p>
-            <h1 className="mt-4 font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 font-display text-4xl leading-[1.02] text-[color:var(--ink-950)] sm:text-5xl lg:text-6xl">
               A calmer place to assess hair transplant treatment in London.
             </h1>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base leading-8 text-[color:var(--ink-700)] sm:text-lg">
               UK Hair Transplant is for patients who want clearer answers
               before booking treatment. The site focuses on London guidance,
               clinic standards, recovery, pricing logic, and suitability so the
@@ -139,13 +141,13 @@ export default function AboutPage() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/assessment"
-                className="inline-flex rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
+                className="inline-flex rounded-full bg-[color:var(--ink-950)] px-5 py-3 text-sm font-semibold !text-white transition visited:!text-white hover:bg-[color:var(--sage-600)]"
               >
                 Book free consultation
               </Link>
               <Link
                 href="/our-clinical-standards"
-                className="inline-flex rounded-full border border-[rgba(192,213,214,0.18)] px-5 py-3 text-sm font-semibold text-white/86 transition hover:border-[rgba(192,213,214,0.3)] hover:bg-[rgba(192,213,214,0.08)] hover:text-white"
+                className="inline-flex rounded-full border border-[color:var(--line-strong)] bg-white/60 px-5 py-3 text-sm font-semibold text-[color:var(--ink-950)] transition hover:bg-white"
               >
                 View clinical standards
               </Link>
@@ -157,23 +159,23 @@ export default function AboutPage() {
           {trustCards.map((item) => (
             <article
               key={item.title}
-              className="section-dark rounded-[34px] p-6 text-white sm:p-8"
+              className="surface-light rounded-[34px] p-6 text-[color:var(--ink-950)] sm:p-8"
             >
-              <h2 className="font-display text-3xl text-white">{item.title}</h2>
-              <p className="mt-4 text-sm leading-7 text-white/68">{item.body}</p>
+              <h2 className="font-display text-3xl text-[color:var(--ink-950)]">{item.title}</h2>
+              <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)]">{item.body}</p>
             </article>
           ))}
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[0.98fr_1.02fr]">
-          <section className="section-dark rounded-[36px] p-6 text-white sm:p-8">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+          <section className="surface-light rounded-[36px] p-6 text-[color:var(--ink-950)] sm:p-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               Why this site exists
             </p>
-            <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
               The decision usually needs more than a clinic gallery and a quote.
             </h2>
-            <div className="mt-5 space-y-4 text-sm leading-7 text-white/68 sm:text-base">
+            <div className="mt-5 space-y-4 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
               <p>
                 Most patients do not only want to know whether treatment is
                 possible. They want to know whether it may suit them, how London
@@ -254,15 +256,15 @@ export default function AboutPage() {
           </dl>
         </section>
 
-        <section className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
+        <section className="surface-light rounded-[38px] p-6 text-[color:var(--ink-950)] sm:p-8 lg:p-10">
           <div className="max-w-3xl">
-            <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               How patients usually use the site
             </p>
-            <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+            <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
               Research first, then a more useful free consultation.
             </h2>
-            <p className="mt-4 text-sm leading-7 text-white/70 sm:text-base">
+            <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
               The site works best when patients use it to clarify their route
               before sending an enquiry. That usually leads to better questions,
               a better first discussion, and less confusion around pricing,
@@ -273,7 +275,7 @@ export default function AboutPage() {
             {nextStepCards.map((card, index) => (
               <article
                 key={card.title}
-                className="panel-dark rounded-[28px] p-6"
+                className="border border-[color:var(--line-soft)] bg-white/75 rounded-[28px] p-6"
               >
                 <div className="flex items-start gap-4">
                   <IconBadge
@@ -284,13 +286,13 @@ export default function AboutPage() {
                           ? "book-open"
                           : "calendar-check"
                     }
-                    tone="dark"
+                    tone="light"
                   />
                   <div>
-                    <h3 className="font-display text-2xl text-white">
+                    <h3 className="font-display text-2xl text-[color:var(--ink-950)]">
                       {card.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-7 text-white/68">
+                    <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
                       {card.text}
                     </p>
                   </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AssessmentSection from "@/app/components/AssessmentSection";
-import ProofCaseCard from "@/app/components/ProofCaseCard";
+import PageHero from "@/app/components/PageHero";
+import ResultsGallery from "@/app/components/ResultsGallery";
 import SiteShell from "@/app/components/SiteShell";
 import { proofDisclaimer, type ApprovedProofCase } from "@/app/lib/proof";
 import {
@@ -92,30 +93,30 @@ export default async function ResultsPage() {
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="page-hero rounded-[40px] border border-[rgba(192,213,214,0.12)] p-6 sm:p-8 lg:p-10">
-          <p className="text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
-            Results
-          </p>
-          <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-6xl">
-            Hair transplant results from our partner clinics
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
-            Real patients, each shown with the area treated and how long after surgery the
-            photo was taken. We only publish a case when the patient has consented to it
-            appearing on this site.
-          </p>
-        </section>
+        <PageHero
+          breadcrumbs={[
+            { name: "Home", path: "/" },
+            { name: "Results", path: "/results" },
+          ]}
+          eyebrow="Results"
+          title="Hair transplant results from our partner clinics"
+          lead={
+            <p>
+              Real patients, each shown with the area treated and how long after surgery
+              the photo was taken. We only publish a case when the patient has consented to
+              it appearing on this site.
+            </p>
+          }
+          chips={cases.length > 0 ? [`${cases.length} published cases`, "Patient consent on file", "Timeframe on every case"] : undefined}
+          secondaryCta={{ href: "#reading-results", label: "How to judge a result" }}
+        />
 
-        <section className="surface-card rounded-[38px] p-6 sm:p-8 lg:p-10">
+        <section className="surface-card rounded-[32px] p-6 sm:p-8 lg:p-10">
           {cases.length > 0 ? (
             <>
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                {cases.map((proofCase) => (
-                  <ProofCaseCard key={proofCase.slug} proofCase={proofCase} />
-                ))}
-              </div>
+              <ResultsGallery cases={cases} />
               <p className="mt-6 max-w-3xl text-xs leading-6 text-[color:var(--ink-600)]">
                 {proofDisclaimer}
               </p>
@@ -129,31 +130,31 @@ export default async function ResultsPage() {
           )}
         </section>
 
-        <section className="section-dark rounded-[34px] p-6 text-white sm:p-8">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+        <section id="reading-results" className="scroll-mt-28 rounded-[34px] surface-light p-6 sm:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Reading before-and-after photos
           </p>
-          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
             What makes a result worth trusting.
           </h2>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {readingTips.map((tip) => (
               <div
                 key={tip.title}
-                className="rounded-[24px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-5"
+                className="rounded-[24px] border border-[color:var(--line-soft)] bg-white/75 p-5"
               >
-                <p className="font-display text-2xl text-white">{tip.title}</p>
-                <p className="mt-3 text-sm leading-7 text-white/70">{tip.text}</p>
+                <p className="font-display text-2xl text-[color:var(--ink-950)]">{tip.title}</p>
+                <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">{tip.text}</p>
               </div>
             ))}
           </div>
-          <p className="mt-6 text-sm leading-7 text-white/60">
+          <p className="mt-6 text-sm leading-7 text-[color:var(--ink-700)]">
             For more on judging clinics, read{" "}
-            <Link href="/blog/hair-transplant-red-flags" className="font-semibold text-white">
+            <Link href="/blog/hair-transplant-red-flags" className="font-semibold text-[color:var(--ink-950)] underline underline-offset-4">
               hair transplant red flags
             </Link>{" "}
             and{" "}
-            <Link href="/blog/how-to-read-hair-transplant-reviews" className="font-semibold text-white">
+            <Link href="/blog/how-to-read-hair-transplant-reviews" className="font-semibold text-[color:var(--ink-950)] underline underline-offset-4">
               how to read reviews
             </Link>
             .

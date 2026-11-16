@@ -124,3 +124,31 @@ body {
 ::selection {
   background: rgba(165, 141, 102, 0.32);
 }
+
+/* Light page hero and section surfaces. Dark teal (.page-hero, .section-dark)
+   is kept for the homepage hero, the consultation form and other "take action"
+   blocks, so a dark block reads as the place to book. */
+.hero-light {
+  border: 1px solid var(--line-soft);
+  background:
+    radial-gradient(circle at 92% 8%, rgba(192, 213, 214, 0.55), transparent 34%),
+    linear-gradient(180deg, rgba(246, 248, 247, 0.98), rgba(236, 241, 239, 0.96));
+}
+
+.surface-light {
+  border: 1px solid var(--line-soft);
+  background: rgba(250, 251, 250, 0.82);
+}
+
+.prose-section h2 {
+  font-family: var(--font-display), "Times New Roman", serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

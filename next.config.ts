@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: configDir,
   },
+  experimental: {
+    serverActions: {
+      // Consultation photos are resized in the browser to well under 1MB each,
+      // so up to 4 photos fit. Vercel rejects any request over 4.5MB.
+      bodySizeLimit: "4mb",
+    },
+  },
   // Posts merged into the pillar page that targets the same intent.
   async redirects() {
     return [

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { IconBadge } from "@/app/components/SiteIcon";
+import Breadcrumbs from "@/app/components/Breadcrumbs";
 import SiteShell from "@/app/components/SiteShell";
 import { siteContact } from "@/app/lib/contact";
 import { buildBreadcrumbSchema, compactSchemaList, organizationRef } from "@/app/lib/schema";
@@ -81,16 +82,17 @@ export default function EditorialPolicyPage() {
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-16 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="page-hero rounded-[40px] border border-[rgba(192,213,214,0.12)] p-6 sm:p-8 lg:p-10">
-          <p className="text-xs uppercase tracking-[0.34em] text-[color:var(--gold-300)]/82">
+        <section className="hero-light rounded-[32px] p-6 sm:p-8 lg:p-10">
+          <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Editorial policy", path: "/editorial-policy" }]} className="mb-6" />
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Editorial policy
           </p>
-          <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.02] text-white sm:text-5xl lg:text-6xl">
+          <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[1.02] text-[color:var(--ink-950)] sm:text-5xl lg:text-6xl">
             How we write and review our content
           </h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
+          <p className="mt-5 max-w-3xl text-base leading-8 text-[color:var(--ink-700)] sm:text-lg">
             {siteName} is a referral and guidance service, not a clinic. This page
             explains who writes our content, what we have a commercial interest in, and
             what we will and will not claim, so you can judge what you read here.
@@ -116,25 +118,25 @@ export default function EditorialPolicyPage() {
           ))}
         </section>
 
-        <section className="section-dark rounded-[36px] p-6 text-white sm:p-8">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+        <section className="surface-light rounded-[36px] p-6 text-[color:var(--ink-950)] sm:p-8">
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Corrections
           </p>
-          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
             Spotted something wrong or out of date?
           </h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72 sm:text-base">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
             Email{" "}
-            <a href={`mailto:${siteContact.email}`} className="font-semibold text-white">
+            <a href={`mailto:${siteContact.email}`} className="font-semibold text-[color:var(--ink-950)]">
               {siteContact.email}
             </a>{" "}
             and tell us which page and what you think needs changing. We will look into it
             and correct the page where we agree. You can also read{" "}
-            <Link href="/how-we-work" className="font-semibold text-white">
+            <Link href="/how-we-work" className="font-semibold text-[color:var(--ink-950)]">
               how we work
             </Link>{" "}
             and the{" "}
-            <Link href="/our-clinical-standards" className="font-semibold text-white">
+            <Link href="/our-clinical-standards" className="font-semibold text-[color:var(--ink-950)]">
               clinical standards
             </Link>{" "}
             we use when selecting clinics.

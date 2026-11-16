@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import AssessmentSection from "@/app/components/AssessmentSection";
 import BlogImage from "@/app/components/BlogImage";
 import { IconBadge } from "@/app/components/SiteIcon";
+import Breadcrumbs from "@/app/components/Breadcrumbs";
 import SiteShell from "@/app/components/SiteShell";
 import { iconForHref } from "@/app/lib/iconography";
 import { getClinicalReviewer, getPageReview } from "@/app/lib/clinicalReview";
@@ -117,44 +118,48 @@ export default async function BlogArticlePage({
 
       <main
         id="main"
-        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-10 lg:gap-14 lg:px-8 lg:pt-14"
+        className="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-5 pb-28 pt-8 lg:gap-14 lg:px-8 lg:pt-12"
       >
-        <section className="section-dark rounded-[40px] p-6 text-white sm:p-8 lg:p-10">
+        <section className="hero-light rounded-[32px] p-6 text-[color:var(--ink-950)] sm:p-8 lg:p-10">
+          <Breadcrumbs
+            items={[
+              { name: "Home", path: "/" },
+              { name: "Guides", path: "/blog" },
+              { name: post.title, path: `/blog/${post.slug}` },
+            ]}
+            className="mb-6"
+          />
           <div className="max-w-4xl">
-            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/80">
-              <Link href="/blog" className="transition hover:text-white">
-                Articles
-              </Link>
-              <span>•</span>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
               <span>{post.eyebrow}</span>
               <span>•</span>
               <span>{post.readTime}</span>
             </div>
-            <h1 className="mt-4 font-display text-4xl leading-[1.04] text-white sm:text-5xl lg:text-[4.25rem]">
+            <h1 className="mt-4 font-display text-4xl leading-[1.04] text-[color:var(--ink-950)] sm:text-5xl lg:text-[4.25rem]">
               {post.title}
             </h1>
-            <p className="mt-6 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
+            <p className="mt-6 max-w-3xl text-base leading-8 text-[color:var(--ink-700)] sm:text-lg">
               {post.description}
             </p>
-            <p className="mt-5 text-sm text-white/60">
+            <p className="mt-5 text-sm text-[color:var(--ink-700)]">
               By the {siteName} team · Updated{" "}
               <time dateTime={post.updatedAt}>{updatedLabel}</time> ·{" "}
               <Link
                 href="/editorial-policy"
-                className="text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+                className="text-[color:var(--ink-800)] underline-offset-4 transition hover:text-[color:var(--ink-950)] hover:underline"
               >
                 How we write our content
               </Link>
             </p>
             {post.isResearchDigest ? (
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/58">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--ink-600)]">
                 Evidence-led research digest based on the cited publication and UK guidance.
                 It is general information, not medical advice or a personal treatment recommendation.
               </p>
             ) : null}
           </div>
 
-          <div className="mt-8 relative aspect-[16/8.8] overflow-hidden rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)]">
+          <div className="mt-8 relative aspect-[16/8.8] overflow-hidden rounded-[30px] border border-[color:var(--line-soft)] bg-white/75">
             <BlogImage
               src={post.imageSrc}
               alt={post.imageAlt}
@@ -168,12 +173,12 @@ export default async function BlogArticlePage({
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,58,79,0.04)_0%,rgba(8,58,79,0.16)_100%)]" />
           </div>
           {post.imageCredit ? (
-            <p className="mt-3 text-xs leading-5 text-white/58">
+            <p className="mt-3 text-xs leading-5 text-[color:var(--ink-600)]">
               <a
                 href={post.imageCredit.href}
                 target="_blank"
                 rel="noreferrer"
-                className="underline-offset-4 transition hover:text-white hover:underline"
+                className="underline-offset-4 transition hover:text-[color:var(--ink-950)] hover:underline"
               >
                 {post.imageCredit.label}
               </a>{" "}
@@ -183,7 +188,7 @@ export default async function BlogArticlePage({
                   href={post.imageCredit.licenceHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="underline-offset-4 transition hover:text-white hover:underline"
+                  className="underline-offset-4 transition hover:text-[color:var(--ink-950)] hover:underline"
                 >
                   {post.imageCredit.licenceLabel}
                 </a>
@@ -193,11 +198,11 @@ export default async function BlogArticlePage({
             </p>
           ) : null}
 
-          <div className="mt-8 rounded-[30px] border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+          <div className="mt-8 rounded-[30px] border border-[color:var(--line-soft)] bg-white/75 p-6">
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
               Short answer
             </p>
-            <p className="mt-3 max-w-4xl text-base leading-8 text-white/84">
+            <p className="mt-3 max-w-4xl text-base leading-8 text-[color:var(--ink-800)]">
               {post.answerSummary}
             </p>
           </div>
@@ -206,7 +211,7 @@ export default async function BlogArticlePage({
             {post.keyTakeaways.map((takeaway) => (
               <span
                 key={takeaway}
-                className="rounded-full border border-[rgba(192,213,214,0.14)] bg-[rgba(192,213,214,0.08)] px-3.5 py-2 text-sm text-white/78"
+                className="rounded-full border border-[color:var(--line-soft)] bg-white/75 px-3.5 py-2 text-sm text-[color:var(--ink-700)]"
               >
                 {takeaway}
               </span>
@@ -215,33 +220,25 @@ export default async function BlogArticlePage({
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <article className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
+          <article className="rounded-[32px] border border-[color:var(--line-soft)] bg-white p-6 text-[color:var(--ink-950)] sm:p-8 lg:p-12">
             <div className="space-y-8">
-              {post.sections.map((section, index) => (
-                <section key={section.heading} className="border-b border-[rgba(192,213,214,0.1)] pb-8 last:border-b-0 last:pb-0">
-                  <div className="flex items-start gap-4">
-                    <IconBadge
-                      name={iconForHref(`/blog/${post.slug}`)}
-                      tone="dark"
-                      size="sm"
-                    />
-                    <div className="flex-1">
-                      <p className="text-xs uppercase tracking-[0.28em] text-[color:var(--gold-300)]/76">
-                        Section {index + 1}
-                      </p>
-                      <h2 className="mt-3 font-display text-3xl text-white">
+              {post.sections.map((section) => (
+                <section key={section.heading} className="border-b border-[color:var(--line-soft)] pb-8 last:border-b-0 last:pb-0">
+                  <div>
+                    <div>
+                      <h2 className="font-display text-[1.7rem] leading-tight text-[color:var(--ink-950)] sm:text-3xl">
                         {section.heading}
                       </h2>
-                      <div className="mt-4 space-y-4 text-sm leading-7 text-white/72 sm:text-base">
+                      <div className="mt-4 max-w-[68ch] space-y-5 text-base leading-8 text-[color:var(--ink-800)] sm:text-[17px]">
                         {section.paragraphs.map((paragraph) => (
                           <p key={paragraph}>{paragraph}</p>
                         ))}
                       </div>
                       {section.bullets ? (
-                        <ul className="mt-5 space-y-3 text-sm leading-7 text-white/72 sm:text-base">
+                        <ul className="mt-5 space-y-3 text-sm leading-7 text-[color:var(--ink-700)] sm:text-base">
                           {section.bullets.map((bullet) => (
                             <li key={bullet} className="flex gap-3">
-                              <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[color:var(--gold-300)]" />
+                              <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[color:var(--gold-500)]" />
                               <span>{bullet}</span>
                             </li>
                           ))}
@@ -255,11 +252,11 @@ export default async function BlogArticlePage({
           </article>
 
           <aside className="flex flex-col gap-6">
-            <section className="panel-dark rounded-[32px] p-6 text-white">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+            <section className="border border-[color:var(--line-soft)] bg-white/75 rounded-[32px] p-6 text-[color:var(--ink-950)]">
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
                 Why this matters
               </p>
-              <p className="mt-4 text-sm leading-7 text-white/72">
+              <p className="mt-4 text-sm leading-7 text-[color:var(--ink-700)]">
                 These articles are written to answer the practical questions most
                 patients have before they move into a consultation. Use them to
                 compare routes, understand standards, and decide what to ask
@@ -267,8 +264,8 @@ export default async function BlogArticlePage({
               </p>
             </section>
 
-            <section className="panel-dark rounded-[32px] p-6 text-white">
-              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+            <section className="border border-[color:var(--line-soft)] bg-white/75 rounded-[32px] p-6 text-[color:var(--ink-950)]">
+              <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
                 Related reading
               </p>
               <div className="mt-5 space-y-4">
@@ -276,15 +273,15 @@ export default async function BlogArticlePage({
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="block rounded-[24px] border border-[rgba(192,213,214,0.12)] bg-[rgba(192,213,214,0.06)] p-4 transition hover:border-[rgba(192,213,214,0.24)] hover:bg-[rgba(192,213,214,0.1)]"
+                    className="block rounded-[24px] border border-[color:var(--line-soft)] bg-white/75 p-4 transition hover:border-[color:var(--line-soft)] hover:bg-white/75"
                   >
                     <div className="flex items-start gap-3">
-                      <IconBadge name={iconForHref(link.href)} tone="dark" size="sm" />
+                      <IconBadge name={iconForHref(link.href)} tone="light" size="sm" />
                       <div>
-                        <h3 className="font-display text-2xl text-white">
+                        <h3 className="font-display text-2xl text-[color:var(--ink-950)]">
                           {link.label}
                         </h3>
-                        <p className="mt-2 text-sm leading-7 text-white/68">
+                        <p className="mt-2 text-sm leading-7 text-[color:var(--ink-700)]">
                           {link.description}
                         </p>
                       </div>
@@ -295,11 +292,11 @@ export default async function BlogArticlePage({
             </section>
 
             {post.sources.length > 0 ? (
-              <section className="panel-dark rounded-[32px] p-6 text-white">
-                <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-300)]/76">
+              <section className="border border-[color:var(--line-soft)] bg-white/75 rounded-[32px] p-6 text-[color:var(--ink-950)]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--gold-500)]">
                   Sources
                 </p>
-                <p className="mt-3 text-sm leading-7 text-white/60">
+                <p className="mt-3 text-sm leading-7 text-[color:var(--ink-700)]">
                   {post.isResearchDigest
                     ? "Research publication and independent guidance used for this evidence summary."
                     : "Official guidance and registers referred to in this article."}
@@ -311,7 +308,7 @@ export default async function BlogArticlePage({
                         href={item.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-white/80 underline decoration-white/30 underline-offset-4 transition hover:text-white hover:decoration-white"
+                        className="text-[color:var(--ink-800)] underline decoration-[color:var(--line-strong)] underline-offset-4 transition hover:text-[color:var(--ink-950)] hover:decoration-[color:var(--ink-950)]"
                       >
                         {item.label}
                       </a>
@@ -323,23 +320,23 @@ export default async function BlogArticlePage({
           </aside>
         </section>
 
-        <section className="section-dark rounded-[38px] p-6 text-white sm:p-8 lg:p-10">
-          <p className="text-xs uppercase tracking-[0.32em] text-[color:var(--gold-300)]/78">
+        <section className="surface-light rounded-[38px] p-6 text-[color:var(--ink-950)] sm:p-8 lg:p-10">
+          <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--gold-500)]">
             Frequently asked questions
           </p>
-          <h2 className="mt-3 font-display text-3xl text-white sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl text-[color:var(--ink-950)] sm:text-4xl">
             Quick answers around {post.title.toLowerCase()}.
           </h2>
           <div className="mt-8 grid gap-4">
             {post.faq.map((item) => (
               <details
                 key={item.question}
-                className="panel-dark rounded-[26px] p-5"
+                className="border border-[color:var(--line-soft)] bg-white/75 rounded-[26px] p-5"
               >
-                <summary className="cursor-pointer text-base font-semibold text-white">
+                <summary className="cursor-pointer text-base font-semibold text-[color:var(--ink-950)]">
                   {item.question}
                 </summary>
-                <p className="mt-3 max-w-4xl text-sm leading-7 text-white/68">
+                <p className="mt-3 max-w-4xl text-sm leading-7 text-[color:var(--ink-700)]">
                   {item.answer}
                 </p>
               </details>

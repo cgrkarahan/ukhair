@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import SecondaryContactActions from "@/app/components/SecondaryContactActions";
-import { useConsentState } from "@/app/lib/useConsentState";
-
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "GTM-M2P4W8DV";
+import { getPhoneHref, getWhatsappHref } from "@/app/lib/contact";
+import { TRACKING_EVENTS, pushTrackingEvent } from "@/app/lib/tracking";
 const KEYBOARD_HEIGHT_THRESHOLD = 140;
 
 function isEditableElement(target: EventTarget | null) {
@@ -24,7 +22,6 @@ function isEditableElement(target: EventTarget | null) {
 }
 
 export default function MobileStickyAssessmentCta() {
-  const consent = useConsentState();
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   useEffect(() => {
@@ -82,33 +79,53 @@ export default function MobileStickyAssessmentCta() {
     };
   }, []);
 
-  if (GTM_ID && !consent) {
-    return null;
-  }
+  const phoneHref = getPhoneHref();
+  const whatsappHref = getWhatsappHref(
+    "I would like to request a free hair transplant consultation.",
+  );
 
+  // Shown straight away, whether or not the cookie banner has been answered:
+  // the bar sets no cookies, and it is the quickest way to get in touch on a phone.
   return (
     <div
-      className={`pointer-events-none fixed inset-x-0 bottom-0 z-30 block px-4 pb-[max(env(safe-area-inset-bottom),1rem)] transition duration-200 md:hidden ${
+      className={`pointer-events-none fixed inset-x-0 bottom-0 z-30 block px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] transition duration-200 md:hidden ${
         isKeyboardOpen
           ? "translate-y-6 opacity-0"
           : "translate-y-0 opacity-100"
       }`}
       aria-hidden={isKeyboardOpen}
     >
-      <div className="pointer-events-auto rounded-[24px] border border-[rgba(192,213,214,0.16)] bg-[color:var(--ink-950)]/94 p-3 shadow-[0_24px_60px_rgba(6,47,64,0.34)] backdrop-blur-xl">
-        <div>
-          <Link
-            href="/assessment"
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[color:var(--gold-300)] px-5 py-3 text-sm font-semibold !text-black transition visited:!text-black hover:bg-[color:var(--gold-400)] hover:!text-black"
+      <nav
+        aria-label="Contact"
+        className="pointer-events-auto flex gap-2 rounded-full border border-[rgba(192,213,214,0.16)] bg-[color:var(--ink-950)]/95 p-1.5 shadow-[0_18px_44px_rgba(6,47,64,0.34)] backdrop-blur-xl"
+      >
+        {phoneHref ? (
+          <a
+            href={phoneHref}
+            onClick={() => pushTrackingEvent(TRACKING_EVENTS.phoneClick)}
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full px-3 text-sm font-semibold text-white"
           >
-            Book free consultation
-          </Link>
-        </div>
-        <SecondaryContactActions
-          tone="dark"
-          className="mt-3 [&>a]:min-h-11 [&>a]:basis-0 [&>a]:flex-1"
-        />
-      </div>
+            Call
+          </a>
+        ) : null}
+        {whatsappHref ? (
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="nofollow noreferrer"
+            onClick={() => pushTrackingEvent(TRACKING_EVENTS.whatsappClick)}
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#25D366] px-3 text-sm font-semibold text-[#082E25]"
+          >
+            WhatsApp
+          </a>
+        ) : null}
+        <Link
+          href="/assessment"
+          className="inline-flex min-h-11 flex-[1.4] items-center justify-center whitespace-nowrap rounded-full bg-[color:var(--gold-300)] px-3 text-sm font-semibold !text-black visited:!text-black"
+        >
+          Free consultation
+        </Link>
+      </nav>
     </div>
   );
 }

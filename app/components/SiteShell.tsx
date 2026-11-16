@@ -3,6 +3,7 @@ import Link from "next/link";
 import BrandLogo from "@/app/components/BrandLogo";
 import MobileHeaderNav from "@/app/components/MobileHeaderNav";
 import MobileStickyAssessmentCta from "@/app/components/MobileStickyAssessmentCta";
+import NavActiveIndicator from "@/app/components/NavActiveIndicator";
 import SecondaryContactActions from "@/app/components/SecondaryContactActions";
 import SiteIcon, { IconBadge } from "@/app/components/SiteIcon";
 import { normalizeWhatsappNumber, siteSocialLinks } from "@/app/lib/contact";
@@ -75,12 +76,12 @@ export default async function SiteShell({ children }: SiteShellProps) {
             <BrandLogo tone="dark" />
           </div>
 
-          <nav className="hidden items-center gap-5 whitespace-nowrap text-base text-white/84 xl:flex 2xl:gap-8">
+          <nav className="hidden items-center gap-4 text-[15px] text-white/84 xl:flex 2xl:gap-8 2xl:text-base">
             {primaryNavigation.map((item) => (
               <div key={item.href} className="group relative">
                 <Link
                   href={item.href}
-                  className="relative inline-flex items-center gap-2 font-medium 2xl:gap-3 transition hover:text-white"
+                  className="relative inline-flex items-center gap-2 whitespace-nowrap font-medium 2xl:gap-3 transition hover:text-white"
                 >
                   <SiteIcon
                     name={iconForHref(item.href)}
@@ -93,9 +94,8 @@ export default async function SiteShell({ children }: SiteShellProps) {
                       ▾
                     </span>
                   ) : null}
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -bottom-2 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-[color:var(--gold-300)] opacity-0 shadow-[0_0_18px_rgba(165,141,102,0.6)] transition duration-200 group-hover:scale-x-100 group-hover:opacity-100 group-focus-within:scale-x-100 group-focus-within:opacity-100"
+                  <NavActiveIndicator
+                    hrefs={[item.href, ...(item.items?.map((child) => child.href) ?? [])]}
                   />
                   <span
                     aria-hidden="true"
@@ -160,20 +160,20 @@ export default async function SiteShell({ children }: SiteShellProps) {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 xl:flex">
+          <div className="hidden shrink-0 items-center gap-3 xl:flex">
             {whatsappHref ? (
               <a
                 href={whatsappHref}
                 target="_blank"
                 rel="nofollow noreferrer"
-                className="hidden rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-[#082E25] shadow-[0_18px_40px_rgba(37,211,102,0.24)] transition hover:bg-[#1fc15c] md:inline-flex"
+                className="hidden whitespace-nowrap rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-[#082E25] shadow-[0_18px_40px_rgba(37,211,102,0.24)] transition hover:bg-[#1fc15c] md:inline-flex"
               >
                 WhatsApp
               </a>
             ) : null}
             <Link
               href="/assessment"
-              className="inline-flex rounded-full bg-[color:var(--gold-300)] px-4 py-2.5 text-sm font-semibold text-black shadow-[0_18px_40px_rgba(165,141,102,0.24)] transition hover:bg-[color:var(--gold-400)]"
+              className="inline-flex whitespace-nowrap rounded-full bg-[color:var(--gold-300)] px-4 py-2.5 text-sm font-semibold text-black shadow-[0_18px_40px_rgba(165,141,102,0.24)] transition hover:bg-[color:var(--gold-400)]"
             >
               Free consultation
             </Link>
@@ -253,22 +253,23 @@ export default async function SiteShell({ children }: SiteShellProps) {
                     {group.title}
                   </p>
                 </div>
-                <div className="mt-4 space-y-3">
+                <ul className="mt-4 grid gap-3">
                   {group.links.map((href) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="inline-flex items-center gap-2 text-sm leading-6 text-white/68 transition hover:text-white"
-                    >
-                      <SiteIcon
-                        name={iconForHref(href)}
-                        size={15}
-                        className="text-[color:var(--gold-300)]/76"
-                      />
-                      {labelForHref(href)}
-                    </Link>
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        className="flex items-start gap-2 text-sm leading-6 text-white/68 transition hover:text-white"
+                      >
+                        <SiteIcon
+                          name={iconForHref(href)}
+                          size={15}
+                          className="mt-[5px] shrink-0 text-[color:var(--gold-300)]/76"
+                        />
+                        <span>{labelForHref(href)}</span>
+                      </Link>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </section>
             ))}
           </div>
