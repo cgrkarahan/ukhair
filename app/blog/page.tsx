@@ -23,6 +23,18 @@ export const metadata: Metadata = buildMetadata({
   ],
 });
 
+function formatUpdatedDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export default async function BlogIndexPage() {
   const blogPosts = await getBlogPostsContent();
   const structuredData = {
@@ -111,7 +123,9 @@ export default async function BlogIndexPage() {
                 <div className="mt-5 flex flex-wrap gap-2 text-xs uppercase tracking-[0.22em] text-white/50">
                   <span>{post.readTime}</span>
                   <span>•</span>
-                  <span>Updated {post.updatedAt}</span>
+                  <time dateTime={post.updatedAt}>
+                    Updated {formatUpdatedDate(post.updatedAt)}
+                  </time>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {post.keyTakeaways.slice(0, 2).map((takeaway) => (
