@@ -30,7 +30,6 @@ export function iconForHref(href: string): SiteIconName {
     "/hair-transplant-side-effects": "alert-circle",
     "/fue-vs-dhi": "route",
     "/hair-transplant-without-shaving": "sparkles",
-    "/female-hair-transplant-london": "sparkles",
     "/types-of-hair-loss": "compass",
     "/norwood-scale": "clipboard-check",
     "/ludwig-scale": "clipboard-check",

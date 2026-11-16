@@ -21,7 +21,7 @@ const description =
 export async function generateMetadata(): Promise<Metadata> {
   const cases = await getProofCasesContent();
   const metadata = buildMetadata({
-    title: "Hair Transplant Results | UK Hair Transplant",
+    title: "Hair Transplant Before and After: Hairline and Crown Results",
     description,
     path: "/results",
   });

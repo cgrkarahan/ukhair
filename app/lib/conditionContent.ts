@@ -470,7 +470,6 @@ export const conditionTopicPages: Record<string, TopicPageContent> = {
     breadcrumbParent: hub,
     relatedSlugs: [
       "female-hair-loss",
-      "female-hair-transplant-london",
       "diffuse-thinning",
       "hair-transplant-without-shaving",
     ],
@@ -877,7 +876,6 @@ export const conditionTopicPages: Record<string, TopicPageContent> = {
     breadcrumbParent: hub,
     relatedSlugs: [
       "ludwig-scale",
-      "female-hair-transplant-london",
       "diffuse-thinning",
       "traction-alopecia",
     ],
@@ -1160,7 +1158,6 @@ export const conditionTopicPages: Record<string, TopicPageContent> = {
     relatedSlugs: [
       "female-hair-loss",
       "receding-hairline",
-      "female-hair-transplant-london",
       "hair-transplant-without-shaving",
     ],
   },

@@ -45,9 +45,9 @@ const rawServiceCatalog: ServiceDetailInput[] = [
     title: "Male Hair Transplant",
     shortDescription:
       "Hairline, crown, and density restoration in London with careful planning and realistic long-term design.",
-    seoTitle: "Male Hair Transplant London",
+    seoTitle: "Men's Hair Transplant London: Sapphire FUE and DHI",
     seoDescription:
-      "Explore male hair transplant treatment in London, including hairline design, crown planning, donor management, candidacy, recovery expectations, and what to ask before booking.",
+      "Men's hair transplants in London for receding hairlines and crown thinning: hairline design, Sapphire FUE or DHI, graft planning, recovery, and fixed package prices.",
     keywords: [
       "male hair transplant london",
       "hair transplant for men london",
@@ -210,7 +210,6 @@ const rawServiceCatalog: ServiceDetailInput[] = [
       "Recovery, side effects, and without-shaving information all help make the option easier to evaluate.",
     ],
     relatedGuideSlugs: [
-      "female-hair-transplant-london",
       "hair-transplant-without-shaving",
       "hair-transplant-recovery-timeline",
       "our-clinical-standards",
@@ -478,9 +477,9 @@ const rawServiceCatalog: ServiceDetailInput[] = [
     title: "Hair Loss Treatments",
     shortDescription:
       "Non-surgical hair loss treatments in London for early thinning, maintenance, and supportive planning before or after transplant surgery.",
-    seoTitle: "Hair Loss Treatments London",
+    seoTitle: "Non-Surgical Hair Loss Treatment London",
     seoDescription:
-      "Compare non-surgical hair loss treatments in London, including maintenance-focused options before or after transplant surgery and what realistic improvement may look like.",
+      "Non-surgical hair loss treatment in London, such as PRP, for early thinning, alopecia questions, or maintenance before and after a transplant, and when surgery is the better route.",
     keywords: [
       "hair loss treatments london",
       "non surgical hair loss treatment london",

@@ -411,7 +411,7 @@ const rawBlogPosts: BaseBlogPost[] = [
     title: "How to Check a Hair Transplant Surgeon's Registration",
     seoTitle: "How to Check a Hair Transplant Surgeon's Registration",
     description:
-      "A ten-minute check before you book: how to look up a hair transplant doctor on the GMC register, and how to check the clinic with the CQC, HIS, or HIW.",
+      "Search the doctor's name on the GMC register and the clinic's address on the CQC register (HIS in Scotland, HIW in Wales). A step-by-step ten-minute check.",
     excerpt:
       "Search the doctor on the GMC register, check the clinic with the right regulator for where it is, and find out who does each part of the procedure.",
     eyebrow: "Checking a clinic",
@@ -755,7 +755,7 @@ const rawBlogPosts: BaseBlogPost[] = [
     title: "Hair Transplant Deposits and Refunds: What to Check Before Paying",
     seoTitle: "Hair Transplant Deposits and Refunds: What to Check",
     description:
-      "What a hair transplant deposit should secure, the refund terms to check in writing, and how to protect the money you pay, including abroad.",
+      "A hair transplant deposit should secure a date, not your decision. The four refund terms to get in writing, and how paying by credit card adds protection.",
     excerpt:
       "A deposit should secure a date, not your decision. Check what it covers, when you can get it back, and how you pay it.",
     eyebrow: "Before you pay",
@@ -862,7 +862,7 @@ const rawBlogPosts: BaseBlogPost[] = [
     title: "Getting a Second Opinion on a Hair Transplant Plan",
     seoTitle: "Hair Transplant Second Opinion: When and How",
     description:
-      "When a second opinion on a hair transplant plan is worth getting, who to ask, what to bring, and how to compare two plans that disagree.",
+      "Get a second opinion for a large graft number, a young age, diffuse thinning, a repair case or a plan you don't fully understand. Who to ask and what to bring.",
     excerpt:
       "A second opinion is normal practice for a permanent procedure. The useful part is not who is right, but why the two plans differ.",
     eyebrow: "Decision support",
@@ -1301,7 +1301,7 @@ const rawBlogPosts: BaseBlogPost[] = [
     title: "Hair Transplant Guarantees: What They Actually Cover",
     seoTitle: "Hair Transplant Guarantees: What They Actually Cover",
     description:
-      "What hair transplant growth and graft survival guarantees usually cover, the conditions attached, what they cannot cover, and the questions to ask before relying on one.",
+      "Most hair transplant guarantees promise a repeat procedure, not a refund, and only if you meet conditions like following aftercare. What they cover and what to ask.",
     excerpt:
       "A guarantee is only as useful as its conditions. Here is what growth guarantees usually cover, what they exclude, and what to ask.",
     eyebrow: "Before you pay",

@@ -33,6 +33,7 @@ export type AutomationJob = {
   reviewResponseId: string | null;
   similarityScore: number | null;
   attemptedPmids: string[];
+  repairAttempts: number;
 };
 
 type StoredPostRow = {
@@ -66,6 +67,7 @@ type StoredAutomationJobRow = {
   review_response_id: string | null;
   similarity_score: number | null;
   attempted_pmids: string[];
+  repair_attempts: number;
 };
 
 export type AutomatedPostRecord = {
@@ -139,6 +141,7 @@ function mapAutomationJob(row: StoredAutomationJobRow): AutomationJob {
     reviewResponseId: row.review_response_id,
     similarityScore: row.similarity_score,
     attemptedPmids: row.attempted_pmids ?? [],
+    repairAttempts: row.repair_attempts ?? 0,
   };
 }
 
@@ -208,6 +211,7 @@ export async function ensureAutomatedBlogSchema() {
       review_response_id TEXT UNIQUE,
       similarity_score DOUBLE PRECISION,
       attempted_pmids TEXT[] NOT NULL DEFAULT '{}',
+      repair_attempts INTEGER NOT NULL DEFAULT 0,
       last_error TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -218,6 +222,11 @@ export async function ensureAutomatedBlogSchema() {
   await sql`
     ALTER TABLE automated_content_jobs
     ADD COLUMN IF NOT EXISTS attempted_pmids TEXT[] NOT NULL DEFAULT '{}'
+  `;
+
+  await sql`
+    ALTER TABLE automated_content_jobs
+    ADD COLUMN IF NOT EXISTS repair_attempts INTEGER NOT NULL DEFAULT 0
   `;
 }
 
@@ -240,6 +249,7 @@ export async function createAutomationJob(input: {
       review_response_id,
       similarity_score,
       attempted_pmids,
+      repair_attempts,
       last_error,
       created_at,
       updated_at
@@ -255,6 +265,7 @@ export async function createAutomationJob(input: {
       NULL,
       NULL,
       ARRAY[${(input.candidate as { pmid?: string }).pmid ?? "unknown"}]::text[],
+      0,
       NULL,
       NOW(),
       NOW()
@@ -268,6 +279,7 @@ export async function createAutomationJob(input: {
       review_response_id = NULL,
       similarity_score = NULL,
       attempted_pmids = EXCLUDED.attempted_pmids,
+      repair_attempts = 0,
       last_error = NULL,
       updated_at = NOW()
     WHERE automated_content_jobs.state = 'failed'
@@ -288,7 +300,8 @@ export async function getAutomationJobByResponseId(
       generation_response_id,
       review_response_id,
       similarity_score,
-      attempted_pmids
+      attempted_pmids,
+      repair_attempts
     FROM automated_content_jobs
     WHERE generation_response_id = ${responseId}
        OR review_response_id = ${responseId}
@@ -312,13 +325,42 @@ export async function getAutomationJobForSlot(
       generation_response_id,
       review_response_id,
       similarity_score,
-      attempted_pmids
+      attempted_pmids,
+      repair_attempts
     FROM automated_content_jobs
     WHERE publication_date = ${publicationDate}::date
       AND slot = ${slot}
     LIMIT 1
   `) as StoredAutomationJobRow[];
   return rows[0] ? mapAutomationJob(rows[0]) : null;
+}
+
+export async function getStaleAutomationJobs(
+  staleAfterMinutes = 20,
+  limit = 4,
+): Promise<AutomationJob[]> {
+  const safeMinutes = Math.max(5, Math.min(180, Math.trunc(staleAfterMinutes)));
+  const safeLimit = Math.max(1, Math.min(10, Math.trunc(limit)));
+  const rows = (await database()`
+    SELECT
+      TO_CHAR(publication_date, 'YYYY-MM-DD') AS publication_date,
+      slot,
+      state,
+      candidate,
+      cluster_id,
+      draft,
+      generation_response_id,
+      review_response_id,
+      similarity_score,
+      attempted_pmids,
+      repair_attempts
+    FROM automated_content_jobs
+    WHERE state IN ('generating', 'reviewing')
+      AND updated_at < NOW() - (${safeMinutes} * INTERVAL '1 minute')
+    ORDER BY updated_at ASC
+    LIMIT ${safeLimit}
+  `) as StoredAutomationJobRow[];
+  return rows.map(mapAutomationJob);
 }
 
 export async function restartAutomationJobGeneration(input: {
@@ -339,11 +381,38 @@ export async function restartAutomationJobGeneration(input: {
       review_response_id = NULL,
       similarity_score = NULL,
       attempted_pmids = ARRAY_APPEND(attempted_pmids, ${pmid}),
+      repair_attempts = 0,
       last_error = ${input.reason.slice(0, 4000)},
       updated_at = NOW()
     WHERE publication_date = ${input.publicationDate}::date
       AND slot = ${input.slot}
       AND state IN ('generating', 'reviewing')
+    RETURNING generation_response_id
+  `) as Array<{ generation_response_id: string }>;
+  return rows.length > 0;
+}
+
+export async function markAutomationJobRepairing(input: {
+  publicationDate: string;
+  slot: PublicationSlot;
+  repairResponseId: string;
+  expectedReviewResponseId: string;
+  reason: string;
+}) {
+  const rows = (await database()`
+    UPDATE automated_content_jobs
+    SET
+      state = 'generating',
+      generation_response_id = ${input.repairResponseId},
+      review_response_id = NULL,
+      repair_attempts = repair_attempts + 1,
+      last_error = ${input.reason.slice(0, 4000)},
+      updated_at = NOW()
+    WHERE publication_date = ${input.publicationDate}::date
+      AND slot = ${input.slot}
+      AND state = 'reviewing'
+      AND review_response_id = ${input.expectedReviewResponseId}
+      AND repair_attempts < 1
     RETURNING generation_response_id
   `) as Array<{ generation_response_id: string }>;
   return rows.length > 0;
