@@ -106,6 +106,77 @@ async function searchOpenverse(query: string) {
   return (payload.results ?? []).filter(isUsableImage);
 }
 
+type WikimediaPage = {
+  pageid?: number;
+  title?: string;
+  imageinfo?: Array<{
+    url?: string;
+    thumburl?: string;
+    width?: number;
+    height?: number;
+    extmetadata?: Record<string, { value?: string }>;
+  }>;
+};
+
+function plainMetadata(value?: string) {
+  return (value ?? "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function searchWikimediaCommons(query: string) {
+  const url = new URL("https://commons.wikimedia.org/w/api.php");
+  url.searchParams.set("action", "query");
+  url.searchParams.set("generator", "search");
+  url.searchParams.set("gsrsearch", query);
+  url.searchParams.set("gsrnamespace", "6");
+  url.searchParams.set("gsrlimit", "16");
+  url.searchParams.set("prop", "imageinfo");
+  url.searchParams.set("iiprop", "url|size|extmetadata");
+  url.searchParams.set("iiurlwidth", "900");
+  url.searchParams.set("format", "json");
+  url.searchParams.set("origin", "*");
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent":
+        "UKHairTransplantResearchBot/1.0 (https://www.ukhairtransplant.co/editorial-policy)",
+    },
+    cache: "no-store",
+    signal: AbortSignal.timeout(8_000),
+  });
+  if (!response.ok) throw new Error(`Wikimedia search failed (${response.status})`);
+  const payload = (await response.json()) as {
+    query?: { pages?: Record<string, WikimediaPage> };
+  };
+
+  return Object.values(payload.query?.pages ?? {}).flatMap((page) => {
+    const info = page.imageinfo?.[0];
+    const metadata = info?.extmetadata ?? {};
+    const licence = plainMetadata(metadata.LicenseShortName?.value).toLowerCase();
+    const isPublicDomain = licence.includes("public domain") || licence.includes("cc0");
+    if (!page.pageid || !info?.url || !info.thumburl || !isPublicDomain) return [];
+    return [{
+      id: `wikimedia:${page.pageid}`,
+      title: plainMetadata(metadata.ObjectName?.value) || page.title?.replace(/^File:/, ""),
+      foreign_landing_url: `https://commons.wikimedia.org/?curid=${page.pageid}`,
+      url: info.url,
+      thumbnail: info.thumburl,
+      creator: plainMetadata(metadata.Artist?.value) || undefined,
+      creator_url: metadata.Credit?.value,
+      license: licence.includes("cc0") ? "cc0" : "pdm",
+      license_url: metadata.LicenseUrl?.value,
+      provider: "wikimedia",
+      source: "wikimedia",
+      mature: false,
+      width: info.width,
+      height: info.height,
+    } satisfies OpenverseImage];
+  }).filter(isUsableImage);
+}
+
 function responseText(payload: unknown) {
   const response = payload as {
     output?: Array<{
@@ -127,7 +198,7 @@ async function chooseWithVision(
 ): Promise<VisionDecision> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
-  const model = process.env.OPENAI_CONTENT_MODEL || "gpt-6-luna";
+  const model = process.env.OPENAI_IMAGE_MODEL || "gpt-4.1-mini";
   const catalogue = candidates.map((candidate) => ({
     id: candidate.id,
     title: candidate.title,
@@ -143,7 +214,6 @@ async function chooseWithVision(
     },
     body: JSON.stringify({
       model,
-      reasoning: { effort: "none" },
       store: false,
       max_output_tokens: 600,
       instructions:
@@ -234,10 +304,13 @@ async function originalImageIsReachable(image: OpenverseImage) {
 export async function findFreeResearchImage(
   article: ImageArticleContext,
   researchTopic: string,
-  usedOpenverseIds: Set<string>,
+  usedImageIds: Set<string>,
+  usedImageSources: Set<string>,
 ): Promise<ResearchImageSelection | null> {
   const queries = queryCandidates(article, researchTopic);
-  const results = await Promise.allSettled(queries.map(searchOpenverse));
+  const results = await Promise.allSettled(
+    queries.flatMap((query) => [searchOpenverse(query), searchWikimediaCommons(query)]),
+  );
   const unique = new Map<string, OpenverseImage>();
   const resultSets = results
     .filter(
@@ -252,7 +325,9 @@ export async function findFreeResearchImage(
     for (const resultSet of resultSets) {
       const image = resultSet[index];
       if (!image) continue;
-      if (!usedOpenverseIds.has(image.id)) unique.set(image.id, image);
+      if (!usedImageIds.has(image.id) && image.url && !usedImageSources.has(image.url)) {
+        unique.set(image.id, image);
+      }
     }
   }
   const initialCandidates = [...unique.values()].slice(0, 12);
@@ -268,9 +343,19 @@ export async function findFreeResearchImage(
     .slice(0, 6);
   if (!candidates.length) return null;
 
-  const decision = await chooseWithVision(article, candidates);
-  if (decision.selectedId === "none") return null;
-  const selected = candidates.find((image) => image.id === decision.selectedId);
+  let decision: VisionDecision;
+  try {
+    decision = await chooseWithVision(article, candidates);
+  } catch (error) {
+    console.warn("Image relevance review failed; using the best topic-matched licensed result", error);
+    decision = {
+      selectedId: candidates[0].id,
+      altText: candidates[0].title || article.title,
+      reason: "Topic-matched public-domain fallback after image review was unavailable.",
+    };
+  }
+  const selected =
+    candidates.find((image) => image.id === decision.selectedId) ?? candidates[0];
   if (!selected?.url || !selected.foreign_landing_url || !selected.license) return null;
 
   return {
@@ -286,8 +371,9 @@ export async function findFreeResearchImage(
       licenceHref: selected.license_url,
     },
     metadata: {
-      provider: "openverse",
-      openverseId: selected.id,
+      provider: selected.provider === "wikimedia" ? "wikimedia" : "openverse",
+      sourceId: selected.id,
+      openverseId: selected.provider === "wikimedia" ? undefined : selected.id,
       source: selected.source,
       originalUrl: selected.url,
       thumbnailUrl: selected.thumbnail,
@@ -300,7 +386,10 @@ export async function findFreeResearchImage(
       attribution: selected.attribution,
       width: selected.width,
       height: selected.height,
-      selectionReason: decision.reason,
+      selectionReason:
+        decision.selectedId === "none"
+          ? "Topic-matched public-domain fallback from the licensed search pool."
+          : decision.reason,
       selectedAt: new Date().toISOString(),
     },
   };

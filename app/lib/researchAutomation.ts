@@ -15,7 +15,7 @@ import {
   getAutomatedBlogFingerprints,
   getPublishedPostForSlot,
   getStaleAutomationJobs,
-  getUsedOpenverseImageIds,
+  getUsedResearchImages,
   markAutomationJobPublished,
   saveAutomatedBlogPost,
 } from "@/app/lib/blogDatabase";
@@ -835,9 +835,14 @@ async function selectResearchImage(
   researchTopic: string,
 ) {
   try {
-    const usedOpenverseIds = await getUsedOpenverseImageIds();
+    const usedImages = await getUsedResearchImages();
     return (
-      (await findFreeResearchImage(article, researchTopic, usedOpenverseIds)) ??
+      (await findFreeResearchImage(
+        article,
+        researchTopic,
+        usedImages.ids,
+        usedImages.sources,
+      )) ??
       selectFallbackResearchImage(article, candidate)
     );
   } catch (error) {

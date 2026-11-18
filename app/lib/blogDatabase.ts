@@ -57,6 +57,7 @@ type StoredFingerprintRow = {
 
 type StoredImageMetadataRow = {
   openverse_id: string | null;
+  image_src: string | null;
 };
 
 type StoredSlotRow = {
@@ -99,8 +100,21 @@ let databaseClient: ReturnType<typeof neon> | null = null;
 
 const automatedImageCorrections: Record<
   string,
-  Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition">
+  Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition"> &
+    Partial<Pick<BlogPost, "imageCredit">>
 > = {
+  "association-of-knowledge-dietary-behaviors-and-attitudes-toward-hair-problems-among": {
+    imageSrc:
+      "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L3B4MTIzNTA5MS1pbWFnZS1rd3Z5MmR4My5qcGc.jpg",
+    imageAlt:
+      "Fresh fruit and vegetables arranged on a wooden table to illustrate dietary behaviours",
+    imagePosition: "center",
+    imageCredit: {
+      label: "Public-domain image via Openverse and Rawpixel",
+      href: "https://www.rawpixel.com/image/5924737/photo-image-public-domain-plant-green",
+      licenceLabel: "CC0",
+    },
+  },
   "prp-iprf-cgf-female-pattern-hair-loss-trial": {
     imageSrc: "/images/blog/prp-iprf-cgf-female-pattern-hair-loss.jpg",
     imageAlt:
@@ -658,22 +672,41 @@ export async function getAttemptedResearchIds(): Promise<AttemptedResearchIds> {
   }
 }
 
-export async function getUsedOpenverseImageIds(): Promise<Set<string>> {
-  if (!hasBlogDatabase()) return new Set();
+export async function getUsedResearchImages(): Promise<{
+  ids: Set<string>;
+  sources: Set<string>;
+}> {
+  const empty = { ids: new Set<string>(), sources: new Set<string>() };
+  if (!hasBlogDatabase()) return empty;
 
   try {
-    if (!(await automatedBlogTableExists())) return new Set();
+    if (!(await automatedBlogTableExists())) return empty;
     const rows = (await database()`
-      SELECT image_metadata ->> 'openverseId' AS openverse_id
+      SELECT
+        COALESCE(
+          image_metadata ->> 'openverseId',
+          image_metadata ->> 'sourceId'
+        ) AS openverse_id,
+        content ->> 'imageSrc' AS image_src
       FROM automated_blog_posts
-      WHERE image_metadata ->> 'provider' = 'openverse'
     `) as StoredImageMetadataRow[];
-    return new Set(
-      rows.map((row) => row.openverse_id).filter((id): id is string => Boolean(id)),
+    const correctedSources = Object.values(automatedImageCorrections).map(
+      (correction) => correction.imageSrc,
     );
+    return {
+      ids: new Set(
+        rows.map((row) => row.openverse_id).filter((id): id is string => Boolean(id)),
+      ),
+      sources: new Set(
+        [
+          ...rows.map((row) => row.image_src),
+          ...correctedSources,
+        ].filter((src): src is string => Boolean(src)),
+      ),
+    };
   } catch (error) {
-    console.warn("Openverse image history lookup failed", error);
-    return new Set();
+    console.warn("Research image history lookup failed", error);
+    return empty;
   }
 }
 
