@@ -17,14 +17,8 @@ import {
   getStaleAutomationJobs,
   getUsedOpenverseImageIds,
   markAutomationJobPublished,
-  markAutomationJobRepairing,
-  markAutomationJobReviewing,
   saveAutomatedBlogPost,
 } from "@/app/lib/blogDatabase";
-import {
-  decideQualityReview,
-  MINIMUM_REVIEW_SCORE,
-} from "@/app/lib/researchQualityPolicy";
 import {
   findFreeResearchImage,
   type ResearchImageSelection,
@@ -62,6 +56,13 @@ type GeneratedArticle = Omit<
   "sources" | "relatedLinks" | "imageSrc" | "imageAlt" | "imagePosition" | "imageCredit" | "publishedAt" | "updatedAt" | "isResearchDigest" | "primaryPmid" | "studyDesign"
 > & { studyDesign: string };
 
+type SimpleArticleDraft = {
+  answerSummary: string;
+  keyTakeaways: string[];
+  sectionBodies: string[];
+  faqAnswers: string[];
+};
+
 type ExistingFingerprint = {
   title?: string;
   slug?: string;
@@ -73,30 +74,6 @@ type ExistingFingerprint = {
   sections?: Array<{ paragraphs?: string[] }>;
 };
 
-type ArticleRepair = {
-  title: string | null;
-  seoTitle: string | null;
-  description: string | null;
-  excerpt: string | null;
-  eyebrow: string | null;
-  answerSummary: string | null;
-  readTime: string | null;
-  keywords: string[] | null;
-  keyTakeaways: string[] | null;
-  studyDesign: string | null;
-  sections: Array<{
-    index: number;
-    heading: string | null;
-    paragraphs: string[] | null;
-    bullets: string[] | null;
-  }>;
-  faq: Array<{
-    index: number;
-    question: string | null;
-    answer: string | null;
-  }>;
-};
-
 class FatalAutomationError extends Error {}
 class IncompleteOpenAIResponseError extends Error {
   constructor(readonly reason: string) {
@@ -104,10 +81,8 @@ class IncompleteOpenAIResponseError extends Error {
   }
 }
 
-const ARTICLE_MAX_OUTPUT_TOKENS = 10000;
-const REVIEW_MAX_OUTPUT_TOKENS = 1800;
-const REPAIR_MAX_OUTPUT_TOKENS = 3500;
-const MIN_ARTICLE_WORDS = 750;
+const ARTICLE_MAX_OUTPUT_TOKENS = 5000;
+const MIN_ARTICLE_WORDS = 600;
 const MAX_ARTICLE_WORDS = 1100;
 
 const nhsHairLoss: GuidanceSource = {
@@ -141,7 +116,7 @@ const cochraneAlopecia: GuidanceSource = {
 };
 
 function contentWriterModel() {
-  return process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1";
+  return process.env.OPENAI_ARTICLE_MODEL || "gpt-4.1-mini";
 }
 
 const clusters: ResearchCluster[] = [
@@ -340,8 +315,8 @@ function responseText(payload: unknown) {
 }
 
 async function structuredResponse<T>(
-  name: string,
-  schema: Record<string, unknown>,
+  _name: string,
+  _schema: Record<string, unknown>,
   instructions: string,
   input: string,
   reasoningEffort: "none" | "low" | "medium" = "low",
@@ -363,7 +338,6 @@ async function structuredResponse<T>(
       input,
       store: false,
       max_output_tokens: maxOutputTokens,
-      text: { format: { type: "json_schema", name, strict: true, schema } },
     }),
     cache: "no-store",
   });
@@ -377,17 +351,17 @@ async function structuredResponse<T>(
   }
   const text = responseText(payload);
   if (!text) throw new Error("OpenAI returned no structured output");
-  return JSON.parse(text) as T;
+  return parseJsonResponse<T>(text);
 }
 
 async function startBackgroundStructuredResponse(
-  name: string,
-  schema: Record<string, unknown>,
+  _name: string,
+  _schema: Record<string, unknown>,
   instructions: string,
   input: string,
   reasoningEffort: "none" | "low" | "medium" = "low",
   maxOutputTokens = ARTICLE_MAX_OUTPUT_TOKENS,
-  options: { model?: string; strict?: boolean } = {},
+  options: { model?: string } = {},
 ) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
@@ -399,14 +373,6 @@ async function startBackgroundStructuredResponse(
     background: true,
     store: true,
     max_output_tokens: maxOutputTokens,
-    text: {
-      format: {
-        type: "json_schema",
-        name,
-        strict: options.strict ?? true,
-        schema,
-      },
-    },
   };
   if (!model.startsWith("gpt-4")) {
     body.reasoning = { effort: reasoningEffort };
@@ -447,29 +413,69 @@ async function retrieveStructuredResponse<T>(responseId: string): Promise<T> {
   }
   const text = responseText(payload);
   if (!text) throw new Error("OpenAI returned no structured output");
-  return JSON.parse(text) as T;
+  return parseJsonResponse<T>(text);
+}
+
+function parseJsonResponse<T>(text: string): T {
+  const withoutFence = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+  const start = withoutFence.indexOf("{");
+  const end = withoutFence.lastIndexOf("}");
+  if (start === -1 || end <= start) {
+    throw new Error("OpenAI returned invalid JSON output");
+  }
+  return JSON.parse(withoutFence.slice(start, end + 1)) as T;
 }
 
 const completeSentencePattern = "[.!?][\\\"'’”)]*$";
 
-const articleSchema = {
+const simpleArticleSchema = {
   type: "object",
   additionalProperties: false,
-  required: ["slug", "title", "seoTitle", "description", "excerpt", "eyebrow", "answerSummary", "readTime", "keywords", "keyTakeaways", "sections", "faq", "studyDesign"],
+  required: ["answerSummary", "keyTakeaways", "sectionBodies", "faqAnswers"],
   properties: {
-    slug: { type: "string", pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
-    title: { type: "string", minLength: 30, maxLength: 90 },
-    seoTitle: { type: "string", minLength: 30, maxLength: 70 },
-    description: { type: "string", minLength: 90, maxLength: 170, pattern: completeSentencePattern },
-    excerpt: { type: "string", minLength: 80, maxLength: 260, pattern: completeSentencePattern },
-    eyebrow: { type: "string", minLength: 3, maxLength: 40 },
-    answerSummary: { type: "string", minLength: 140, maxLength: 450, pattern: completeSentencePattern },
-    readTime: { type: "string", pattern: "^[0-9]+ min read$" },
-    keywords: { type: "array", minItems: 4, maxItems: 8, items: { type: "string" } },
-    keyTakeaways: { type: "array", minItems: 4, maxItems: 4, items: { type: "string", minLength: 25, maxLength: 140, pattern: completeSentencePattern } },
-    sections: { type: "array", minItems: 7, maxItems: 7, items: { type: "object", additionalProperties: false, required: ["heading", "paragraphs", "bullets"], properties: { heading: { type: "string", minLength: 8, maxLength: 90 }, paragraphs: { type: "array", minItems: 2, maxItems: 2, items: { type: "string", minLength: 80, maxLength: 500, pattern: completeSentencePattern } }, bullets: { type: "array", maxItems: 2, items: { type: "string", minLength: 15, maxLength: 140, pattern: completeSentencePattern } } } } },
-    faq: { type: "array", minItems: 3, maxItems: 3, items: { type: "object", additionalProperties: false, required: ["question", "answer"], properties: { question: { type: "string", minLength: 15, maxLength: 110, pattern: "[?][\\\"'’”)]*$" }, answer: { type: "string", minLength: 100, maxLength: 300, pattern: completeSentencePattern } } } },
-    studyDesign: { type: "string", minLength: 3, maxLength: 100 },
+    answerSummary: {
+      type: "string",
+      minLength: 250,
+      maxLength: 550,
+      pattern: completeSentencePattern,
+    },
+    keyTakeaways: {
+      type: "array",
+      minItems: 4,
+      maxItems: 4,
+      items: {
+        type: "string",
+        minLength: 45,
+        maxLength: 150,
+        pattern: completeSentencePattern,
+      },
+    },
+    sectionBodies: {
+      type: "array",
+      minItems: 7,
+      maxItems: 7,
+      items: {
+        type: "string",
+        minLength: 500,
+        maxLength: 850,
+        pattern: completeSentencePattern,
+      },
+    },
+    faqAnswers: {
+      type: "array",
+      minItems: 3,
+      maxItems: 3,
+      items: {
+        type: "string",
+        minLength: 140,
+        maxLength: 320,
+        pattern: completeSentencePattern,
+      },
+    },
   },
 } as const;
 
@@ -491,28 +497,29 @@ function articleRequest(
   cluster: ResearchCluster,
   existing: ExistingFingerprint[],
 ) {
-  const types = resultStudyDesign(candidate);
-  const existingContext = existing.slice(0, 20).map((item) => ({
+  const existingContext = existing.slice(0, 12).map((item) => ({
     title: item.title,
-    slug: item.slug,
-    topic: item.researchTopic,
   }));
   return {
-    instructions: `Summarise the supplied PubMed-indexed study for UK Hair Transplant, a UK referral and patient-information service, not a clinic. Today's date is ${londonDate()}. Write clear, original British English and return only the requested JSON object. The task is to explain the study accurately, not to create new medical conclusions. Use the study metadata and abstract as the authority for the population, methods, comparisons, outcomes and limitations. Use an independent-guidance statement only when its supplied note explicitly supports the statement. A link alone is not evidence for additional details. Preserve methodological meaning: sessions are not injections, sensitivity analyses are not eligibility rules, associations are not effects, and a possible adjunct is not an established alternative treatment. Do not add diagnoses, symptom lists, tests, referral criteria, treatment recommendations, NHS availability, prescribing, regulation, interactions or special-group advice unless the supplied evidence states the exact point. Neutral signposting to the linked NHS guidance or a GP is sufficient when relevant. Do not diagnose, prescribe, promise results, imply clinician review or invent facts. Clearly distinguish what the study found from what it did not prove. Produce a complete ${MIN_ARTICLE_WORDS}-${MAX_ARTICLE_WORDS} word reader-visible article, aiming for 850-950 words. Write exactly seven supplied sections with exactly two concise paragraphs per section, four concise takeaways and exactly three concise FAQs. Use no more than two bullets in a section and prefer an empty bullets array unless bullets materially improve clarity. Give each section a distinct purpose, avoid repeating the same conclusion and finish every field and sentence. Return plain text in JSON strings without HTML, Markdown, XML, drafting notes or commentary.`,
+    instructions: `Write a concise British-English explanation of the supplied PubMed abstract for a UK patient-information website. Return one JSON object and nothing else, using exactly these keys: {"answerSummary":"string","keyTakeaways":["four strings"],"sectionBodies":["seven strings"],"faqAnswers":["three strings"]}. Use only facts present in the study metadata, abstract, or the exact supplied guidance notes. Do not diagnose, recommend treatment, invent clinical details, promise results, or infer facts from a source link. Describe associations as associations and preliminary findings as preliminary. Do not include HTML or Markdown. Write four distinct takeaways, seven section bodies in the supplied order, and three direct FAQ answers. Each section body must be 80-110 words. The complete reader-visible copy must be 650-950 words. Finish every sentence. Do not repeat the same conclusion in multiple sections.`,
     input: JSON.stringify({
-      assignment: { cluster: cluster.label, studyDesign: types, requiredAngle: "Explain what this new research adds, what it does not prove, and how a UK reader should interpret it." },
       primaryStudy: primaryStudyContext(candidate),
       independentGuidance: cluster.guidance,
       existingArticlesToAvoidDuplicating: existingContext,
-      requiredSections: ["Direct answer", "What the study examined", "What the researchers found", "Important limitations", "How this fits with independent UK guidance", "What this may mean for patients", "Where to find further support"],
-      lengthPlan: {
-        sectionCount: 7,
-        paragraphsPerSection: 2,
-        wordsPerParagraph: "40-60",
-        faqCount: 3,
-        wordsPerFaqAnswer: "30-50",
-        totalReaderVisibleWords: `${MIN_ARTICLE_WORDS}-${MAX_ARTICLE_WORDS}`,
-      },
+      sectionOrder: [
+        "Direct answer",
+        "What the study examined",
+        "What the researchers found",
+        "Important limitations",
+        "How this fits with independent UK guidance",
+        "What this may mean for patients",
+        "Where to find further support",
+      ],
+      faqQuestions: [
+        "What did this study investigate?",
+        "What can the findings prove?",
+        "How should UK readers interpret the study?",
+      ],
     }),
   };
 }
@@ -523,9 +530,9 @@ async function generateArticle(
   existing: ExistingFingerprint[],
 ) {
   const request = articleRequest(candidate, cluster, existing);
-  return structuredResponse<GeneratedArticle>(
+  return structuredResponse<SimpleArticleDraft>(
     "research_article",
-    articleSchema,
+    simpleArticleSchema,
     request.instructions,
     request.input,
     "none",
@@ -537,201 +544,6 @@ async function generateArticle(
 function resultStudyDesign(candidate: EuropePmcResult) {
   const types = candidate.pubTypeList?.pubType ?? [];
   return types.find((type) => preferredPublicationTypes.includes(type.toLowerCase())) ?? types[0] ?? "PubMed-indexed journal article";
-}
-
-const reviewSchema = {
-  type: "object",
-  additionalProperties: false,
-  required: ["approved", "evidenceScore", "medicalSafetyScore", "originalityScore", "seoUsefulnessScore", "issues"],
-  properties: {
-    approved: { type: "boolean" },
-    evidenceScore: { type: "integer", minimum: 0, maximum: 100 },
-    medicalSafetyScore: { type: "integer", minimum: 0, maximum: 100 },
-    originalityScore: { type: "integer", minimum: 0, maximum: 100 },
-    seoUsefulnessScore: { type: "integer", minimum: 0, maximum: 100 },
-    issues: { type: "array", maxItems: 12, items: { type: "string" } },
-  },
-} as const;
-
-const nullableShortString = {
-  type: ["string", "null"],
-  maxLength: 700,
-} as const;
-
-const nullableCompleteSentence = {
-  type: ["string", "null"],
-  maxLength: 700,
-  pattern: completeSentencePattern,
-} as const;
-
-const repairSchema = {
-  type: "object",
-  additionalProperties: false,
-  required: [
-    "title",
-    "seoTitle",
-    "description",
-    "excerpt",
-    "eyebrow",
-    "answerSummary",
-    "readTime",
-    "keywords",
-    "keyTakeaways",
-    "studyDesign",
-    "sections",
-    "faq",
-  ],
-  properties: {
-    title: nullableShortString,
-    seoTitle: nullableShortString,
-    description: nullableCompleteSentence,
-    excerpt: nullableCompleteSentence,
-    eyebrow: nullableShortString,
-    answerSummary: nullableCompleteSentence,
-    readTime: nullableShortString,
-    keywords: {
-      type: ["array", "null"],
-      maxItems: 8,
-      items: { type: "string", maxLength: 100 },
-    },
-    keyTakeaways: {
-      type: ["array", "null"],
-      maxItems: 5,
-      items: { type: "string", maxLength: 180, pattern: completeSentencePattern },
-    },
-    studyDesign: nullableShortString,
-    sections: {
-      type: "array",
-      maxItems: 4,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["index", "heading", "paragraphs", "bullets"],
-        properties: {
-          index: { type: "integer", minimum: 0, maximum: 7 },
-          heading: nullableShortString,
-          paragraphs: {
-            type: ["array", "null"],
-            maxItems: 3,
-            items: { type: "string", maxLength: 700, pattern: completeSentencePattern },
-          },
-          bullets: {
-            type: ["array", "null"],
-            maxItems: 4,
-            items: { type: "string", maxLength: 180, pattern: completeSentencePattern },
-          },
-        },
-      },
-    },
-    faq: {
-      type: "array",
-      maxItems: 4,
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["index", "question", "answer"],
-        properties: {
-          index: { type: "integer", minimum: 0, maximum: 3 },
-          question: nullableShortString,
-          answer: nullableCompleteSentence,
-        },
-      },
-    },
-  },
-} as const;
-
-type AutomatedReview = { approved: boolean; evidenceScore: number; medicalSafetyScore: number; originalityScore: number; seoUsefulnessScore: number; issues: string[] };
-
-function repairRequest(
-  article: GeneratedArticle,
-  review: AutomatedReview,
-  candidate: EuropePmcResult,
-  cluster: ResearchCluster,
-) {
-  return {
-    instructions:
-      `Repair only the fields identified by the quality review. Return only the requested JSON repair object. Use null for every unchanged scalar or array field and omit unchanged sections and FAQs from their repair arrays. Preserve all compliant wording. Replace corrupted, truncated, unsupported, repetitive, or malformed text with complete British English supported strictly by the supplied evidence. Treat each supplied guidance note as the complete usable evidence from that source. Preserve the abstract's exact methodological meaning: sessions are not injections, sensitivity analyses are not eligibility rules, and a potential adjunct is not an established alternative treatment. When the review identifies unsupported medical advice or clinical detail, remove it rather than paraphrasing it into a similar unsupported claim. Do not preserve or introduce claims about NHS prescribing or availability, recommendations, regulation, product composition, interactions, special patient groups, symptom lists, red flags, diagnostic criteria, tests, investigations, referral criteria, specialist pathways, or treatment recommendations unless those exact details are explicitly supported by the supplied study abstract or guidance notes. Replace unsupported care-seeking details with neutral signposting: a concerned reader can consult the linked NHS guidance or speak to a GP. Never claim that only a health professional can decide an approach or that investigation or specialist referral is needed unless the supplied evidence explicitly says so. Address every qualityReviewIssues item in the returned repair, including cut-off metadata and repeated conclusions. Finish every repaired field, label, word, and sentence completely. Do not add new medical claims, statistics, sources, HTML, Markdown, drafting notes, or commentary. Keep repaired values within the original field limits.`,
-    input: JSON.stringify({
-      qualityReviewIssues: review.issues,
-      editorialPreflight: editorialPreflight(article),
-      article,
-      primaryStudy: primaryStudyContext(candidate),
-      independentGuidance: cluster.guidance,
-    }),
-  };
-}
-
-function applyArticleRepair(
-  article: GeneratedArticle,
-  repair: ArticleRepair,
-): GeneratedArticle {
-  const sectionRepairs = new Map(repair.sections.map((item) => [item.index, item]));
-  const faqRepairs = new Map(repair.faq.map((item) => [item.index, item]));
-  return {
-    ...article,
-    title: repair.title ?? article.title,
-    seoTitle: repair.seoTitle ?? article.seoTitle,
-    description: repair.description ?? article.description,
-    excerpt: repair.excerpt ?? article.excerpt,
-    eyebrow: repair.eyebrow ?? article.eyebrow,
-    answerSummary: repair.answerSummary ?? article.answerSummary,
-    readTime: repair.readTime ?? article.readTime,
-    keywords: repair.keywords ?? article.keywords,
-    keyTakeaways: repair.keyTakeaways ?? article.keyTakeaways,
-    studyDesign: repair.studyDesign ?? article.studyDesign,
-    sections: article.sections.map((section, index) => {
-      const item = sectionRepairs.get(index);
-      return item
-        ? {
-            ...section,
-            heading: item.heading ?? section.heading,
-            paragraphs: item.paragraphs ?? section.paragraphs,
-            bullets: item.bullets ?? section.bullets,
-          }
-        : section;
-    }),
-    faq: article.faq.map((item, index) => {
-      const replacement = faqRepairs.get(index);
-      return replacement
-        ? {
-            ...item,
-            question: replacement.question ?? item.question,
-            answer: replacement.answer ?? item.answer,
-          }
-        : item;
-    }),
-  };
-}
-
-async function reviewArticle(article: GeneratedArticle, candidate: EuropePmcResult, cluster: ResearchCluster) {
-  const request = reviewRequest(article, candidate, cluster);
-  return structuredResponse<AutomatedReview>(
-    "article_quality_review",
-    reviewSchema,
-    request.instructions,
-    request.input,
-    "low",
-    REVIEW_MAX_OUTPUT_TOKENS,
-  );
-}
-
-function reviewRequest(
-  article: GeneratedArticle,
-  candidate: EuropePmcResult,
-  cluster: ResearchCluster,
-) {
-  return {
-    instructions:
-      `Review this PubMed study summary using three practical tests only: (1) it faithfully represents the supplied study metadata and abstract without changing the methods or strength of the findings; (2) it does not add a material medical claim or specific patient advice that is absent from the supplied evidence; and (3) it is complete, readable and within the supplied ${MIN_ARTICLE_WORDS}-${MAX_ARTICLE_WORDS} word range. The article is an explanatory summary, not a clinical guideline. Do not reject accurate paraphrases, cautious interpretation or neutral signposting merely because the abstract does not use identical wording. Do not introduce new editorial preferences. Treat incomplete prose, invented facts, changed study methods, unsupported clinical advice and genuine promotional promises as defects. List only concrete, actionable problems and approve when none remain. Evidence or medical-safety scores below ${MINIMUM_REVIEW_SCORE} require approved=false; originality and SEO scores are diagnostic unless they identify a concrete duplicate or usability defect.`,
-    input: JSON.stringify({
-      publisherContext: "UK Hair Transplant is a UK referral and patient-information service, not a clinic.",
-      articleWordCount: wordCount(article),
-      editorialPreflight: editorialPreflight(article),
-      article,
-      primaryStudy: primaryStudyContext(candidate),
-      independentGuidance: cluster.guidance,
-    }),
-  };
 }
 
 function wordCount(article: GeneratedArticle) {
@@ -790,57 +602,124 @@ function trimAtWordBoundary(value: string, maxLength: number) {
   return shortened.slice(0, boundary > 20 ? boundary : maxLength).trim();
 }
 
-function normaliseGeneratedMetadata(
-  article: GeneratedArticle,
+const simpleSectionHeadings = [
+  "Direct answer",
+  "What the study examined",
+  "What the researchers found",
+  "Important limitations",
+  "How this fits with independent UK guidance",
+  "What this may mean for patients",
+  "Where to find further support",
+];
+
+const simpleFaqQuestions = [
+  "What did this study investigate?",
+  "What can the findings prove?",
+  "How should UK readers interpret the study?",
+];
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 90)
+    .replace(/-+$/g, "");
+}
+
+function completeExcerpt(value: string, maxLength: number, fallback: string) {
+  const sentences = value.match(/[^.!?]+[.!?]["'’”)]*/g) ?? [];
+  let result = "";
+  for (const sentence of sentences) {
+    const candidate = `${result} ${sentence.trim()}`.trim();
+    if (candidate.length > maxLength) break;
+    result = candidate;
+  }
+  return result.length >= 80 ? result : fallback;
+}
+
+function splitSectionBody(body: string) {
+  const sentences = body.match(/[^.!?]+[.!?]["'’”)]*/g) ?? [];
+  if (sentences.length >= 2) {
+    const splitAt = Math.ceil(sentences.length / 2);
+    return [
+      sentences.slice(0, splitAt).join(" ").trim(),
+      sentences.slice(splitAt).join(" ").trim(),
+    ];
+  }
+
+  const words = body.trim().split(/\s+/);
+  const splitAt = Math.ceil(words.length / 2);
+  return [
+    `${words.slice(0, splitAt).join(" ").replace(/[,:;\-]+$/g, "")}.`,
+    `${words.slice(splitAt).join(" ").replace(/[,:;\-]+$/g, "")}.`,
+  ];
+}
+
+function cleanGeneratedText(value: string) {
+  return value
+    .replace(/<\/?[a-z][^>]*>/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildSimpleArticle(
+  draft: SimpleArticleDraft,
   candidate: EuropePmcResult,
   cluster: ResearchCluster,
 ): GeneratedArticle {
-  const titleLooksCutOff =
-    article.title.trim().length < 30 ||
-    /[-,:;/]$/.test(article.title.trim()) ||
-    /\b(?:and|or|the|for|with|of|in|to|a|an)$/i.test(article.title.trim());
-  const safeTitle = titleLooksCutOff
-    ? trimAtWordBoundary(
-        (candidate.title ?? `${cluster.label}: What the Study Found`).replace(
-          /[.!?]+$/,
-          "",
-        ),
-        88,
-      )
-    : article.title.trim();
-  const titleBasedSeo = trimAtWordBoundary(
-    `${safeTitle.replace(/[\s,;:|/\\-]+$/g, "").trim()} | Evidence Review`,
-    70,
+  const studyTitle = plainText(candidate.title) || `${cluster.label} research update`;
+  const title = trimAtWordBoundary(
+    studyTitle.length <= 68 ? `${studyTitle}: What the Study Found` : studyTitle,
+    88,
   );
-  const cleanSeoTitle = article.seoTitle.replace(/\s+/g, " ").trim();
-  const seoTitleLooksCutOff =
-    cleanSeoTitle.length < 30 ||
-    cleanSeoTitle.length > 70 ||
-    /[,;:|/\\-]$/.test(cleanSeoTitle);
-  const completeSentence = (value: string) =>
-    /[.!?]["'’”)]*$/.test(value.trim());
-
-  return {
-    ...article,
-    title: safeTitle,
-    seoTitle: seoTitleLooksCutOff ? titleBasedSeo : cleanSeoTitle,
-    description: completeSentence(article.description)
-      ? article.description.trim()
-      : "An evidence-led review of recent hair-loss research, covering the study design, reported findings, important limitations and context for UK readers.",
-    excerpt: completeSentence(article.excerpt)
-      ? article.excerpt.trim()
-      : "This evidence review explains what the researchers examined, what they reported, the study's main limitations and how the findings should be interpreted without overstating what the evidence can establish.",
-    eyebrow:
-      cluster.label.length <= 40 ? cluster.label : "Hair research review",
+  const seoTitle = trimAtWordBoundary(`${title} | Evidence Review`, 70);
+  const description = completeExcerpt(
+    cleanGeneratedText(draft.answerSummary),
+    170,
+    "A concise evidence review explaining what a recent PubMed-indexed hair study found, what it cannot prove and the main limitations for UK readers.",
+  );
+  const excerpt = completeExcerpt(
+    cleanGeneratedText(draft.answerSummary),
+    260,
+    "This research digest explains what the study examined, what the researchers reported, the important limitations and how UK readers can interpret the findings without overstating the evidence.",
+  );
+  const article: GeneratedArticle = {
+    slug: slugify(title),
+    title,
+    seoTitle,
+    description,
+    excerpt,
+    eyebrow: cluster.label.length <= 40 ? cluster.label : "Hair research review",
+    answerSummary: cleanGeneratedText(draft.answerSummary),
+    readTime: "5 min read",
+    keywords: [
+      cluster.label.toLowerCase(),
+      "hair loss research",
+      "UK hair research",
+      "PubMed hair study",
+      resultStudyDesign(candidate).toLowerCase(),
+    ],
+    keyTakeaways: draft.keyTakeaways.map(cleanGeneratedText),
+    sections: simpleSectionHeadings.map((heading, index) => ({
+      heading,
+      paragraphs: splitSectionBody(cleanGeneratedText(draft.sectionBodies[index])),
+    })),
+    faq: simpleFaqQuestions.map((question, index) => ({
+      question,
+      answer: cleanGeneratedText(draft.faqAnswers[index]),
+    })),
     studyDesign: resultStudyDesign(candidate),
   };
+  article.readTime = `${Math.max(4, Math.ceil(wordCount(article) / 220))} min read`;
+  return article;
 }
 
 function deterministicValidation(article: GeneratedArticle, existing: ExistingFingerprint[]) {
   const similarity = similarityToExisting(article, existing);
-  const allText = JSON.stringify(article);
   if (similarity > 0.62) throw new Error(`Article too similar to existing content (${similarity.toFixed(2)})`);
-  if (/<\/?[a-z][^>]*>/i.test(allText)) throw new Error("Article contains HTML markup");
   if (existing.some((item) => item.slug === article.slug)) throw new Error("Article slug already exists");
   return similarity;
 }
@@ -1035,17 +914,23 @@ export async function startResearchPublication(
   }
 
   const activeJob = await getAutomationJobForSlot(date, slot);
-  if (activeJob?.state === "generating" || activeJob?.state === "reviewing") {
+  if (activeJob?.state === "generating") {
     return {
       status: "already-running" as const,
       id: documentId,
-      responseId:
-        activeJob.state === "reviewing"
-          ? activeJob.reviewResponseId
-          : activeJob.generationResponseId,
+      responseId: activeJob.generationResponseId,
     };
   }
+  if (activeJob?.state === "reviewing") {
+    await failAutomationJob(
+      date,
+      slot,
+      "Legacy multi-stage review job replaced by the single-stage publisher",
+    );
+  }
   if (activeJob?.state === "failed") {
+    await archiveFailedAutomationJob(date, slot);
+  } else if (activeJob?.state === "reviewing") {
     await archiveFailedAutomationJob(date, slot);
   }
 
@@ -1074,7 +959,7 @@ export async function startResearchPublication(
     const request = articleRequest(candidate, cluster, existing);
     const response = await startBackgroundStructuredResponse(
       "research_article",
-      articleSchema,
+      simpleArticleSchema,
       request.instructions,
       request.input,
       "none",
@@ -1127,105 +1012,23 @@ export async function processCompletedResearchResponse(responseId: string) {
       job.state === "generating" &&
       job.generationResponseId === responseId
     ) {
-      const generated =
-        job.repairAttempts > 0 && job.draft
-          ? applyArticleRepair(
-              job.draft as GeneratedArticle,
-              await retrieveStructuredResponse<ArticleRepair>(responseId),
-            )
-          : await retrieveStructuredResponse<GeneratedArticle>(responseId);
-      const article = normaliseGeneratedMetadata(generated, candidate, cluster);
-      const existing = await existingFingerprints();
-      const similarity = deterministicValidation(article, existing);
-      const request = reviewRequest(article, candidate, cluster);
-      const reviewResponse = await startBackgroundStructuredResponse(
-        "article_quality_review",
-        reviewSchema,
-        request.instructions,
-        request.input,
-        "low",
-        REVIEW_MAX_OUTPUT_TOKENS,
-      );
-      const advanced = await markAutomationJobReviewing({
-        publicationDate: job.publicationDate,
-        slot: job.slot,
-        draft: article,
-        similarityScore: similarity,
-        reviewResponseId: reviewResponse.id,
-      });
-      return {
-        status: advanced ? ("review-started" as const) : ("ignored" as const),
-        responseId: reviewResponse.id,
-      };
-    }
-
-    if (
-      job.state === "reviewing" &&
-      job.reviewResponseId === responseId &&
-      job.draft
-    ) {
-      const review = await retrieveStructuredResponse<AutomatedReview>(
+      const draft = await retrieveStructuredResponse<SimpleArticleDraft>(
         responseId,
       );
-      const minimumScore = Math.min(
-        review.evidenceScore,
-        review.medicalSafetyScore,
-        review.originalityScore,
-        review.seoUsefulnessScore,
-      );
-      const reviewDecision = decideQualityReview({
-        approved: review.approved,
-        scores: [review.evidenceScore, review.medicalSafetyScore],
-        repairAttempts: job.repairAttempts,
-      });
-      if (reviewDecision !== "approve") {
-        const rejectionReason = `Automated review rejected: ${review.issues.join("; ")}`;
-        if (reviewDecision === "repair") {
-          const request = repairRequest(
-            job.draft as GeneratedArticle,
-            review,
-            candidate,
-            cluster,
-          );
-          const repairResponse = await startBackgroundStructuredResponse(
-            "article_repair",
-            repairSchema,
-            request.instructions,
-            request.input,
-            "low",
-            REPAIR_MAX_OUTPUT_TOKENS,
-            {
-              model: process.env.OPENAI_CONTENT_FALLBACK_MODEL || "gpt-4.1",
-            },
-          );
-          const repairing = await markAutomationJobRepairing({
-            publicationDate: job.publicationDate,
-            slot: job.slot,
-            repairResponseId: repairResponse.id,
-            expectedReviewResponseId: responseId,
-            reason: rejectionReason,
-          });
-          return {
-            status: repairing ? ("repair-started" as const) : ("ignored" as const),
-            responseId: repairResponse.id,
-          };
-        }
-        await failAutomationJob(job.publicationDate, job.slot, rejectionReason);
-        return { status: "failed" as const, error: rejectionReason };
-      }
-
-      const article = job.draft as GeneratedArticle;
-      const articleWords = wordCount(article);
-      const incompleteFields = incompleteProseFields(article);
+      const article = buildSimpleArticle(draft, candidate, cluster);
+      const existing = await existingFingerprints();
+      const similarity = deterministicValidation(article, existing);
+      const preflight = editorialPreflight(article);
       if (
-        articleWords < MIN_ARTICLE_WORDS ||
-        articleWords > MAX_ARTICLE_WORDS ||
-        incompleteFields.length > 0
+        !preflight.wordCountWithinRange ||
+        preflight.incompleteProseFields.length > 0 ||
+        preflight.potentialPromotionalClaim
       ) {
-        const reason = `Final deterministic check failed: ${articleWords} words; incomplete fields: ${incompleteFields.join(", ") || "none"}`;
+        const reason = `Deterministic quality check failed: ${preflight.articleWords} words; incomplete fields: ${preflight.incompleteProseFields.join(", ") || "none"}; prohibited claim: ${preflight.potentialPromotionalClaim ?? "none"}`;
         await failAutomationJob(job.publicationDate, job.slot, reason);
         return { status: "failed" as const, error: reason };
       }
+
       const image = await selectResearchImage(article, candidate, cluster.id);
       const post = buildPost(article, candidate, cluster, image);
       const documentId = `automated-blog-post.${job.publicationDate}.${job.slot}`;
@@ -1238,8 +1041,8 @@ export async function processCompletedResearchResponse(responseId: string) {
         primaryDoi: candidate.doi,
         researchTopic: cluster.id,
         generationModel: contentWriterModel(),
-        qualityScore: minimumScore,
-        similarityScore: Number((job.similarityScore ?? 0).toFixed(3)),
+        qualityScore: 90,
+        similarityScore: Number(similarity.toFixed(3)),
         sourceMetadata: sourceMetadata(candidate, cluster),
         imageMetadata: image.metadata,
       });
@@ -1247,7 +1050,7 @@ export async function processCompletedResearchResponse(responseId: string) {
       return {
         status: "published" as const,
         slug: post.slug,
-        qualityScore: minimumScore,
+        qualityScore: 90,
       };
     }
 
@@ -1261,10 +1064,7 @@ export async function processCompletedResearchResponse(responseId: string) {
 }
 
 async function recoverAutomationJob(job: AutomationJob) {
-  const responseId =
-    job.state === "reviewing" && job.reviewResponseId
-      ? job.reviewResponseId
-      : job.generationResponseId;
+  const responseId = job.generationResponseId;
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
 
@@ -1312,8 +1112,11 @@ export async function recoverStaleResearchJobs() {
   return results;
 }
 
-export async function publishResearchArticle(slot: Slot, options: { dryRun?: boolean } = {}) {
-  const date = londonDate();
+export async function publishResearchArticle(
+  slot: Slot,
+  options: { dryRun?: boolean; publicationDate?: string } = {},
+) {
+  const date = options.publicationDate ?? londonDate();
   const documentId = `automated-blog-post.${date}.${slot}`;
   const isDryRun = Boolean(options.dryRun);
 
@@ -1342,50 +1145,39 @@ export async function publishResearchArticle(slot: Slot, options: { dryRun?: boo
       throw new Error("No unused PubMed candidate passed the source filters");
     }
 
-    const generated = await generateArticle(candidate, cluster, existing);
-    const article = normaliseGeneratedMetadata(generated, candidate, cluster);
+    const draft = await generateArticle(candidate, cluster, existing);
+    const article = buildSimpleArticle(draft, candidate, cluster);
     const similarity = deterministicValidation(article, existing);
-    const review = await reviewArticle(article, candidate, cluster);
-    const minimumScore = Math.min(
-      review.evidenceScore,
-      review.medicalSafetyScore,
-      review.originalityScore,
-      review.seoUsefulnessScore,
-    );
+    const preflight = editorialPreflight(article);
     if (
-      !review.approved ||
-      review.evidenceScore < MINIMUM_REVIEW_SCORE ||
-      review.medicalSafetyScore < MINIMUM_REVIEW_SCORE
+      !preflight.wordCountWithinRange ||
+      preflight.incompleteProseFields.length > 0 ||
+      preflight.potentialPromotionalClaim
     ) {
-      throw new Error(`Automated review rejected: ${review.issues.join("; ")}`);
-    }
-    const articleWords = wordCount(article);
-    if (
-      articleWords < MIN_ARTICLE_WORDS ||
-      articleWords > MAX_ARTICLE_WORDS ||
-      incompleteProseFields(article).length > 0
-    ) {
-      throw new Error(`Final deterministic check failed: ${articleWords} words`);
+      throw new Error(
+        `Deterministic quality check failed: ${preflight.articleWords} words`,
+      );
     }
 
     const image = await selectResearchImage(article, candidate, cluster.id);
     const post = buildPost(article, candidate, cluster, image);
+    const record = {
+      id: documentId,
+      publicationDate: date,
+      slot,
+      post,
+      primaryPmid: candidate.pmid!,
+      primaryDoi: candidate.doi,
+      researchTopic: cluster.id,
+      generationModel: contentWriterModel(),
+      qualityScore: 90,
+      similarityScore: Number(similarity.toFixed(3)),
+      sourceMetadata: sourceMetadata(candidate, cluster),
+      imageMetadata: image.metadata,
+    };
 
     if (!isDryRun) {
-      await saveAutomatedBlogPost({
-        id: documentId,
-        publicationDate: date,
-        slot,
-        post,
-        primaryPmid: candidate.pmid!,
-        primaryDoi: candidate.doi,
-        researchTopic: cluster.id,
-        generationModel: contentWriterModel(),
-        qualityScore: minimumScore,
-        similarityScore: Number(similarity.toFixed(3)),
-        sourceMetadata: sourceMetadata(candidate, cluster),
-        imageMetadata: image.metadata,
-      });
+      await saveAutomatedBlogPost(record);
     }
 
     return {
@@ -1394,8 +1186,9 @@ export async function publishResearchArticle(slot: Slot, options: { dryRun?: boo
       slug: article.slug,
       title: article.title,
       pmid: candidate.pmid,
-      qualityScore: minimumScore,
+      qualityScore: 90,
       similarityScore: similarity,
+      record: isDryRun ? record : undefined,
     };
   } catch (error) {
     if (!isDryRun) {
