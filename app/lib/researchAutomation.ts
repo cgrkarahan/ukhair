@@ -707,7 +707,11 @@ function incompleteProseFields(article: GeneratedArticle) {
 function editorialPreflight(article: GeneratedArticle) {
   const allText = JSON.stringify(article);
   const articleWords = wordCount(article);
-  const promotionalClaim = allText.match(
+  const claimScreenText = allText.replace(
+    /\b(?:no|not|never|cannot|can't|isn't|aren't)\b[^.!?]{0,60}\b100% (?:safe|effective|successful?)\b/gi,
+    "",
+  );
+  const promotionalClaim = claimScreenText.match(
     /\b(?:guaranteed results?|results? (?:are|is) guaranteed|risk[- ]free treatment|100% (?:safe|effective|success)|clinically proven to|the best treatment|completely safe)\b/i,
   );
   return {
