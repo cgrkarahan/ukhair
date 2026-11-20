@@ -315,8 +315,8 @@ function responseText(payload: unknown) {
 }
 
 async function structuredResponse<T>(
-  _name: string,
-  _schema: Record<string, unknown>,
+  name: string,
+  schema: Record<string, unknown>,
   instructions: string,
   input: string,
   reasoningEffort: "none" | "low" | "medium" = "low",
@@ -338,6 +338,14 @@ async function structuredResponse<T>(
       input,
       store: false,
       max_output_tokens: maxOutputTokens,
+      text: {
+        format: {
+          type: "json_schema",
+          name,
+          strict: true,
+          schema,
+        },
+      },
     }),
     cache: "no-store",
   });
@@ -355,8 +363,8 @@ async function structuredResponse<T>(
 }
 
 async function startBackgroundStructuredResponse(
-  _name: string,
-  _schema: Record<string, unknown>,
+  name: string,
+  schema: Record<string, unknown>,
   instructions: string,
   input: string,
   reasoningEffort: "none" | "low" | "medium" = "low",
@@ -373,6 +381,14 @@ async function startBackgroundStructuredResponse(
     background: true,
     store: true,
     max_output_tokens: maxOutputTokens,
+    text: {
+      format: {
+        type: "json_schema",
+        name,
+        strict: true,
+        schema,
+      },
+    },
   };
   if (!model.startsWith("gpt-4")) {
     body.reasoning = { effort: reasoningEffort };
@@ -427,10 +443,21 @@ function parseJsonResponse<T>(text: string): T {
   if (start === -1 || end <= start) {
     throw new Error("OpenAI returned invalid JSON output");
   }
-  return JSON.parse(withoutFence.slice(start, end + 1)) as T;
+  const json = withoutFence.slice(start, end + 1);
+  try {
+    return JSON.parse(json) as T;
+  } catch (error) {
+    // A small number of legacy responses omitted the closing keyTakeaways
+    // bracket immediately before sectionBodies. Repair only that exact shape;
+    // current responses use strict Structured Outputs and never enter here.
+    const repaired = json.replace(
+      /("keyTakeaways"\s*:\s*\[[\s\S]*?)(,\s*"sectionBodies"\s*:)/,
+      "$1]$2",
+    );
+    if (repaired === json) throw error;
+    return JSON.parse(repaired) as T;
+  }
 }
-
-const completeSentencePattern = "[.!?][\\\"'’”)]*$";
 
 const simpleArticleSchema = {
   type: "object",
@@ -439,45 +466,143 @@ const simpleArticleSchema = {
   properties: {
     answerSummary: {
       type: "string",
-      minLength: 250,
-      maxLength: 550,
-      pattern: completeSentencePattern,
     },
     keyTakeaways: {
       type: "array",
-      minItems: 4,
-      maxItems: 4,
       items: {
         type: "string",
-        minLength: 45,
-        maxLength: 150,
-        pattern: completeSentencePattern,
       },
     },
     sectionBodies: {
       type: "array",
-      minItems: 7,
-      maxItems: 7,
       items: {
         type: "string",
-        minLength: 500,
-        maxLength: 850,
-        pattern: completeSentencePattern,
       },
     },
     faqAnswers: {
       type: "array",
-      minItems: 3,
-      maxItems: 3,
       items: {
         type: "string",
-        minLength: 140,
-        maxLength: 320,
-        pattern: completeSentencePattern,
       },
     },
   },
 } as const;
+
+function validateSimpleArticleDraft(value: unknown): SimpleArticleDraft {
+  const errors: string[] = [];
+  const draft = value as Partial<SimpleArticleDraft> | null;
+  if (!draft || typeof draft.answerSummary !== "string" || !draft.answerSummary.trim()) {
+    errors.push("answerSummary must be a non-empty string");
+  }
+
+  const expectedArrays = [
+    ["keyTakeaways", draft?.keyTakeaways, 4],
+    ["sectionBodies", draft?.sectionBodies, 7],
+    ["faqAnswers", draft?.faqAnswers, 3],
+  ] as const;
+
+  for (const [name, items, expectedLength] of expectedArrays) {
+    if (!Array.isArray(items) || items.length !== expectedLength) {
+      errors.push(`${name} must contain exactly ${expectedLength} items`);
+      continue;
+    }
+    if (items.some((item) => typeof item !== "string" || !item.trim())) {
+      errors.push(`${name} must contain only non-empty strings`);
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`OpenAI returned an invalid article structure: ${errors.join("; ")}`);
+  }
+  return draft as SimpleArticleDraft;
+}
+
+function normaliseLegacyArticleDraft(value: unknown) {
+  if (!value || typeof value !== "object") return value;
+  const draft = value as Partial<SimpleArticleDraft>;
+  return {
+    ...draft,
+    keyTakeaways: Array.isArray(draft.keyTakeaways)
+      ? draft.keyTakeaways.slice(0, 4)
+      : draft.keyTakeaways,
+    sectionBodies: Array.isArray(draft.sectionBodies)
+      ? draft.sectionBodies.slice(0, 7)
+      : draft.sectionBodies,
+    faqAnswers: Array.isArray(draft.faqAnswers)
+      ? draft.faqAnswers.slice(0, 3)
+      : draft.faqAnswers,
+  };
+}
+
+const curatedLegacyImages: Record<string, ResearchImageSelection> = {
+  resp_0e95d7df2418cfe4006afddbecdbf087d2b0f717dfeb957c45: {
+    imageSrc:
+      "https://images.pexels.com/photos/15415401/pexels-photo-15415401.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    imageAlt: "Overhead view of a woman with long hair eating a fresh salad",
+    imagePosition: "center",
+    credit: {
+      label: "Photo by Mustafa Erdağ via Pexels",
+      href: "https://www.pexels.com/photo/overhead-shot-of-a-woman-eating-a-salad-15415401/",
+      licenceLabel: "Pexels licence",
+      licenceHref: "https://www.pexels.com/license/",
+    },
+    metadata: {
+      provider: "pexels",
+      sourceId: "15415401",
+      source:
+        "https://www.pexels.com/photo/overhead-shot-of-a-woman-eating-a-salad-15415401/",
+      originalUrl:
+        "https://images.pexels.com/photos/15415401/pexels-photo-15415401.jpeg",
+      creator: "Mustafa Erdağ",
+      licence: "Pexels licence",
+      selection: "Manually approved editorial image",
+    },
+  },
+  resp_0c05c1a6b9519cbd006afe966cf9d487d2b8c0924faef3fe71: {
+    imageSrc:
+      "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA0L3drMzI5MzAxMzYtaW1hZ2Uta3A2Y211ZWYuanBn.jpg",
+    imageAlt: "Gloved laboratory hand holding a blood collection tube",
+    imagePosition: "center",
+    credit: {
+      label: "Public-domain image via Rawpixel",
+      href: "https://www.rawpixel.com/image/3338342/free-photo-image-blood-collection-tube-cc0-creative-commons",
+      licenceLabel: "CC0",
+      licenceHref: "https://creativecommons.org/publicdomain/zero/1.0/",
+    },
+    metadata: {
+      provider: "rawpixel",
+      sourceId: "3338342",
+      source:
+        "https://www.rawpixel.com/image/3338342/free-photo-image-blood-collection-tube-cc0-creative-commons",
+      originalUrl:
+        "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA0L3drMzI5MzAxMzYtaW1hZ2Uta3A2Y211ZWYuanBn.jpg",
+      licence: "cc0",
+      selection: "Manually approved editorial image",
+    },
+  },
+  resp_0967b509a97fe93a006affe7e443c887d2a83eab462d260210: {
+    imageSrc:
+      "https://images.rawpixel.com/editor_1024/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvcHgxMzQxMTA0LWltYWdlLWt3dncwd3ZoLmpwZw.jpg",
+    imageAlt: "Close-up view of a laboratory microscope",
+    imagePosition: "center",
+    credit: {
+      label: "Public-domain image via Rawpixel",
+      href: "https://www.rawpixel.com/image/5911864/microscope-lab-free-public-domain-cc0-image",
+      licenceLabel: "CC0",
+      licenceHref: "https://creativecommons.org/publicdomain/zero/1.0/",
+    },
+    metadata: {
+      provider: "rawpixel",
+      sourceId: "5911864",
+      source:
+        "https://www.rawpixel.com/image/5911864/microscope-lab-free-public-domain-cc0-image",
+      originalUrl:
+        "https://images.rawpixel.com/editor_1024/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvcHgxMzQxMTA0LWltYWdlLWt3dncwd3ZoLmpwZw.jpg",
+      licence: "cc0",
+      selection: "Manually approved editorial image",
+    },
+  },
+};
 
 function primaryStudyContext(candidate: EuropePmcResult) {
   return {
@@ -756,17 +881,25 @@ async function unusedCandidates(
       ...attempted.dois,
     ],
   );
-  return (await fetchPubMedCandidates(cluster)).filter(
-    (candidate) =>
+  return (await fetchPubMedCandidates(cluster)).filter((candidate) => {
+    const candidateTitle = (candidate.title ?? "").toLowerCase();
+    const isHairFocused =
+      /\b(?:hair|alopecia|scalp|follicle|follicular|baldness|androgenetic)\b/.test(
+        candidateTitle,
+      );
+    return (
+      isHairFocused &&
       !usedPmids.has(candidate.pmid) &&
-      (!candidate.doi || !usedDois.has(candidate.doi.toLowerCase())),
-  );
+      (!candidate.doi || !usedDois.has(candidate.doi.toLowerCase()))
+    );
+  });
 }
 
 function selectFallbackResearchImage(
   article: GeneratedArticle,
   candidate: EuropePmcResult,
-): ResearchImageSelection {
+  usedSources: Set<string>,
+): ResearchImageSelection | null {
   const context = [
     article.title,
     article.seoTitle,
@@ -781,7 +914,7 @@ function selectFallbackResearchImage(
     .toLowerCase();
 
   if (/\bashwagandha\b|\bwithania somnifera\b/.test(context)) {
-    return {
+    const image = {
       imageSrc: "/images/blog/ashwagandha-hair-loss-trial-2026.jpg",
       imageAlt:
         "Ashwagandha roots and leaves beside a research notebook, magnifying glass and natural hair strands",
@@ -792,7 +925,8 @@ function selectFallbackResearchImage(
         licence: "Site-owned asset",
         selection: "Subject-specific fallback",
       },
-    };
+    } satisfies ResearchImageSelection;
+    if (!usedSources.has(image.imageSrc)) return image;
   }
 
   if (
@@ -800,7 +934,7 @@ function selectFallbackResearchImage(
       context,
     )
   ) {
-    return {
+    const image = {
       imageSrc:
         "/images/blog/prp-iprf-cgf-female-pattern-hair-loss.jpg",
       imageAlt:
@@ -812,10 +946,11 @@ function selectFallbackResearchImage(
         licence: "Site-owned asset",
         selection: "Subject-specific fallback",
       },
-    };
+    } satisfies ResearchImageSelection;
+    if (!usedSources.has(image.imageSrc)) return image;
   }
 
-  return {
+  const neutralFallback = {
     imageSrc: "/images/blog/hair-research-editorial.jpg",
     imageAlt:
       "Natural hair strands examined with a magnifying glass beside a research notebook and microscope",
@@ -826,7 +961,8 @@ function selectFallbackResearchImage(
       licence: "Site-owned asset",
       selection: "Neutral research fallback",
     },
-  };
+  } satisfies ResearchImageSelection;
+  return usedSources.has(neutralFallback.imageSrc) ? null : neutralFallback;
 }
 
 async function selectResearchImage(
@@ -834,21 +970,28 @@ async function selectResearchImage(
   candidate: EuropePmcResult,
   researchTopic: string,
 ) {
+  const usedImages = await getUsedResearchImages();
   try {
-    const usedImages = await getUsedResearchImages();
-    return (
-      (await findFreeResearchImage(
-        article,
-        researchTopic,
-        usedImages.ids,
-        usedImages.sources,
-      )) ??
-      selectFallbackResearchImage(article, candidate)
+    const licensedImage = await findFreeResearchImage(
+      article,
+      researchTopic,
+      usedImages.ids,
+      usedImages.sources,
     );
+    if (licensedImage) return licensedImage;
   } catch (error) {
     console.warn("Free research image selection failed; using fallback", error);
-    return selectFallbackResearchImage(article, candidate);
   }
+
+  const fallback = selectFallbackResearchImage(
+    article,
+    candidate,
+    usedImages.sources,
+  );
+  if (fallback) return fallback;
+  throw new Error(
+    "No unused, relevant and licence-safe image was available for this article",
+  );
 }
 
 function buildPost(
@@ -1014,11 +1157,13 @@ export async function processCompletedResearchResponse(responseId: string) {
 
   try {
     if (
-      job.state === "generating" &&
+      (job.state === "generating" || job.state === "failed") &&
       job.generationResponseId === responseId
     ) {
-      const draft = await retrieveStructuredResponse<SimpleArticleDraft>(
-        responseId,
+      const draft = validateSimpleArticleDraft(
+        normaliseLegacyArticleDraft(
+          await retrieveStructuredResponse<SimpleArticleDraft>(responseId),
+        ),
       );
       const article = buildSimpleArticle(draft, candidate, cluster);
       const existing = await existingFingerprints();
@@ -1034,7 +1179,9 @@ export async function processCompletedResearchResponse(responseId: string) {
         return { status: "failed" as const, error: reason };
       }
 
-      const image = await selectResearchImage(article, candidate, cluster.id);
+      const image =
+        curatedLegacyImages[responseId] ??
+        (await selectResearchImage(article, candidate, cluster.id));
       const post = buildPost(article, candidate, cluster, image);
       const documentId = `automated-blog-post.${job.publicationDate}.${job.slot}`;
       await saveAutomatedBlogPost({

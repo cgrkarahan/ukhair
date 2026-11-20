@@ -285,15 +285,35 @@ async function chooseWithVision(
 async function originalImageIsReachable(image: OpenverseImage) {
   if (!image.url) return false;
   try {
-    const response = await fetch(image.url, {
+    const headResponse = await fetch(image.url, {
       method: "HEAD",
       cache: "no-store",
       redirect: "follow",
       signal: AbortSignal.timeout(5_000),
     });
-    const contentType = response.headers.get("content-type") ?? "";
+    const headContentType = headResponse.headers.get("content-type") ?? "";
+    if (
+      headResponse.ok &&
+      (!headContentType || headContentType.toLowerCase().startsWith("image/"))
+    ) {
+      return true;
+    }
+  } catch {
+    // Some image hosts reject HEAD requests even though the file is available.
+  }
+
+  try {
+    const getResponse = await fetch(image.url, {
+      method: "GET",
+      headers: { Range: "bytes=0-0" },
+      cache: "no-store",
+      redirect: "follow",
+      signal: AbortSignal.timeout(8_000),
+    });
+    const contentType = getResponse.headers.get("content-type") ?? "";
+    await getResponse.body?.cancel();
     return (
-      response.ok &&
+      getResponse.ok &&
       (!contentType || contentType.toLowerCase().startsWith("image/"))
     );
   } catch {

@@ -103,6 +103,19 @@ const automatedImageCorrections: Record<
   Pick<BlogPost, "imageSrc" | "imageAlt" | "imagePosition"> &
     Partial<Pick<BlogPost, "imageCredit">>
 > = {
+  "pregnancy-outcome-after-first-trimester-exposure-to-jak-inhibitors-an-evaluation-of": {
+    imageSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Pills_in_blister_pack.jpg/1280px-Pills_in_blister_pack.jpg",
+    imageAlt:
+      "Colourful medicine capsules and tablets arranged in blister packs",
+    imagePosition: "center",
+    imageCredit: {
+      label: "CC0 image via Wikimedia Commons",
+      href: "https://commons.wikimedia.org/wiki/File:Pills_in_blister_pack.jpg",
+      licenceLabel: "CC0",
+      licenceHref: "https://creativecommons.org/publicdomain/zero/1.0/",
+    },
+  },
   "association-of-knowledge-dietary-behaviors-and-attitudes-toward-hair-problems-among": {
     imageSrc:
       "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L3B4MTIzNTA5MS1pbWFnZS1rd3Z5MmR4My5qcGc.jpg",
