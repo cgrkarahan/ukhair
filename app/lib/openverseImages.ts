@@ -41,7 +41,10 @@ type VisionDecision = {
   reason: string;
 };
 
-const allowedLicences = new Set(["cc0", "pdm"]);
+// CC BY and CC BY-SA permit commercial editorial use when attribution is
+// retained. Supporting them substantially broadens the relevant medical and
+// scientific image pool without admitting non-commercial licences.
+const allowedLicences = new Set(["cc0", "pdm", "by", "by-sa"]);
 
 function normaliseQuery(value: string) {
   return value
@@ -156,8 +159,16 @@ async function searchWikimediaCommons(query: string) {
     const info = page.imageinfo?.[0];
     const metadata = info?.extmetadata ?? {};
     const licence = plainMetadata(metadata.LicenseShortName?.value).toLowerCase();
-    const isPublicDomain = licence.includes("public domain") || licence.includes("cc0");
-    if (!page.pageid || !info?.url || !info.thumburl || !isPublicDomain) return [];
+    const normalisedLicence = licence.includes("public domain")
+      ? "pdm"
+      : licence.includes("cc0")
+        ? "cc0"
+        : licence.includes("cc by-sa")
+          ? "by-sa"
+          : licence.includes("cc by")
+            ? "by"
+            : null;
+    if (!page.pageid || !info?.url || !info.thumburl || !normalisedLicence) return [];
     return [{
       id: `wikimedia:${page.pageid}`,
       title: plainMetadata(metadata.ObjectName?.value) || page.title?.replace(/^File:/, ""),
@@ -166,7 +177,7 @@ async function searchWikimediaCommons(query: string) {
       thumbnail: info.thumburl,
       creator: plainMetadata(metadata.Artist?.value) || undefined,
       creator_url: metadata.Credit?.value,
-      license: licence.includes("cc0") ? "cc0" : "pdm",
+      license: normalisedLicence,
       license_url: metadata.LicenseUrl?.value,
       provider: "wikimedia",
       source: "wikimedia",

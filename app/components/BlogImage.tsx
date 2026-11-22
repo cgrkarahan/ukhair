@@ -17,10 +17,11 @@ export default function BlogImage({
   style,
   loading = "lazy",
 }: BlogImageProps) {
-  if (/^https:\/\//i.test(src)) {
+  if (/^https:\/\//i.test(src) || src.startsWith("/api/research-image")) {
     return (
-      // Openverse originals intentionally stay remote so a new article does
-      // not require a code deployment. Selection is restricted server-side.
+      // Licensed remote originals and article-specific fallback illustrations
+      // intentionally bypass Next image optimisation, so publishing never
+      // requires a code deployment just to add an image.
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}

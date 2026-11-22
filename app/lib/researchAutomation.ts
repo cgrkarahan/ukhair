@@ -535,6 +535,53 @@ function normaliseLegacyArticleDraft(value: unknown) {
 }
 
 const curatedLegacyImages: Record<string, ResearchImageSelection> = {
+  resp_0edfe817871f25d6006b028ae43e6487d2839941eb3a38157c: {
+    imageSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/1/1d/Plant_cell_under_microscope.jpg",
+    imageAlt: "Green plant cells viewed through a microscope",
+    imagePosition: "center",
+    credit: {
+      label: "Image by Schminnte via Wikimedia Commons",
+      href: "https://commons.wikimedia.org/?curid=127470463",
+      licenceLabel: "CC BY-SA 4.0",
+      licenceHref: "https://creativecommons.org/licenses/by-sa/4.0",
+    },
+    metadata: {
+      provider: "wikimedia",
+      sourceId: "127470463",
+      source: "https://commons.wikimedia.org/?curid=127470463",
+      originalUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/1/1d/Plant_cell_under_microscope.jpg",
+      creator: "Schminnte",
+      licence: "CC BY-SA 4.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0",
+      selection: "Manually verified subject-specific image",
+    },
+  },
+  resp_02d14f5773321e97006b030e58caf087d1b24767bc5e784ab6: {
+    imageSrc:
+      "https://upload.wikimedia.org/wikipedia/commons/f/fd/Hair_follicle_long_400_02.jpg",
+    imageAlt:
+      "Microscope image showing a longitudinal section of a human scalp hair follicle",
+    imagePosition: "center",
+    credit: {
+      label: "Image by Ganímedes via Wikimedia Commons",
+      href: "https://commons.wikimedia.org/?curid=30081804",
+      licenceLabel: "CC BY-SA 3.0",
+      licenceHref: "https://creativecommons.org/licenses/by-sa/3.0",
+    },
+    metadata: {
+      provider: "wikimedia",
+      sourceId: "30081804",
+      source: "https://commons.wikimedia.org/?curid=30081804",
+      originalUrl:
+        "https://upload.wikimedia.org/wikipedia/commons/f/fd/Hair_follicle_long_400_02.jpg",
+      creator: "Ganímedes",
+      licence: "CC BY-SA 3.0",
+      licenceUrl: "https://creativecommons.org/licenses/by-sa/3.0",
+      selection: "Manually verified subject-specific image",
+    },
+  },
   resp_0e95d7df2418cfe4006afddbecdbf087d2b0f717dfeb957c45: {
     imageSrc:
       "https://images.pexels.com/photos/15415401/pexels-photo-15415401.jpeg?auto=compress&cs=tinysrgb&w=1600",
@@ -908,6 +955,7 @@ async function unusedCandidates(
 function selectFallbackResearchImage(
   article: GeneratedArticle,
   candidate: EuropePmcResult,
+  researchTopic: string,
   usedSources: Set<string>,
 ): ResearchImageSelection | null {
   const context = [
@@ -960,19 +1008,19 @@ function selectFallbackResearchImage(
     if (!usedSources.has(image.imageSrc)) return image;
   }
 
+  const generatedImageSrc = `/api/research-image?topic=${encodeURIComponent(researchTopic)}&seed=${encodeURIComponent(article.slug)}`;
   const neutralFallback = {
-    imageSrc: "/images/blog/hair-research-editorial.jpg",
-    imageAlt:
-      "Natural hair strands examined with a magnifying glass beside a research notebook and microscope",
+    imageSrc: generatedImageSrc,
+    imageAlt: "Abstract editorial illustration of hair and laboratory research",
     imagePosition: "center",
     metadata: {
-      provider: "first-party",
-      source: "/images/blog/hair-research-editorial.jpg",
+      provider: "first-party-generated",
+      source: generatedImageSrc,
       licence: "Site-owned asset",
-      selection: "Neutral research fallback",
+      selection: "Deterministic article-specific research fallback",
     },
   } satisfies ResearchImageSelection;
-  return usedSources.has(neutralFallback.imageSrc) ? null : neutralFallback;
+  return neutralFallback;
 }
 
 async function selectResearchImage(
@@ -996,6 +1044,7 @@ async function selectResearchImage(
   const fallback = selectFallbackResearchImage(
     article,
     candidate,
+    researchTopic,
     usedImages.sources,
   );
   if (fallback) return fallback;
