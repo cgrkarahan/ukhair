@@ -1148,6 +1148,16 @@ export async function processCompletedResearchResponse(responseId: string) {
   const job = await getAutomationJobByResponseId(responseId);
   if (!job) return { status: "untracked-response" as const };
 
+  if (job.state === "published") {
+    const existing = await getPublishedPostForSlot(
+      job.publicationDate,
+      job.slot,
+    );
+    return existing
+      ? { status: "already-published" as const, slug: existing.slug }
+      : { status: "published-record-missing" as const };
+  }
+
   const candidate = job.candidate as EuropePmcResult;
   const cluster = clusters.find((item) => item.id === job.clusterId);
   if (!cluster) {
@@ -1161,7 +1171,9 @@ export async function processCompletedResearchResponse(responseId: string) {
 
   try {
     if (
-      (job.state === "generating" || job.state === "failed") &&
+      (job.state === "generating" ||
+        job.state === "reviewing" ||
+        job.state === "failed") &&
       job.generationResponseId === responseId
     ) {
       const draft = validateSimpleArticleDraft(

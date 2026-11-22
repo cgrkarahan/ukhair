@@ -610,6 +610,29 @@ export async function getAutomatedBlogPostBySlug(
   }
 }
 
+export async function removeAutomatedBlogPostBySlug(slug: string) {
+  const sql = database();
+  const rows = (await sql`
+    SELECT id
+    FROM automated_blog_posts
+    WHERE slug = ${slug}
+    LIMIT 1
+  `) as Array<{ id: string }>;
+  const post = rows[0];
+  if (!post) return { removed: false as const };
+
+  await sql`
+    UPDATE automated_publish_slots
+    SET post_id = NULL
+    WHERE post_id = ${post.id}
+  `;
+  await sql`
+    DELETE FROM automated_blog_posts
+    WHERE id = ${post.id}
+  `;
+  return { removed: true as const, id: post.id };
+}
+
 export async function getAutomatedBlogFingerprints(): Promise<
   AutomatedBlogFingerprint[]
 > {
